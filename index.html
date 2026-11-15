@@ -26,7 +26,7 @@ button,select,input,label,summary{touch-action:manipulation;-webkit-tap-highligh
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .band{background:var(--band);color:#fff;padding:26px max(4vw,16px) 0}
 .in{max-width:1320px;margin:0 auto}
-h1{font-size:clamp(30px,3.8vw,46px);line-height:1.05;letter-spacing:-.02em;font-weight:800;margin:0 0 10px;text-wrap:balance}
+h1{font-size:clamp(30px,3.8vw,46px);line-height:1.05;letter-spacing:-.02em;font-weight:800;margin:0 0 18px;text-wrap:balance}
 .lede{margin:0 0 20px;max-width:68ch;color:#dfe3ff}
 .chs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px}
 .chs::-webkit-scrollbar{display:none}
@@ -53,6 +53,8 @@ h1{font-size:clamp(30px,3.8vw,46px);line-height:1.05;letter-spacing:-.02em;font-
 .ib svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .cvb{position:relative;line-height:0}
 canvas{display:block;width:100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#cv{position:relative;z-index:1}
+#gl{position:absolute;left:0;top:0;display:none}
 .panel{background:var(--panel);border-radius:16px;padding:18px}
 .hint{margin:0 0 14px;font-size:15px;line-height:1.45;padding:10px 12px;border-radius:10px;background:var(--bg);border:1.5px dashed var(--line)}
 .lbl{display:block;font-size:14px;color:var(--mute);margin:0 0 4px}
@@ -92,13 +94,12 @@ details p{margin:8px 0 0!important;color:var(--mute)}
 .foot{max-width:1320px;margin:0 auto;padding:0 max(4vw,16px) 40px;color:var(--mute);font-size:14px}
 .foot p{margin:0;max-width:90ch;border-top:1.5px solid var(--line);padding-top:16px}
 @media (max-width:1000px){.lab{grid-template-columns:minmax(0,1fr)}.stage{position:sticky;top:0;z-index:5;box-shadow:0 10px 18px -16px rgba(0,0,0,.55)}.ctls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;align-items:start}.info{grid-template-columns:minmax(0,1fr);gap:20px}}
-@media (max-width:600px){.band{padding-top:20px}.lede{font-size:15px}.ctls{grid-template-columns:minmax(0,1fr)}.sh{padding:6px 8px 6px 12px}.sh h2{font-size:17px}.sh p{display:none}.sims button{font-size:14px;padding:8px 12px}}
+@media (max-width:600px){.stage{margin:0 calc(-1*max(4vw,16px));border-radius:0;border-left:0;border-right:0}.band{padding-top:20px}.lede{font-size:15px}.ctls{grid-template-columns:minmax(0,1fr)}.sh{padding:6px 8px 6px 12px}.sh h2{font-size:17px}.sh p{display:none}.sims button{font-size:14px;padding:8px 12px}}
 </style>
 </head>
 <body>
 <header class="band"><div class="in">
 <h1>Phòng thí nghiệm Vật lý 11</h1>
-<p class="lede">14 mô phỏng tương tác cho bốn chương của chương trình Vật lý 11 mới (GDPT 2018), dùng chung cho cả ba bộ sách. Kéo thanh trượt, quan sát hiện tượng, rồi tự kiểm tra bằng các câu hỏi dự đoán bên dưới.</p>
 <nav class="chs" id="chs" role="tablist" aria-label="Các chương"></nav>
 </div></header>
 <main class="wrap">
@@ -107,7 +108,7 @@ details p{margin:8px 0 0!important;color:var(--mute)}
 <section class="stage">
 <div class="sh"><div><h2 id="st"></h2><p id="sp"></p></div>
 <div class="tp"><button class="ib" id="play" aria-label="Tạm dừng"></button><button class="ib" id="rst" aria-label="Chạy lại từ đầu"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg></button></div></div>
-<div class="cvb"><canvas id="cv" role="img"></canvas></div>
+<div class="cvb"><canvas id="gl" aria-hidden="true"></canvas><canvas id="cv" role="img"></canvas></div>
 </section>
 <aside class="panel">
 <p class="hint" id="hint" hidden></p>
@@ -175,7 +176,10 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       g2.fillStyle = col;
       g2.fillText(s, x, y);
     }, paper = function(g2, W2, H2, C2) {
-      g2.fillStyle = C2.bg;
+      const gd = g2.createLinearGradient(0, 0, 0, H2);
+      gd.addColorStop(0, C2.dark ? "#141a38" : "#ffffff");
+      gd.addColorStop(1, C2.dark ? "#0a0e1e" : "#eef2fc");
+      g2.fillStyle = gd;
       g2.fillRect(0, 0, W2, H2);
       g2.lineWidth = 1;
       for (const [st, col] of [[10, C2.g1], [50, C2.g2]]) {
@@ -191,6 +195,11 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         }
         g2.stroke();
       }
+      const vg = g2.createRadialGradient(W2 / 2, H2 * 0.42, Math.min(W2, H2) * 0.3, W2 / 2, H2 / 2, Math.max(W2, H2) * 0.75);
+      vg.addColorStop(0, "rgba(0,0,0,0)");
+      vg.addColorStop(1, C2.dark ? "rgba(0,0,0,.35)" : "rgba(30,45,110,.07)");
+      g2.fillStyle = vg;
+      g2.fillRect(0, 0, W2, H2);
     }, arrow = function(g2, x1, y1, x2, y2, col, w = 2, h = 9) {
       const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
       if (L < 1) return;
@@ -210,25 +219,160 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       g2.closePath();
       g2.fill();
     }, spring = function(g2, x1, y1, x2, y2, n, amp, col, w = 2) {
-      const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, px = -uy, py = ux, ld = Math.min(10, L * 0.12), sg = (L - 2 * ld) / n;
-      g2.strokeStyle = col;
-      g2.lineWidth = w;
-      g2.lineJoin = "round";
+      const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, px = -uy, py = ux, ld = Math.min(10, L * 0.12), N = Math.max(8, n * 14), base = C.dark ? "#a3abc4" : "#6f7891", P = (i) => {
+        const s = i / N, a = TAU * n * s, d = ld + (L - 2 * ld) * s + Math.cos(a) * amp * 0.3, o = Math.sin(a) * amp;
+        return [x1 + ux * d + px * o, y1 + uy * d + py * o, Math.cos(a)];
+      };
       g2.lineCap = "round";
+      g2.lineJoin = "round";
+      g2.strokeStyle = base;
+      g2.lineWidth = w * 1.1;
       g2.beginPath();
       g2.moveTo(x1, y1);
       g2.lineTo(x1 + ux * ld, y1 + uy * ld);
-      for (let i = 0; i < n; i++) {
-        const s = ld + sg * (i + 0.5), k = i % 2 ? -amp : amp;
-        g2.lineTo(x1 + ux * s + px * k, y1 + uy * s + py * k);
-      }
-      g2.lineTo(x2 - ux * ld, y2 - uy * ld);
+      g2.moveTo(x2 - ux * ld, y2 - uy * ld);
       g2.lineTo(x2, y2);
       g2.stroke();
+      const seg = (front, col2, lw) => {
+        g2.strokeStyle = col2;
+        g2.lineWidth = lw;
+        g2.beginPath();
+        for (let i = 0; i < N; i++) {
+          const a = P(i), b = P(i + 1);
+          if (a[2] >= 0 === front) {
+            g2.moveTo(a[0], a[1]);
+            g2.lineTo(b[0], b[1]);
+          }
+        }
+        g2.stroke();
+      };
+      seg(false, mixc(base, "#000000", 0.38), w * 0.95);
+      seg(true, mixc(base, "#ffffff", 0.12), w * 1.35);
+      seg(true, "rgba(255,255,255,.55)", w * 0.45);
     }, rr = function(g2, x, y, w, h, r) {
       g2.beginPath();
       if (g2.roundRect) g2.roundRect(x, y, w, h, r);
       else g2.rect(x, y, w, h);
+    }, shd = function(g2, on, bl, oy) {
+      if (on) {
+        g2.shadowColor = C.dark ? "rgba(0,0,0,.6)" : "rgba(25,35,90,.24)";
+        g2.shadowBlur = bl == null ? 12 : bl;
+        g2.shadowOffsetX = 0;
+        g2.shadowOffsetY = oy == null ? 4 : oy;
+      } else {
+        g2.shadowColor = "rgba(0,0,0,0)";
+        g2.shadowBlur = 0;
+        g2.shadowOffsetX = 0;
+        g2.shadowOffsetY = 0;
+      }
+    }, glow = function(g2, on, col, bl) {
+      if (on) {
+        g2.shadowColor = col;
+        g2.shadowBlur = bl || 10;
+        g2.shadowOffsetX = 0;
+        g2.shadowOffsetY = 0;
+      } else shd(g2, false);
+    }, ball = function(g2, x, y, r, col, sh = true) {
+      const key = col + "|" + r.toFixed(1) + "|" + (sh ? 1 : 0) + "|" + (C.dark ? 1 : 0);
+      let sp = SPR[key];
+      const pad = Math.ceil(r * 0.7 + 3), D = 2 * (r + pad);
+      if (!sp) {
+        const k = 3, c = document.createElement("canvas");
+        c.width = Math.ceil(D * k);
+        c.height = Math.ceil(D * k);
+        const q = c.getContext("2d");
+        q.scale(k, k);
+        const cx = r + pad, cy = r + pad;
+        if (sh) {
+          const sg = q.createRadialGradient(cx, cy + r * 0.9, 0, cx, cy + r * 0.9, r * 1.15);
+          sg.addColorStop(0, C.dark ? "rgba(0,0,0,.55)" : "rgba(20,30,80,.28)");
+          sg.addColorStop(1, "rgba(0,0,0,0)");
+          q.fillStyle = sg;
+          q.beginPath();
+          q.ellipse(cx, cy + r * 0.9, r * 1.15, r * 0.42, 0, 0, TAU);
+          q.fill();
+        }
+        const gd = q.createRadialGradient(cx - r * 0.38, cy - r * 0.42, r * 0.06, cx, cy, r);
+        gd.addColorStop(0, mixc(col, "#ffffff", 0.78));
+        gd.addColorStop(0.32, mixc(col, "#ffffff", 0.18));
+        gd.addColorStop(0.85, col);
+        gd.addColorStop(1, mixc(col, "#000000", 0.38));
+        q.fillStyle = gd;
+        q.beginPath();
+        q.arc(cx, cy, r, 0, TAU);
+        q.fill();
+        q.fillStyle = "rgba(255,255,255,.6)";
+        q.beginPath();
+        q.ellipse(cx - r * 0.34, cy - r * 0.44, r * 0.3, r * 0.17, -0.6, 0, TAU);
+        q.fill();
+        SPR[key] = sp = c;
+      }
+      g2.drawImage(sp, x - r - pad, y - r - pad, D, D);
+    }, block = function(g2, x, y, w, h, col, rad = 5) {
+      g2.save();
+      shd(g2, true, 14, 6);
+      rr(g2, x, y, w, h, rad);
+      g2.fillStyle = col;
+      g2.fill();
+      g2.restore();
+      const gd = g2.createLinearGradient(x, y, x + w * 0.3, y + h);
+      gd.addColorStop(0, "rgba(255,255,255,.34)");
+      gd.addColorStop(0.5, "rgba(255,255,255,0)");
+      gd.addColorStop(1, "rgba(0,0,0,.24)");
+      rr(g2, x, y, w, h, rad);
+      g2.fillStyle = gd;
+      g2.fill();
+      g2.lineWidth = 1;
+      g2.strokeStyle = "rgba(255,255,255,.45)";
+      rr(g2, x + 0.5, y + 0.5, w - 1, h - 1, rad);
+      g2.stroke();
+    }, metalR = function(g2, x, y, w, h, vert, tint) {
+      const gd = vert ? g2.createLinearGradient(x, 0, x + w, 0) : g2.createLinearGradient(0, y, 0, y + h), b = tint || (C.dark ? "#7c859e" : "#aab2c5");
+      gd.addColorStop(0, mixc(b, "#ffffff", 0.55));
+      gd.addColorStop(0.42, b);
+      gd.addColorStop(0.58, mixc(b, "#000000", 0.18));
+      gd.addColorStop(1, mixc(b, "#ffffff", 0.2));
+      g2.save();
+      shd(g2, true, 8, 3);
+      g2.fillStyle = gd;
+      g2.fillRect(x, y, w, h);
+      g2.restore();
+    }, woodR = function(g2, x, y, w, h) {
+      g2.save();
+      shd(g2, true, 10, 4);
+      const gd = g2.createLinearGradient(0, y, 0, y + h);
+      gd.addColorStop(0, C.dark ? "#a77b4f" : "#d4a673");
+      gd.addColorStop(1, C.dark ? "#6b4a2a" : "#946a3d");
+      g2.fillStyle = gd;
+      g2.fillRect(x, y, w, h);
+      g2.restore();
+      g2.save();
+      g2.beginPath();
+      g2.rect(x, y, w, h);
+      g2.clip();
+      g2.lineWidth = 1;
+      g2.strokeStyle = "rgba(95,58,25,.3)";
+      for (let i = 0; i < Math.max(2, h / 4); i++) {
+        g2.beginPath();
+        const yy = y + h * (i + 0.5) / Math.max(2, h / 4);
+        for (let xx = x; xx <= x + w + 12; xx += 12) {
+          const o = Math.sin(xx * 0.021 + i * 1.7) * 1.6 + Math.sin(xx * 71e-4 + i) * 1.2;
+          xx === x ? g2.moveTo(xx, yy + o) : g2.lineTo(xx, yy + o);
+        }
+        g2.stroke();
+      }
+      g2.restore();
+      g2.fillStyle = "rgba(255,255,255,.3)";
+      g2.fillRect(x, y, w, 1.5);
+    }, cylH = function(g2, x, y, w, h, col) {
+      const gd = g2.createLinearGradient(0, y, 0, y + h);
+      gd.addColorStop(0, mixc(col, "#000000", 0.25));
+      gd.addColorStop(0.3, mixc(col, "#ffffff", 0.45));
+      gd.addColorStop(0.55, col);
+      gd.addColorStop(1, mixc(col, "#000000", 0.35));
+      g2.fillStyle = gd;
+      rr(g2, x, y, w, h, h / 2);
+      g2.fill();
     }, dash = function(g2, x1, y1, x2, y2, col, w = 1, d = [4, 4]) {
       g2.setLineDash(d);
       g2.strokeStyle = col;
@@ -253,18 +397,26 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       }
     }, badge = function(g2, lines, x, y, al = "left") {
       g2.font = "600 14px " + FS;
-      const w = Math.max(...lines.map((s) => g2.measureText(s).width)) + 20, h = lines.length * 20 + 10, x0 = al === "right" ? x - w : x;
-      rr(g2, x0, y, w, h, 8);
-      g2.fillStyle = C.panel;
+      const w = Math.max(...lines.map((s) => g2.measureText(s).width)) + 22, h = lines.length * 20 + 12, x0 = al === "right" ? x - w : x;
+      g2.save();
+      shd(g2, true, 14, 4);
+      rr(g2, x0, y, w, h, 10);
+      g2.fillStyle = C.dark ? "rgba(24,30,58,.95)" : "rgba(255,255,255,.97)";
       g2.fill();
+      g2.restore();
+      rr(g2, x0 + 0.5, y + 0.5, w - 1, h - 1, 10);
       g2.lineWidth = 1;
-      g2.strokeStyle = C.g2;
+      g2.strokeStyle = C.dark ? "rgba(139,152,255,.25)" : "rgba(35,56,201,.14)";
       g2.stroke();
-      lines.forEach((s, i) => tx(g2, s, x0 + 10, y + 15 + i * 20, C.ink, { w: 600, s: 14, halo: false }));
+      lines.forEach((s, i) => tx(g2, s, x0 + 11, y + 16 + i * 20, C.ink, { w: 600, s: 14, halo: false }));
     }, axes = function(g2, r, o) {
       const X = (v) => r.x + (v - o.x0) / (o.x1 - o.x0) * r.w, Y = (v) => r.y + r.h - (v - o.y0) / (o.y1 - o.y0) * r.h;
-      g2.fillStyle = C.panel;
-      g2.fillRect(r.x - 6, r.y - 10, r.w + 18, r.h + (o.xt && o.xt.some((t) => t[1]) ? 30 : 16));
+      g2.save();
+      shd(g2, true, 12, 3);
+      rr(g2, r.x - 8, r.y - 12, r.w + 22, r.h + (o.xt && o.xt.some((t) => t[1]) ? 34 : 20), 10);
+      g2.fillStyle = C.dark ? "rgba(22,28,55,.94)" : "rgba(255,255,255,.95)";
+      g2.fill();
+      g2.restore();
       g2.lineWidth = 1;
       g2.strokeStyle = C.g2;
       g2.beginPath();
@@ -294,6 +446,10 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       g2.rect(r.x - 1, r.y - 4, r.w + 3, r.h + 8);
       g2.clip();
       if (d) g2.setLineDash(d);
+      else if (w >= 2) {
+        g2.shadowColor = col;
+        g2.shadowBlur = 7;
+      }
       g2.strokeStyle = col;
       g2.lineWidth = w;
       g2.lineJoin = "round";
@@ -311,6 +467,10 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       g2.rect(r.x - 1, r.y - 4, r.w + 3, r.h + 8);
       g2.clip();
       if (d) g2.setLineDash(d);
+      else if (w >= 2) {
+        g2.shadowColor = col;
+        g2.shadowBlur = 7;
+      }
       g2.strokeStyle = col;
       g2.lineWidth = w;
       g2.lineJoin = "round";
@@ -323,10 +483,21 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       const top = y0 + 18, bot = y1 - 18, n = items.length, bw = Math.max(10, Math.min(28, w / n - 12)), gap = (w - bw * n) / n;
       items.forEach(([l, v, col], i) => {
         const bx = x + gap / 2 + i * (bw + gap), h = (bot - top) * cl(v, 0, 1);
+        rr(g2, bx, top, bw, bot - top, 6);
         g2.fillStyle = C.soft;
-        g2.fillRect(bx, top, bw, bot - top);
-        g2.fillStyle = col;
-        g2.fillRect(bx, bot - h, bw, h);
+        g2.fill();
+        if (h > 1) {
+          g2.save();
+          shd(g2, true, 8, 2);
+          rr(g2, bx, bot - h, bw, h, Math.min(6, h / 2));
+          const gd = g2.createLinearGradient(bx, 0, bx + bw, 0);
+          gd.addColorStop(0, col.startsWith("#") ? mixc(col, "#ffffff", 0.35) : col);
+          gd.addColorStop(0.5, col);
+          gd.addColorStop(1, col.startsWith("#") ? mixc(col, "#000000", 0.2) : col);
+          g2.fillStyle = gd;
+          g2.fill();
+          g2.restore();
+        }
         tx(g2, l, bx + bw / 2, bot + 11, col, { a: "center", it: true, s: 14, w: 600 });
       });
     }, wl2rgb = function(l) {
@@ -349,6 +520,166 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       } else r = 1;
       const f = l < 420 ? 0.3 + 0.7 * (l - 380) / 40 : l > 700 ? 0.3 + 0.7 * (780 - l) / 80 : 1;
       return [r * f, gg * f, b * f];
+    }, cam3 = function(S2, az, el) {
+      return S2.cam || (S2.cam = { az, el });
+    }, rot3 = function(S2, tp, x, y) {
+      const c = S2.cam;
+      if (tp === "down") {
+        S2.rx = x;
+        S2.ry = y;
+        return;
+      }
+      if (tp === "up") {
+        S2.rx = void 0;
+        return;
+      }
+      if (S2.rx === void 0) return;
+      c.az += (x - S2.rx) * 0.011;
+      c.el = cl(c.el + (y - S2.ry) * 9e-3, 0.1, 1.5);
+      S2.rx = x;
+      S2.ry = y;
+    }, P3 = function(c, cx, cy, s, D) {
+      const ca = Math.cos(c.az), sa = Math.sin(c.az), ce = Math.cos(c.el), se = Math.sin(c.el);
+      return (x, y, z) => {
+        const x1 = x * ca - y * sa, y1 = x * sa + y * ca, dep = y1 * ce - z * se, f = D / (D + dep);
+        return [cx + x1 * s * f, cy - (z * ce + y1 * se) * s * f, dep];
+      };
+    }, lut3 = function(stops, nh, ns, amb) {
+      const L = [];
+      for (let i = 0; i < nh; i++) {
+        const t = i / (nh - 1);
+        let a = stops[0], b = stops[stops.length - 1];
+        for (let k = 0; k < stops.length - 1; k++) if (t >= stops[k][0] && t <= stops[k + 1][0]) {
+          a = stops[k];
+          b = stops[k + 1];
+          break;
+        }
+        const q = b[0] > a[0] ? (t - a[0]) / (b[0] - a[0]) : 0, c = a[1].map((v, j) => v + (b[1][j] - v) * q);
+        for (let j = 0; j < ns; j++) {
+          const sh = amb + (1 - amb) * j / (ns - 1);
+          L.push("rgb(".concat(Math.round(c[0] * sh), ",").concat(Math.round(c[1] * sh), ",").concat(Math.round(c[2] * sh), ")"));
+        }
+      }
+      return L;
+    }, surf3 = function(g2, S2, o) {
+      const { nx, ny, x0, x1, y0, y1, Z, P, lut, nh, ns, zlo, zhi } = o, nv = (nx + 1) * (ny + 1);
+      if (!S2.vb || S2.vb.length < nv * 2) {
+        S2.vb = new Float32Array(nv * 2);
+      }
+      const V = S2.vb, dx = (x1 - x0) / nx, dy = (y1 - y0) / ny;
+      for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) {
+        const k = j * (nx + 1) + i, p = P(x0 + i * dx, y0 + j * dy, Z[k]);
+        V[2 * k] = p[0];
+        V[2 * k + 1] = p[1];
+      }
+      const ok = [nx, ny, x0, x1, y0, y1, S2.cam.az.toFixed(3), S2.cam.el.toFixed(3)].join();
+      if (S2.ok !== ok) {
+        S2.ok = ok;
+        const n = nx * ny, dep = new Float32Array(n), ord = new Uint32Array(n);
+        for (let q = 0; q < n; q++) {
+          const i = q % nx, j = q / nx | 0;
+          dep[q] = P(x0 + (i + 0.5) * dx, y0 + (j + 0.5) * dy, 0)[2];
+          ord[q] = q;
+        }
+        S2.ord = Array.prototype.slice.call(ord).sort((a, b) => dep[b] - dep[a]);
+      }
+      const lx = -0.45, ly = -0.55, lz = 0.7, ln = Math.hypot(lx, ly, lz), zr = zhi - zlo;
+      for (const q of S2.ord) {
+        const i = q % nx, j = q / nx | 0, a = j * (nx + 1) + i, b = a + 1, c = a + nx + 1, d = c + 1, za = Z[a], zb = Z[b], zc = Z[c], zd = Z[d];
+        const gx = (zb - za + (zd - zc)) / (2 * dx), gy = (zc - za + (zd - zb)) / (2 * dy), nn = Math.hypot(gx, gy, 1), lam = Math.max(0, (-gx * lx - gy * ly + lz) / (nn * ln));
+        const hi = Math.max(0, Math.min(nh - 1, Math.round(((za + zb + zc + zd) / 4 - zlo) / zr * (nh - 1)))), si_ = Math.max(0, Math.min(ns - 1, Math.round(lam * (ns - 1))));
+        const cxp = (V[2 * a] + V[2 * b] + V[2 * c] + V[2 * d]) / 4, cyp = (V[2 * a + 1] + V[2 * b + 1] + V[2 * c + 1] + V[2 * d + 1]) / 4, e = 1.08;
+        g2.fillStyle = lut[hi * ns + si_];
+        g2.beginPath();
+        g2.moveTo(cxp + (V[2 * a] - cxp) * e, cyp + (V[2 * a + 1] - cyp) * e);
+        g2.lineTo(cxp + (V[2 * b] - cxp) * e, cyp + (V[2 * b + 1] - cyp) * e);
+        g2.lineTo(cxp + (V[2 * d] - cxp) * e, cyp + (V[2 * d + 1] - cyp) * e);
+        g2.lineTo(cxp + (V[2 * c] - cxp) * e, cyp + (V[2 * c + 1] - cyp) * e);
+        g2.closePath();
+        g2.fill();
+      }
+    }, floor3 = function(g2, P, x0, x1, y0, y1, z, col) {
+      const c = [P(x0, y0, z), P(x1, y0, z), P(x1, y1, z), P(x0, y1, z)];
+      g2.fillStyle = col;
+      g2.beginPath();
+      c.forEach((p, i) => i ? g2.lineTo(p[0], p[1]) : g2.moveTo(p[0], p[1]));
+      g2.closePath();
+      g2.fill();
+    }, orb = function(S2, tp, x, y, id) {
+      const P = S2.op || (S2.op = {});
+      if (tp === "down") {
+        P[id] = [x, y];
+        const k = Object.keys(P);
+        if (k.length >= 2) {
+          const a = P[k[0]], b = P[k[1]];
+          S2.od = { t: "p", d0: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, z0: S2.cg.dist };
+        } else S2.od = { t: "r", x, y };
+        return;
+      }
+      if (tp === "up") {
+        delete P[id];
+        const k = Object.keys(P);
+        S2.od = k.length === 1 ? { t: "r", x: P[k[0]][0], y: P[k[0]][1] } : null;
+        return;
+      }
+      P[id] = [x, y];
+      const d = S2.od;
+      if (!d) return;
+      if (d.t === "p") {
+        const k = Object.keys(P);
+        if (k.length < 2) return;
+        const a = P[k[0]], b = P[k[1]];
+        S2.cg.dist = cl(d.z0 * d.d0 / (Math.hypot(a[0] - b[0], a[1] - b[1]) || 1), S2.cg.mn || 8, S2.cg.mx || 600);
+        return;
+      }
+      S2.cg.az -= (x - d.x) * 9e-3;
+      S2.cg.el = cl(S2.cg.el + (y - d.y) * 7e-3, 0.03, 1.5);
+      d.x = x;
+      d.y = y;
+    }, zoom3 = function(S2, dy) {
+      S2.cg.dist = cl(S2.cg.dist * Math.pow(1.0012, dy), S2.cg.mn || 8, S2.cg.mx || 600);
+    }, add3 = function(id, cam, scene, fit) {
+      const s = SIMS.find((x) => x.id === id);
+      if (!s) return;
+      s.ctl.push({ t: "c", id: "d3", l: "Xem 3D (kéo để xoay, chụm hai ngón để phóng to)", v: false });
+      const d2 = s.draw, p2 = s.ptr, i2 = s.init;
+      s.init = function(S2) {
+        i2.call(this, S2);
+        if (!S2.cg) S2.cg = JSON.parse(JSON.stringify(cam));
+      };
+      s.ptr = function(tp, x, y, S2, id2) {
+        if (S2.p.d3) return orb(S2, tp, x, y, id2);
+        if (p2) return p2.call(this, tp, x, y, S2, id2);
+        return false;
+      };
+      if (!p2) s.wantPtr = (S2) => !!S2.p.d3;
+      s.wheel = function(dy, S2) {
+        if (!S2.p.d3) return false;
+        zoom3(S2, dy);
+      };
+      s.draw = function(g2, W2, H2, S2, C2) {
+        const glc = document.getElementById("gl");
+        if (S2.p.d3) {
+          if (G3.ok === null) G3.setup(glc);
+          if (G3.ok) {
+            glc.style.display = "block";
+            G3.frame(S2, W2, H2, glc, C2, S2.cg.fit);
+            scene.call(this, G3, S2, W2, H2, C2);
+            G3.end();
+            g2.clearRect(0, 0, W2, H2);
+            for (const [p, t, col, o] of G3.labs) {
+              const q = G3.proj(p);
+              if (q && q[0] > -20 && q[0] < W2 + 20 && q[1] > -20 && q[1] < H2 + 20) tx(g2, t, q[0] + (o.dx || 0), q[1] + (o.dy || 0), col || C2.ink, { a: o.a || "center", w: o.w || 700, s: o.s || 14, it: o.it, halo: C2.dark ? "rgba(13,17,34,.75)" : "rgba(255,255,255,.85)" });
+            }
+            if (G3.bdg) badge(g2, G3.bdg, W2 - 10, 10, "right");
+            tx(g2, W2 < 560 ? "Kéo để xoay, chụm 2 ngón để phóng to" : "Kéo để xoay, chụm hai ngón hoặc lăn chuột để phóng to", 12, H2 - 14, C2.mute, { w: 600 });
+            return;
+          }
+          glc.style.display = "none";
+        } else if (glc.style.display !== "none") glc.style.display = "none";
+        d2.call(this, g2, W2, H2, S2, C2);
+        if (S2.p.d3 && G3.ok === false) tx(g2, "Máy này không hỗ trợ WebGL nên chưa xem 3D được", W2 / 2, H2 - 14, C2.red, { a: "center", w: 700 });
+      };
     }, setRun = function(v) {
       run = v;
       const b = $("#play");
@@ -357,7 +688,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
     }, size = function() {
       const w = cv.parentElement.clientWidth || 600, nar = innerWidth <= 1e3;
       let h = Math.round(w * ((w < 560 ? cur.rm : cur.r) || 0.62));
-      h = Math.round(cl(h, 260, nar ? Math.max(280, VH * 0.52) : 640));
+      h = Math.round(cl(h, 260, nar ? Math.max(280, VH * (cur.vh || 0.52)) : cur.hd || 640));
       dpr = Math.min(2, devicePixelRatio || 1);
       cv.width = Math.round(w * dpr);
       cv.height = Math.round(h * dpr);
@@ -377,13 +708,20 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       const el = $("#c-" + id);
       if (el) el.value = v;
       outs();
+    }, vis = function() {
+      cur.ctl.forEach((c) => {
+        if (c.show) {
+          const w = $("#w-" + c.id);
+          if (w) w.hidden = !c.show(S);
+        }
+      });
     }, buildCtls = function() {
       $("#ctls").innerHTML = cur.ctl.map((c) => {
         const id = "c-" + c.id;
-        if (c.t === "r") return '<div class="ctl"><label for="'.concat(id, '"><span>').concat(c.l, '</span><output id="o-').concat(c.id, '"></output></label><input type="range" id="').concat(id, '" min="').concat(c.min, '" max="').concat(c.max, '" step="').concat(c.st, '" value="').concat(S.p[c.id], '"></div>');
-        if (c.t === "s") return '<div class="ctl"><label for="'.concat(id, '"><span>').concat(c.l, '</span></label><select id="').concat(id, '">').concat(c.o.map(([v, l]) => '<option value="'.concat(v, '"').concat(String(v) === String(S.p[c.id]) ? " selected" : "", ">").concat(l, "</option>")).join(""), "</select></div>");
-        if (c.t === "c") return '<label class="chk"><input type="checkbox" id="'.concat(id, '"').concat(S.p[c.id] ? " checked" : "", "><span>").concat(c.l, "</span></label>");
-        return '<div><button class="btn" id="'.concat(id, '">').concat(c.l, "</button></div>");
+        if (c.t === "r") return '<div class="ctl" id="w-'.concat(c.id, '"><label for="').concat(id, '"><span>').concat(c.l, '</span><output id="o-').concat(c.id, '"></output></label><input type="range" id="').concat(id, '" min="').concat(c.min, '" max="').concat(c.max, '" step="').concat(c.st, '" value="').concat(S.p[c.id], '"></div>');
+        if (c.t === "s") return '<div class="ctl" id="w-'.concat(c.id, '"><label for="').concat(id, '"><span>').concat(c.l, '</span></label><select id="').concat(id, '">').concat(c.o.map(([v, l]) => '<option value="'.concat(v, '"').concat(String(v) === String(S.p[c.id]) ? " selected" : "", ">").concat(l, "</option>")).join(""), "</select></div>");
+        if (c.t === "c") return '<label class="chk" id="w-'.concat(c.id, '"><input type="checkbox" id="').concat(id, '"').concat(S.p[c.id] ? " checked" : "", "><span>").concat(c.l, "</span></label>");
+        return '<div id="w-'.concat(c.id, '"><button class="btn" id="').concat(id, '">').concat(c.l, "</button></div>");
       }).join("");
       cur.ctl.forEach((c) => {
         const el = $("#c-" + c.id);
@@ -391,18 +729,22 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           S.p[c.id] = +el.value;
           outs();
           cur.chg && cur.chg(S, c.id);
+          vis();
         });
         else if (c.t === "s") el.addEventListener("change", () => {
           S.p[c.id] = c.num ? +el.value : el.value;
           outs();
           cur.chg && cur.chg(S, c.id);
+          vis();
         });
         else if (c.t === "c") el.addEventListener("change", () => {
           S.p[c.id] = el.checked;
           cur.chg && cur.chg(S, c.id);
+          vis();
         });
         else el.addEventListener("click", () => {
           cur.act && cur.act(S, c.id);
+          vis();
         });
       });
       outs();
@@ -440,8 +782,11 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       cv.style.touchAction = s.ptr ? "none" : "auto";
       cv.style.cursor = s.ptr ? "crosshair" : "default";
       cv.setAttribute("aria-label", "Mô phỏng " + s.name);
+      act.clear();
+      $("#gl").style.display = "none";
       size();
       s.init(S);
+      vis();
       reads(true);
       if (location.hash.slice(1) !== s.id) {
         try {
@@ -450,11 +795,18 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           location.hash = s.id;
         }
       }
+    }, touchMode = function() {
+      const on = !!cur.ptr && (!cur.wantPtr || cur.wantPtr(S)), ta = on ? "none" : "auto";
+      if (cv.style.touchAction !== ta) {
+        cv.style.touchAction = ta;
+        cv.style.cursor = on ? "crosshair" : "default";
+      }
     }, loop = function(ts) {
       const dt = Math.min(0.05, Math.max(0, (ts - last) / 1e3));
       last = ts;
       try {
         if (run && cur.step) cur.step(S, dt * speed);
+        touchMode();
         g.setTransform(dpr, 0, 0, dpr, 0, 0);
         cur.draw(g, W, H, S, C);
       } catch (err) {
@@ -466,7 +818,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       }
       requestAnimationFrame(loop);
     };
-    var nf2 = nf, si2 = si, tx2 = tx, paper2 = paper, arrow2 = arrow, spring2 = spring, rr2 = rr, dash2 = dash, dot2 = dot, badge2 = badge, axes2 = axes, plot2 = plot, poly2 = poly, bars2 = bars, wl2rgb2 = wl2rgb, setRun2 = setRun, size2 = size, outs2 = outs, setP2 = setP, buildCtls2 = buildCtls, info2 = info, reads2 = reads, open2 = open, loop2 = loop;
+    var nf2 = nf, si2 = si, tx2 = tx, paper2 = paper, arrow2 = arrow, spring2 = spring, rr2 = rr, shd2 = shd, glow2 = glow, ball2 = ball, block2 = block, metalR2 = metalR, woodR2 = woodR, cylH2 = cylH, dash2 = dash, dot2 = dot, badge2 = badge, axes2 = axes, plot2 = plot, poly2 = poly, bars2 = bars, wl2rgb2 = wl2rgb, cam32 = cam3, rot32 = rot3, P32 = P3, lut32 = lut3, surf32 = surf3, floor32 = floor3, orb2 = orb, zoom32 = zoom3, add32 = add3, setRun2 = setRun, size2 = size, outs2 = outs, setP2 = setP, vis2 = vis, buildCtls2 = buildCtls, info2 = info, reads2 = reads, open2 = open, touchMode2 = touchMode, loop2 = loop;
     const $ = (s) => document.querySelector(s);
     const TAU = Math.PI * 2, DEG = Math.PI / 180, cl = (v, a, b) => Math.max(a, Math.min(b, v));
     const SUPD = { "-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹" };
@@ -486,9 +838,546 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
     new MutationObserver(setPal).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
     if (mqd.addEventListener) mqd.addEventListener("change", setPal);
     const FS = '"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif', FQ = '"Noto Serif",Georgia,"Times New Roman",serif';
+    const hx = (h) => {
+      h = h.replace("#", "");
+      if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+      return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    };
+    const mixc = (a, b, t) => {
+      const A = hx(a), B = hx(b);
+      return "rgb(" + A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",") + ")";
+    };
+    const SPR = {};
     const css = ([r, g_, b], a = 1) => "rgba(".concat(Math.round(r * 255), ",").concat(Math.round(g_ * 255), ",").concat(Math.round(b * 255), ",").concat(a, ")");
     const SIMS = [];
     const def = (s) => SIMS.push(s);
+    const M4 = {
+      persp(fy, as, n, f) {
+        const t = 1 / Math.tan(fy / 2), m = new Float32Array(16);
+        m[0] = t / as;
+        m[5] = t;
+        m[10] = (f + n) / (n - f);
+        m[11] = -1;
+        m[14] = 2 * f * n / (n - f);
+        return m;
+      },
+      look(e, c, u) {
+        let z = [e[0] - c[0], e[1] - c[1], e[2] - c[2]];
+        const zl = Math.hypot(z[0], z[1], z[2]);
+        z = z.map((v) => v / zl);
+        let x = [u[1] * z[2] - u[2] * z[1], u[2] * z[0] - u[0] * z[2], u[0] * z[1] - u[1] * z[0]];
+        const xl = Math.hypot(x[0], x[1], x[2]);
+        x = x.map((v) => v / xl);
+        const y = [z[1] * x[2] - z[2] * x[1], z[2] * x[0] - z[0] * x[2], z[0] * x[1] - z[1] * x[0]], m = new Float32Array(16);
+        m[0] = x[0];
+        m[4] = x[1];
+        m[8] = x[2];
+        m[1] = y[0];
+        m[5] = y[1];
+        m[9] = y[2];
+        m[2] = z[0];
+        m[6] = z[1];
+        m[10] = z[2];
+        m[12] = -(x[0] * e[0] + x[1] * e[1] + x[2] * e[2]);
+        m[13] = -(y[0] * e[0] + y[1] * e[1] + y[2] * e[2]);
+        m[14] = -(z[0] * e[0] + z[1] * e[1] + z[2] * e[2]);
+        m[15] = 1;
+        return m;
+      },
+      mul(a, b) {
+        const r = new Float32Array(16);
+        for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+          let s = 0;
+          for (let k = 0; k < 4; k++) s += a[i + 4 * k] * b[k + 4 * j];
+          r[i + 4 * j] = s;
+        }
+        return r;
+      },
+      inv(m) {
+        const a = m, r = new Float32Array(16);
+        r[0] = a[5] * a[10] * a[15] - a[5] * a[11] * a[14] - a[9] * a[6] * a[15] + a[9] * a[7] * a[14] + a[13] * a[6] * a[11] - a[13] * a[7] * a[10];
+        r[4] = -a[4] * a[10] * a[15] + a[4] * a[11] * a[14] + a[8] * a[6] * a[15] - a[8] * a[7] * a[14] - a[12] * a[6] * a[11] + a[12] * a[7] * a[10];
+        r[8] = a[4] * a[9] * a[15] - a[4] * a[11] * a[13] - a[8] * a[5] * a[15] + a[8] * a[7] * a[13] + a[12] * a[5] * a[11] - a[12] * a[7] * a[9];
+        r[12] = -a[4] * a[9] * a[14] + a[4] * a[10] * a[13] + a[8] * a[5] * a[14] - a[8] * a[6] * a[13] - a[12] * a[5] * a[10] + a[12] * a[6] * a[9];
+        r[1] = -a[1] * a[10] * a[15] + a[1] * a[11] * a[14] + a[9] * a[2] * a[15] - a[9] * a[3] * a[14] - a[13] * a[2] * a[11] + a[13] * a[3] * a[10];
+        r[5] = a[0] * a[10] * a[15] - a[0] * a[11] * a[14] - a[8] * a[2] * a[15] + a[8] * a[3] * a[14] + a[12] * a[2] * a[11] - a[12] * a[3] * a[10];
+        r[9] = -a[0] * a[9] * a[15] + a[0] * a[11] * a[13] + a[8] * a[1] * a[15] - a[8] * a[3] * a[13] - a[12] * a[1] * a[11] + a[12] * a[3] * a[9];
+        r[13] = a[0] * a[9] * a[14] - a[0] * a[10] * a[13] - a[8] * a[1] * a[14] + a[8] * a[2] * a[13] + a[12] * a[1] * a[10] - a[12] * a[2] * a[9];
+        r[2] = a[1] * a[6] * a[15] - a[1] * a[7] * a[14] - a[5] * a[2] * a[15] + a[5] * a[3] * a[14] + a[13] * a[2] * a[7] - a[13] * a[3] * a[6];
+        r[6] = -a[0] * a[6] * a[15] + a[0] * a[7] * a[14] + a[4] * a[2] * a[15] - a[4] * a[3] * a[14] - a[12] * a[2] * a[7] + a[12] * a[3] * a[6];
+        r[10] = a[0] * a[5] * a[15] - a[0] * a[7] * a[13] - a[4] * a[1] * a[15] + a[4] * a[3] * a[13] + a[12] * a[1] * a[7] - a[12] * a[3] * a[5];
+        r[14] = -a[0] * a[5] * a[14] + a[0] * a[6] * a[13] + a[4] * a[1] * a[14] - a[4] * a[2] * a[13] - a[12] * a[1] * a[6] + a[12] * a[2] * a[5];
+        r[3] = -a[1] * a[6] * a[11] + a[1] * a[7] * a[10] + a[5] * a[2] * a[11] - a[5] * a[3] * a[10] - a[9] * a[2] * a[7] + a[9] * a[3] * a[6];
+        r[7] = a[0] * a[6] * a[11] - a[0] * a[7] * a[10] - a[4] * a[2] * a[11] + a[4] * a[3] * a[10] + a[8] * a[2] * a[7] - a[8] * a[3] * a[6];
+        r[11] = -a[0] * a[5] * a[11] + a[0] * a[7] * a[9] + a[4] * a[1] * a[11] - a[4] * a[3] * a[9] - a[8] * a[1] * a[7] + a[8] * a[3] * a[5];
+        r[15] = a[0] * a[5] * a[10] - a[0] * a[6] * a[9] - a[4] * a[1] * a[10] + a[4] * a[2] * a[9] + a[8] * a[1] * a[6] - a[8] * a[2] * a[5];
+        const det = a[0] * r[0] + a[1] * r[4] + a[2] * r[8] + a[3] * r[12];
+        for (let i = 0; i < 16; i++) r[i] /= det;
+        return r;
+      },
+      xf(m, v) {
+        return [0, 1, 2, 3].map((i) => m[i] * v[0] + m[i + 4] * v[1] + m[i + 8] * v[2] + m[i + 12] * v[3]);
+      }
+    };
+    const FP = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n";
+    const K3 = { pen: [0.16, 0.25, 0.8], red: [0.86, 0.2, 0.15], orange: [0.92, 0.5, 0.08], teal: [0.05, 0.56, 0.48], metal: [0.7, 0.73, 0.8], steel: [0.42, 0.45, 0.52], dark: [0.22, 0.24, 0.3], wood: [0.7, 0.53, 0.35], copper: [0.84, 0.53, 0.3], white: [0.95, 0.95, 0.97], ink: [0.12, 0.14, 0.22], yellow: [1, 0.84, 0.25], green: [0.28, 0.62, 0.32], glass: [0.78, 0.88, 0.96], blue: [0.2, 0.4, 0.95] };
+    const G3 = {
+      ok: null,
+      setup(cv2) {
+        try {
+          const gl = cv2.getContext("webgl", { antialias: true, alpha: false, stencil: true }) || cv2.getContext("experimental-webgl");
+          if (!gl || !gl.createShader) return this.ok = false;
+          this.gl = gl;
+          this.ix = gl.getExtension("ANGLE_instanced_arrays");
+          const mk = (vs, fs) => {
+            const sh = (t, src) => {
+              const o = gl.createShader(t);
+              gl.shaderSource(o, src);
+              gl.compileShader(o);
+              if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o));
+              return o;
+            };
+            const p = gl.createProgram();
+            gl.attachShader(p, sh(gl.VERTEX_SHADER, vs));
+            gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs));
+            gl.linkProgram(p);
+            if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+            const U = {};
+            return { p, u: (n) => n in U ? U[n] : U[n] = gl.getUniformLocation(p, n), a: (n) => gl.getAttribLocation(p, n) };
+          };
+          this.pL = mk(
+            "attribute vec3 aPos,aNor,aCol,aOff;uniform mat4 uM,uVP,uSh;varying vec3 vN,vW,vC;void main(){vec4 w=uM*vec4(aPos,1.0);w.xyz+=aOff;w=uSh*w;vW=w.xyz;vN=(uM*vec4(aNor,0.0)).xyz;vC=aCol;gl_Position=uVP*w;}",
+            FP + "uniform vec4 uCol;uniform vec3 uEye,uSun;uniform float uEmi;varying vec3 vN,vW,vC;void main(){vec3 N=normalize(vN);if(!gl_FrontFacing)N=-N;float d=max(dot(N,uSun),0.0);vec3 V=normalize(uEye-vW);vec3 H=normalize(uSun+V);float sp=pow(max(dot(N,H),0.0),48.0);vec3 b=uCol.rgb*vC;vec3 am=mix(vec3(0.30,0.29,0.28),vec3(0.47,0.5,0.57),N.z*0.5+0.5);vec3 c=b*(am+0.6*d)+vec3(0.24)*sp*(1.0-uEmi)+vec3(0.10)*pow(1.0-max(dot(N,V),0.0),3.0)*(1.0-uEmi);c=mix(c,b,uEmi);gl_FragColor=vec4(c,uCol.a);}"
+          );
+          this.pB = mk("attribute vec2 aQ;varying float vY;void main(){vY=aQ.y*0.5+0.5;gl_Position=vec4(aQ,0.9999,1.0);}", FP + "uniform vec3 uTop,uBot;varying float vY;void main(){gl_FragColor=vec4(mix(uBot,uTop,vY),1.0);}");
+          const L = this.la = { aPos: this.pL.a("aPos"), aNor: this.pL.a("aNor"), aCol: this.pL.a("aCol"), aOff: this.pL.a("aOff") };
+          this.lq = this.pB.a("aQ");
+          const up2 = (arr, el) => {
+            const b = gl.createBuffer(), t = el ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
+            gl.bindBuffer(t, b);
+            gl.bufferData(t, arr, gl.STATIC_DRAW);
+            return b;
+          };
+          const mesh = (v, ix) => ({ vb: up2(new Float32Array(v)), ib: up2(new Uint16Array(ix), 1), n: ix.length });
+          const sph = (la, lo) => {
+            const v = [], ix = [];
+            for (let i = 0; i <= la; i++) for (let j = 0; j <= lo; j++) {
+              const t = Math.PI * i / la, f = TAU * j / lo, x = Math.sin(t) * Math.cos(f), y = Math.sin(t) * Math.sin(f), z = Math.cos(t);
+              v.push(x, y, z, x, y, z);
+            }
+            for (let i = 0; i < la; i++) for (let j = 0; j < lo; j++) {
+              const a = i * (lo + 1) + j, b = a + lo + 1;
+              ix.push(a, b, a + 1, a + 1, b, b + 1);
+            }
+            return mesh(v, ix);
+          };
+          this.mS = sph(14, 20);
+          this.mSl = sph(7, 10);
+          {
+            const v = [], ix = [], n = 18;
+            for (let j = 0; j <= n; j++) {
+              const f = TAU * j / n, c = Math.cos(f), s = Math.sin(f);
+              v.push(c, s, 0, c, s, 0, c, s, 1, c, s, 0);
+            }
+            for (let j = 0; j < n; j++) {
+              const a = 2 * j;
+              ix.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+            }
+            for (const z of [0, 1]) {
+              const c0 = v.length / 6;
+              v.push(0, 0, z, 0, 0, z ? 1 : -1);
+              for (let j = 0; j <= n; j++) {
+                const f = TAU * j / n;
+                v.push(Math.cos(f), Math.sin(f), z, 0, 0, z ? 1 : -1);
+              }
+              for (let j = 0; j < n; j++) ix.push(c0, c0 + 1 + j, c0 + 2 + j);
+            }
+            this.mC = mesh(v, ix);
+          }
+          {
+            const v = [], ix = [], n = 18, k = Math.SQRT1_2;
+            for (let j = 0; j <= n; j++) {
+              const f = TAU * j / n, c = Math.cos(f), s = Math.sin(f);
+              v.push(c, s, 0, c * k, s * k, k, 0, 0, 1, c * k, s * k, k);
+            }
+            for (let j = 0; j < n; j++) {
+              const a = 2 * j;
+              ix.push(a, a + 2, a + 1);
+            }
+            const c0 = v.length / 6;
+            v.push(0, 0, 0, 0, 0, -1);
+            for (let j = 0; j <= n; j++) {
+              const f = TAU * j / n;
+              v.push(Math.cos(f), Math.sin(f), 0, 0, 0, -1);
+            }
+            for (let j = 0; j < n; j++) ix.push(c0, c0 + 1 + j, c0 + 2 + j);
+            this.mK = mesh(v, ix);
+          }
+          {
+            const v = [], ix = [], F = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+            for (const n of F) {
+              const u = n[0] ? [0, 1, 0] : [1, 0, 0], w = [n[1] * u[2] - n[2] * u[1], n[2] * u[0] - n[0] * u[2], n[0] * u[1] - n[1] * u[0]], b = v.length / 6;
+              for (const [s, t] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) v.push(0.5 * (n[0] + s * u[0] + t * w[0]), 0.5 * (n[1] + s * u[1] + t * w[1]), 0.5 * (n[2] + s * u[2] + t * w[2]), n[0], n[1], n[2]);
+              ix.push(b, b + 1, b + 2, b, b + 2, b + 3);
+            }
+            this.mB = mesh(v, ix);
+          }
+          this.bQ = up2(new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]));
+          this.dv = gl.createBuffer();
+          this.di = gl.createBuffer();
+          this.ob = gl.createBuffer();
+          this.I4 = this.Ms([0, 0, 0], 1, 1, 1);
+          this.ok = true;
+        } catch (err) {
+          console.warn("3D off:", err && err.message);
+          this.ok = false;
+        }
+        return this.ok;
+      },
+      frame(S2, W2, H2, cv2, C2, fit) {
+        const gl = this.gl, dpr2 = Math.min(2, devicePixelRatio || 1), pw = Math.round(W2 * dpr2), ph = Math.round(H2 * dpr2);
+        if (cv2.width !== pw || cv2.height !== ph) {
+          cv2.width = pw;
+          cv2.height = ph;
+        }
+        cv2.style.width = W2 + "px";
+        cv2.style.height = H2 + "px";
+        gl.viewport(0, 0, pw, ph);
+        const c = S2.cg, t = c.t || [0, 0, 0], dd = c.dist * Math.max(1, 1 + (fit == null ? 1 : fit) * (H2 / W2 - 0.8)), eye = [t[0] + dd * Math.cos(c.el) * Math.cos(c.az), t[1] + dd * Math.cos(c.el) * Math.sin(c.az), t[2] + dd * Math.sin(c.el)], P = M4.persp(0.75, W2 / H2, 0.5, 3e3), V = M4.look(eye, t, [0, 0, 1]);
+        this.VP = M4.mul(P, V);
+        this.W = W2;
+        this.H = H2;
+        this.eye = eye;
+        this.L = [];
+        this.labs = [];
+        this.bdg = null;
+        this.dk = C2.dark;
+        this.ctr = t;
+        for (let i = 0; i < 8; i++) gl.disableVertexAttribArray(i);
+        gl.disable(gl.BLEND);
+        gl.disable(gl.STENCIL_TEST);
+        gl.disable(gl.DEPTH_TEST);
+        gl.depthMask(false);
+        const B = this.pB;
+        gl.useProgram(B.p);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.bQ);
+        gl.enableVertexAttribArray(this.lq);
+        gl.vertexAttribPointer(this.lq, 2, gl.FLOAT, false, 0, 0);
+        this.bgT = C2.dark ? [0.12, 0.14, 0.26] : [0.95, 0.97, 1];
+        this.bgB = C2.dark ? [0.03, 0.04, 0.09] : [0.74, 0.79, 0.88];
+        gl.uniform3fv(B.u("uTop"), this.bgT);
+        gl.uniform3fv(B.u("uBot"), this.bgB);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        gl.disableVertexAttribArray(this.lq);
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthMask(true);
+        gl.clearStencil(0);
+        gl.clear(gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
+        const p = this.pL, L = this.la;
+        gl.useProgram(p.p);
+        gl.uniformMatrix4fv(p.u("uVP"), false, this.VP);
+        gl.uniform3fv(p.u("uEye"), eye);
+        const sn = [-0.62, -0.3, 0.72], sl = Math.hypot(sn[0], sn[1], sn[2]), sun = this.sun = sn.map((v) => v / sl);
+        gl.uniform3fv(p.u("uSun"), sun);
+        const h = 0.04, kx = sun[0] / sun[2], ky = sun[1] / sun[2], m = new Float32Array(16);
+        m[0] = 1;
+        m[5] = 1;
+        m[8] = -kx;
+        m[9] = -ky;
+        m[12] = kx * h;
+        m[13] = ky * h;
+        m[14] = h;
+        m[15] = 1;
+        this.SH = m;
+        gl.enableVertexAttribArray(L.aPos);
+        gl.enableVertexAttribArray(L.aNor);
+        if (L.aCol >= 0) gl.vertexAttrib3f(L.aCol, 1, 1, 1);
+        if (L.aOff >= 0) gl.vertexAttrib3f(L.aOff, 0, 0, 0);
+        return this;
+      },
+      Ms(c, sx, sy, sz) {
+        const m = new Float32Array(16);
+        m[0] = sx;
+        m[5] = sy;
+        m[10] = sz;
+        m[12] = c[0];
+        m[13] = c[1];
+        m[14] = c[2];
+        m[15] = 1;
+        return m;
+      },
+      Mab(a, b, r) {
+        const d = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], L = Math.hypot(d[0], d[1], d[2]) || 1e-6, z = d.map((v2) => v2 / L), h = Math.abs(z[2]) < 0.95 ? [0, 0, 1] : [1, 0, 0];
+        let u = [h[1] * z[2] - h[2] * z[1], h[2] * z[0] - h[0] * z[2], h[0] * z[1] - h[1] * z[0]];
+        const ul = Math.hypot(u[0], u[1], u[2]);
+        u = u.map((v2) => v2 / ul);
+        const v = [z[1] * u[2] - z[2] * u[1], z[2] * u[0] - z[0] * u[2], z[0] * u[1] - z[1] * u[0]], m = new Float32Array(16);
+        m[0] = u[0] * r;
+        m[1] = u[1] * r;
+        m[2] = u[2] * r;
+        m[4] = v[0] * r;
+        m[5] = v[1] * r;
+        m[6] = v[2] * r;
+        m[8] = d[0];
+        m[9] = d[1];
+        m[10] = d[2];
+        m[12] = a[0];
+        m[13] = a[1];
+        m[14] = a[2];
+        m[15] = 1;
+        return m;
+      },
+      sphere(c, r, col, a, e) {
+        this.L.push({ k: "m", ms: r < 0.6 ? this.mSl : this.mS, M: this.Ms(c, r, r, r), col, a, e });
+      },
+      box(c, s, col, a, e) {
+        this.L.push({ k: "m", ms: this.mB, M: this.Ms(c, s[0], s[1], s[2]), col, a, e });
+      },
+      ground(c, s, col) {
+        this.L.push({ k: "m", ms: this.mB, M: this.Ms(c, s[0], s[1], s[2]), col, g: 1, zb: c[2] - s[2] / 2 });
+      },
+      cyl(a, b, r, col, al, e) {
+        this.L.push({ k: "m", ms: this.mC, M: this.Mab(a, b, r), col, a: al, e });
+      },
+      cone(a, b, r, col, al, e) {
+        this.L.push({ k: "m", ms: this.mK, M: this.Mab(a, b, r), col, a: al, e });
+      },
+      arrow(a, b, r, col, al) {
+        const d = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], L = Math.hypot(d[0], d[1], d[2]);
+        if (L < 0.05) return;
+        const h = Math.min(L * 0.45, r * 5), m = [b[0] - d[0] / L * h, b[1] - d[1] / L * h, b[2] - d[2] / L * h];
+        if (L > h + 0.01) this.cyl(a, m, r, col, al);
+        this.cone(m, b, r * 2.4, col, al);
+      },
+      tube(pts, r, col, al, e) {
+        const n = pts.length;
+        if (n < 2) return;
+        const m = 8, v = new Float32Array(n * m * 6), ix = new Uint16Array((n - 1) * m * 6);
+        let nv = [0, 0, 1];
+        for (let i = 0; i < n; i++) {
+          const p = pts[i], q = pts[Math.min(n - 1, i + 1)], o = pts[Math.max(0, i - 1)];
+          let t = [q[0] - o[0], q[1] - o[1], q[2] - o[2]];
+          const tl = Math.hypot(t[0], t[1], t[2]) || 1;
+          t = t.map((x) => x / tl);
+          if (i === 0) nv = Math.abs(t[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0];
+          const dt = nv[0] * t[0] + nv[1] * t[1] + nv[2] * t[2];
+          nv = [nv[0] - t[0] * dt, nv[1] - t[1] * dt, nv[2] - t[2] * dt];
+          const nl = Math.hypot(nv[0], nv[1], nv[2]) || 1;
+          nv = nv.map((x) => x / nl);
+          const bv = [t[1] * nv[2] - t[2] * nv[1], t[2] * nv[0] - t[0] * nv[2], t[0] * nv[1] - t[1] * nv[0]];
+          for (let k = 0; k < m; k++) {
+            const f = TAU * k / m, cf = Math.cos(f), sf = Math.sin(f), nx = cf * nv[0] + sf * bv[0], ny = cf * nv[1] + sf * bv[1], nz = cf * nv[2] + sf * bv[2], o6 = 6 * (i * m + k);
+            v[o6] = p[0] + r * nx;
+            v[o6 + 1] = p[1] + r * ny;
+            v[o6 + 2] = p[2] + r * nz;
+            v[o6 + 3] = nx;
+            v[o6 + 4] = ny;
+            v[o6 + 5] = nz;
+          }
+        }
+        let c = 0;
+        for (let i = 0; i < n - 1; i++) for (let k = 0; k < m; k++) {
+          const a = i * m + k, b = i * m + (k + 1) % m;
+          ix[c++] = a;
+          ix[c++] = a + m;
+          ix[c++] = b;
+          ix[c++] = b;
+          ix[c++] = a + m;
+          ix[c++] = b + m;
+        }
+        this.L.push({ k: "d", v, ix, col, a: al, e });
+      },
+      beads(cs, r, col, e) {
+        if (!cs.length) return;
+        if (!this.ix || this.la.aOff < 0) {
+          for (const c of cs) this.sphere(c, r, col, null, e);
+          return;
+        }
+        const o = new Float32Array(cs.length * 3);
+        cs.forEach((c, i) => {
+          o[3 * i] = c[0];
+          o[3 * i + 1] = c[1];
+          o[3 * i + 2] = c[2];
+        });
+        this.L.push({ k: "b", o, n: cs.length, M: this.Ms([0, 0, 0], r, r, r), col, e });
+      },
+      vmesh(pos, col, nor, ix, e) {
+        const n = pos.length / 3, v = new Float32Array(n * 9);
+        for (let i = 0; i < n; i++) {
+          v[9 * i] = pos[3 * i];
+          v[9 * i + 1] = pos[3 * i + 1];
+          v[9 * i + 2] = pos[3 * i + 2];
+          v[9 * i + 3] = nor[0];
+          v[9 * i + 4] = nor[1];
+          v[9 * i + 5] = nor[2];
+          v[9 * i + 6] = col[3 * i];
+          v[9 * i + 7] = col[3 * i + 1];
+          v[9 * i + 8] = col[3 * i + 2];
+        }
+        this.L.push({ k: "c", v, ix: ix instanceof Uint16Array ? ix : new Uint16Array(ix), e: e == null ? 0.85 : e, col: [1, 1, 1] });
+      },
+      _draw(it, sh) {
+        const gl = this.gl, p = this.pL, L = this.la;
+        gl.uniformMatrix4fv(p.u("uM"), false, it.M || this.I4);
+        gl.uniformMatrix4fv(p.u("uSh"), false, sh ? this.SH : this.I4);
+        const col = it.col || [1, 1, 1];
+        if (sh) gl.uniform4f(p.u("uCol"), 0, 0, 0, this.dk ? 0.42 : 0.3);
+        else gl.uniform4f(p.u("uCol"), col[0], col[1], col[2], it.a == null ? 1 : it.a);
+        gl.uniform1f(p.u("uEmi"), sh ? 1 : it.e || 0);
+        if (it.k === "m") {
+          gl.bindBuffer(gl.ARRAY_BUFFER, it.ms.vb);
+          gl.vertexAttribPointer(L.aPos, 3, gl.FLOAT, false, 24, 0);
+          gl.vertexAttribPointer(L.aNor, 3, gl.FLOAT, false, 24, 12);
+          gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, it.ms.ib);
+          gl.drawElements(gl.TRIANGLES, it.ms.n, gl.UNSIGNED_SHORT, 0);
+        } else if (it.k === "d" || it.k === "c") {
+          const st = it.k === "c" ? 36 : 24;
+          gl.bindBuffer(gl.ARRAY_BUFFER, this.dv);
+          gl.bufferData(gl.ARRAY_BUFFER, it.v, gl.DYNAMIC_DRAW);
+          gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.di);
+          gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, it.ix, gl.DYNAMIC_DRAW);
+          gl.vertexAttribPointer(L.aPos, 3, gl.FLOAT, false, st, 0);
+          gl.vertexAttribPointer(L.aNor, 3, gl.FLOAT, false, st, 12);
+          if (it.k === "c" && !sh && L.aCol >= 0) {
+            gl.enableVertexAttribArray(L.aCol);
+            gl.vertexAttribPointer(L.aCol, 3, gl.FLOAT, false, 36, 24);
+          }
+          gl.drawElements(gl.TRIANGLES, it.ix.length, gl.UNSIGNED_SHORT, 0);
+          if (it.k === "c" && L.aCol >= 0) {
+            gl.disableVertexAttribArray(L.aCol);
+            gl.vertexAttrib3f(L.aCol, 1, 1, 1);
+          }
+        } else if (it.k === "b") {
+          const X = this.ix, ms = this.mSl;
+          gl.bindBuffer(gl.ARRAY_BUFFER, this.ob);
+          gl.bufferData(gl.ARRAY_BUFFER, it.o, gl.DYNAMIC_DRAW);
+          gl.enableVertexAttribArray(L.aOff);
+          gl.vertexAttribPointer(L.aOff, 3, gl.FLOAT, false, 0, 0);
+          X.vertexAttribDivisorANGLE(L.aOff, 1);
+          gl.bindBuffer(gl.ARRAY_BUFFER, ms.vb);
+          gl.vertexAttribPointer(L.aPos, 3, gl.FLOAT, false, 24, 0);
+          gl.vertexAttribPointer(L.aNor, 3, gl.FLOAT, false, 24, 12);
+          gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ms.ib);
+          X.drawElementsInstancedANGLE(gl.TRIANGLES, ms.n, gl.UNSIGNED_SHORT, 0, it.n);
+          X.vertexAttribDivisorANGLE(L.aOff, 0);
+          gl.disableVertexAttribArray(L.aOff);
+          gl.vertexAttrib3f(L.aOff, 0, 0, 0);
+        }
+      },
+      end() {
+        const gl = this.gl, Gr = [], O = [], T = [];
+        for (const it of this.L) {
+          if (it.g) Gr.push(it);
+          else if (it.a != null && it.a < 1) T.push(it);
+          else O.push(it);
+        }
+        const zf = Gr.length ? Math.min(...Gr.map((i) => i.zb)) - 0.03 : -1.3, R = 260, n = 64, fp = new Float32Array((n + 1) * 2 * 3), fc = new Float32Array((n + 1) * 2 * 3), fi = [], mid = this.dk ? [0.15, 0.17, 0.29] : [0.93, 0.95, 0.99], far = this.bgT.map((v, i) => (v + this.bgB[i]) / 2);
+        for (let i = 0; i <= n; i++) {
+          const a = TAU * i / n;
+          for (const k of [0, 1]) {
+            const o = 6 * i + 3 * k, rr3 = k ? R : R * 0.18;
+            fp[o] = this.ctr[0] + rr3 * Math.cos(a);
+            fp[o + 1] = this.ctr[1] + rr3 * Math.sin(a);
+            fp[o + 2] = zf;
+            const cc = k ? far : mid;
+            fc[o] = cc[0];
+            fc[o + 1] = cc[1];
+            fc[o + 2] = cc[2];
+          }
+        }
+        for (let i = 0; i < n; i++) {
+          const a0 = 2 * i;
+          fi.push(a0, a0 + 2, a0 + 1, a0 + 1, a0 + 2, a0 + 3);
+        }
+        const cn = this.L.length;
+        this.vmesh(fp, fc, [0, 0, 1], fi, 1);
+        const floor = this.L.pop();
+        const inner = new Float32Array(3 * (n + 2)), ic = new Float32Array(3 * (n + 2)), ii = [];
+        inner.set([this.ctr[0], this.ctr[1], zf], 0);
+        ic.set(mid, 0);
+        for (let i = 0; i <= n; i++) {
+          const a = TAU * i / n;
+          inner.set([this.ctr[0] + R * 0.18 * Math.cos(a), this.ctr[1] + R * 0.18 * Math.sin(a), zf], 3 * (i + 1));
+          ic.set(mid, 3 * (i + 1));
+          if (i < n) ii.push(0, i + 1, i + 2);
+        }
+        this.vmesh(inner, ic, [0, 0, 1], ii, 1);
+        const disc = this.L.pop();
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthMask(true);
+        gl.disable(gl.BLEND);
+        this._draw(floor, false);
+        this._draw(disc, false);
+        gl.enable(gl.STENCIL_TEST);
+        gl.stencilFunc(gl.ALWAYS, 1, 255);
+        gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE);
+        for (const it of Gr) {
+          this._draw(it, false);
+          if (it.col === K3.wood) this._draw(this.grain(it), false);
+        }
+        gl.stencilFunc(gl.ALWAYS, 0, 255);
+        gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP);
+        for (const it of O) this._draw(it, false);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.depthMask(false);
+        gl.enable(gl.POLYGON_OFFSET_FILL);
+        gl.polygonOffset(-2, -2);
+        gl.stencilFunc(gl.EQUAL, 1, 255);
+        gl.stencilOp(gl.KEEP, gl.KEEP, gl.INCR);
+        for (const it of O) this._draw(it, true);
+        gl.disable(gl.POLYGON_OFFSET_FILL);
+        gl.disable(gl.STENCIL_TEST);
+        for (const it of T) this._draw(it, false);
+        gl.depthMask(true);
+        gl.disable(gl.BLEND);
+        for (let i = 0; i < 8; i++) gl.disableVertexAttribArray(i);
+      },
+      grain(it) {
+        const M = it.M, cx = M[12], cy = M[13], sx = M[0], sy = M[5], zt = M[14] + M[10] / 2 + 0.012, nx = 56, ny = 14, pos = new Float32Array((nx + 1) * (ny + 1) * 3), col = new Float32Array((nx + 1) * (ny + 1) * 3), ix = new Uint16Array(nx * ny * 6), c = it.col;
+        for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) {
+          const k = 3 * (j * (nx + 1) + i), x = cx - sx / 2 + sx * i / nx, y = cy - sy / 2 + sy * j / ny, w = Math.sin(y * 1.7 + Math.sin(x * 0.09) * 2.2 + Math.sin(x * 0.023 + j) * 1.3), f = 0.84 + 0.1 * w + 0.06 * Math.sin(x * 0.6 + y * 3.1);
+          pos[k] = x;
+          pos[k + 1] = y;
+          pos[k + 2] = zt;
+          col[k] = c[0] * f;
+          col[k + 1] = c[1] * f;
+          col[k + 2] = c[2] * f;
+        }
+        let q = 0;
+        for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+          const a = j * (nx + 1) + i, b = a + 1, d = a + nx + 1;
+          ix[q++] = a;
+          ix[q++] = b;
+          ix[q++] = d + 1;
+          ix[q++] = a;
+          ix[q++] = d + 1;
+          ix[q++] = d;
+        }
+        const v = new Float32Array((nx + 1) * (ny + 1) * 9);
+        for (let i = 0; i < (nx + 1) * (ny + 1); i++) {
+          v[9 * i] = pos[3 * i];
+          v[9 * i + 1] = pos[3 * i + 1];
+          v[9 * i + 2] = pos[3 * i + 2];
+          v[9 * i + 5] = 1;
+          v[9 * i + 6] = col[3 * i];
+          v[9 * i + 7] = col[3 * i + 1];
+          v[9 * i + 8] = col[3 * i + 2];
+        }
+        return { k: "c", v, ix, e: 0, col: [1, 1, 1] };
+      },
+      proj(p) {
+        const v = M4.xf(this.VP, [p[0], p[1], p[2], 1]);
+        if (v[3] <= 0.01) return null;
+        return [(v[0] / v[3] * 0.5 + 0.5) * this.W, (1 - (v[1] / v[3] * 0.5 + 0.5)) * this.H];
+      },
+      lab(p, s, col, o) {
+        this.labs.push([p, s, col, o || {}]);
+      },
+      badge(lines) {
+        this.bdg = lines;
+      }
+    };
     def({
       id: "lo-xo",
       ch: 0,
@@ -526,26 +1415,8 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         const Ht = Math.round(H2 * 0.56), fy = Ht - 24, x0 = Math.round(W2 * (nar ? 0.52 : 0.5)), bw = nar ? 30 : 38, bh = nar ? 26 : 32;
         const sc = circ ? Math.min((W2 - x0 - 30) / 11.5, ((fy - bh - 34) / 2 - 4) / 10) : Math.min((W2 - x0 - 30) / 11.5, 16);
         const bx = x0 + o.x * sc;
-        g2.strokeStyle = C2.ink;
-        g2.lineWidth = 2;
-        g2.beginPath();
-        g2.moveTo(14, fy);
-        g2.lineTo(W2 - 14, fy);
-        g2.moveTo(16, fy);
-        g2.lineTo(16, fy - bh - 26);
-        g2.stroke();
-        g2.lineWidth = 1;
-        g2.strokeStyle = C2.mute;
-        g2.beginPath();
-        for (let x = 22; x < W2 - 14; x += 10) {
-          g2.moveTo(x, fy);
-          g2.lineTo(x - 6, fy + 6);
-        }
-        for (let y = fy - bh - 22; y < fy; y += 10) {
-          g2.moveTo(16, y);
-          g2.lineTo(10, y + 6);
-        }
-        g2.stroke();
+        woodR(g2, 8, fy, W2 - 16, 13);
+        metalR(g2, 8, fy - bh - 30, 11, bh + 30, true);
         dash(g2, x0 + 0.5, circ ? 8 : fy - bh - 30, x0 + 0.5, fy, C2.mute);
         for (const s of [-1, 1]) {
           g2.strokeStyle = C2.mute;
@@ -557,11 +1428,9 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         tx(g2, "O", x0, fy + 16, C2.ink, { a: "center", w: 700 });
         tx(g2, "−A", x0 - A * sc, fy + 16, C2.mute, { a: "center" });
         tx(g2, "+A", x0 + A * sc, fy + 16, C2.mute, { a: "center" });
-        spring(g2, 16, fy - bh / 2, bx - bw / 2, fy - bh / 2, 16, nar ? 7 : 9, C2.metal2, 2);
-        rr(g2, bx - bw / 2, fy - bh, bw, bh, 5);
-        g2.fillStyle = C2.pen;
-        g2.fill();
-        tx(g2, "m", bx, fy - bh / 2, C2.onpen, { a: "center", it: true, s: 16, halo: false });
+        spring(g2, 19, fy - bh / 2, bx - bw / 2, fy - bh / 2, 16, nar ? 7 : 9, C2.metal2, 2.2);
+        block(g2, bx - bw / 2, fy - bh, bw, bh, C2.pen, 5);
+        tx(g2, "m", bx, fy - bh / 2, "#ffffff", { a: "center", it: true, s: 16, halo: false });
         if (circ) {
           const R = A * sc, cy = Math.round((fy - bh - 26) / 2 + 4), ph = (o.ph % TAU + TAU) % TAU, mx = x0 + R * Math.cos(ph), my = cy - R * Math.sin(ph);
           g2.setLineDash([3, 4]);
@@ -590,7 +1459,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           g2.stroke();
           dash(g2, mx, my, bx, fy - bh, C2.pen, 1.2, [3, 3]);
           dot(g2, x0, cy, 2.5, C2.ink);
-          dot(g2, mx, my, 6, C2.pen);
+          ball(g2, mx, my, 7.5, C2.pen);
           tx(g2, "M", mx + (Math.cos(ph) >= 0 ? 10 : -10), my - (Math.sin(ph) >= 0 ? 10 : -10), C2.pen, { a: "center", w: 700, it: true, s: 15 });
           tx(g2, "ωt", x0 + Math.min(18, R * 0.45) + 14, cy - 9, C2.teal, { it: true, s: 14, w: 600 });
         }
@@ -613,7 +1482,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           plot(g2, M, f, 0, tw, col, 2);
           g2.globalAlpha = 1;
           plot(g2, M, f, 0, tm, col, 2.2, Math.max(2, Math.round(240 * tm / tw)));
-          dot(g2, M.X(tm), M.Y(f(tm)), 4, col);
+          ball(g2, M.X(tm), M.Y(f(tm)), 4.5, col, false);
           tx(g2, n, gl - 16, r.y + r.h / 2, col, { a: "center", it: true, s: 17, w: 600 });
         });
         const cx = Ms[0].X(tm);
@@ -683,16 +1552,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         const { l, a0, g: gr, m, vec } = S2.p, nar = W2 < 560, Hp = Math.round(H2 * 0.62), px = Math.round(W2 * 0.5), py = 24;
         const sc = Math.min((Hp - py - 30) / 2.02, (W2 / 2 - 26) / 1.75), L = l * sc, a0r = a0 * DEG, th = S2.th, bx = px + L * Math.sin(th), by = py + L * Math.cos(th), rb = 7 + 9 * Math.cbrt(m);
         const cw2 = nar ? 36 : 60;
-        g2.fillStyle = C2.metal;
-        g2.fillRect(px - cw2, py - 10, 2 * cw2, 8);
-        g2.strokeStyle = C2.mute;
-        g2.lineWidth = 1;
-        g2.beginPath();
-        for (let x = px - cw2 + 4; x < px + cw2; x += 9) {
-          g2.moveTo(x, py - 10);
-          g2.lineTo(x - 6, py - 17);
-        }
-        g2.stroke();
+        metalR(g2, px - cw2, py - 14, 2 * cw2, 11);
         dash(g2, px, py, px, py + L + rb + 10, C2.mute);
         g2.setLineDash([3, 4]);
         g2.strokeStyle = C2.mute;
@@ -709,20 +1569,14 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         else g2.arc(px, py, ar, Math.PI / 2, Math.PI / 2 - th);
         g2.stroke();
         if (Math.abs(th) > 3 * DEG) tx(g2, "α", px + (ar + 10) * Math.sin(th / 2), py + (ar + 10) * Math.cos(th / 2), C2.teal, { a: "center", it: true, s: 15, w: 600 });
-        g2.strokeStyle = C2.ink;
+        g2.strokeStyle = C2.dark ? "#c9cfe3" : "#3a4256";
         g2.lineWidth = 1.6;
         g2.beginPath();
         g2.moveTo(px, py);
         g2.lineTo(bx, by);
         g2.stroke();
-        dot(g2, px, py, 3.5, C2.ink);
-        const gd = g2.createRadialGradient(bx - rb * 0.35, by - rb * 0.35, rb * 0.1, bx, by, rb);
-        gd.addColorStop(0, C2.dark ? "#c9d0ff" : "#7f8ef0");
-        gd.addColorStop(1, C2.pen);
-        g2.fillStyle = gd;
-        g2.beginPath();
-        g2.arc(bx, by, rb, 0, TAU);
-        g2.fill();
+        ball(g2, px, py, 4, C2.dark ? "#a3abc4" : "#5d6680", false);
+        ball(g2, bx, by, rb, C2.pen);
         if (vec) {
           const P = 64;
           arrow(g2, bx, by, bx, by + P, C2.mute, 2, 8);
@@ -812,41 +1666,56 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         const { f, f0, b, mode } = S2.p, nar = W2 < 560, forced = mode === "f";
         const Hd = Math.round(H2 * 0.6), cx = Math.round(W2 * (nar ? 0.17 : 0.15)), mh = nar ? 13 : 15, sc = (Hd - 6 - 88 - 2 * mh) / 24, yEq = 88 + mh + 12 * sc, Dp = 0.5 * sc * (forced ? 1 : 0);
         const wy = 30, wr = 14, ys = 62 + Dp * Math.cos(S2.ph), py = wy + wr * Math.sin(S2.ph);
-        const tl = yEq - 12 * sc - mh - 8, tb = Hd - 4;
-        g2.fillStyle = C2.dark ? "rgba(63,210,189,".concat(0.06 + 0.2 * (b - 0.3) / 2.7, ")") : "rgba(10,138,120,".concat(0.05 + 0.17 * (b - 0.3) / 2.7, ")");
-        g2.fillRect(cx - 36, tl, 72, tb - tl);
-        g2.strokeStyle = C2.mute;
-        g2.lineWidth = 1.5;
+        const tl = yEq - 12 * sc - mh - 8, tb = Hd - 4, al = 0.1 + 0.28 * (b - 0.3) / 2.7, lg = g2.createLinearGradient(cx - 36, 0, cx + 36, 0);
+        lg.addColorStop(0, "rgba(10,138,120,".concat(al + 0.08, ")"));
+        lg.addColorStop(0.35, "rgba(120,220,205,".concat(al * 0.6, ")"));
+        lg.addColorStop(1, "rgba(10,110,100,".concat(al + 0.12, ")"));
+        g2.fillStyle = lg;
+        g2.fillRect(cx - 36, tl + 6, 72, tb - tl - 6);
+        g2.fillStyle = "rgba(255,255,255,.35)";
+        g2.fillRect(cx - 36, tl + 6, 72, 2);
+        g2.strokeStyle = C2.dark ? "rgba(200,220,255,.5)" : "rgba(60,80,110,.55)";
+        g2.lineWidth = 2;
         g2.beginPath();
         g2.moveTo(cx - 36, tl);
         g2.lineTo(cx - 36, tb);
         g2.lineTo(cx + 36, tb);
         g2.lineTo(cx + 36, tl);
         g2.stroke();
-        if (!nar) tx(g2, "chất lỏng", cx, tb - 12, C2.mute, { a: "center" });
-        g2.strokeStyle = C2.ink;
+        g2.strokeStyle = "rgba(255,255,255,.5)";
         g2.lineWidth = 1.5;
         g2.beginPath();
-        g2.arc(cx, wy, wr, 0, TAU);
+        g2.moveTo(cx - 32, tl + 10);
+        g2.lineTo(cx - 32, tb - 6);
         g2.stroke();
-        dot(g2, cx, wy, 2, C2.ink);
+        if (!nar) tx(g2, "chất lỏng", cx, tb - 12, C2.mute, { a: "center" });
+        {
+          const wg = g2.createRadialGradient(cx - wr * 0.4, wy - wr * 0.4, 1, cx, wy, wr);
+          wg.addColorStop(0, C2.dark ? "#c7cde0" : "#e3e7f1");
+          wg.addColorStop(1, C2.dark ? "#5a6280" : "#7c859c");
+          g2.save();
+          shd(g2, true, 8, 3);
+          g2.fillStyle = wg;
+          g2.beginPath();
+          g2.arc(cx, wy, wr, 0, TAU);
+          g2.fill();
+          g2.restore();
+          dot(g2, cx, wy, 2.5, C2.ink);
+        }
         const cpx = cx + wr * Math.cos(S2.ph), cpy = wy + wr * Math.sin(S2.ph);
-        dot(g2, cpx, cpy, 3.5, C2.red);
+        ball(g2, cpx, cpy, 4, C2.red, false);
         g2.strokeStyle = C2.red;
         g2.lineWidth = 2;
         g2.beginPath();
         g2.moveTo(cpx, cpy);
         g2.lineTo(cx, ys - 6);
         g2.stroke();
-        g2.fillStyle = C2.metal;
-        g2.fillRect(cx - 26, ys - 6, 52, 6);
+        metalR(g2, cx - 26, ys - 7, 52, 7);
         if (!nar) tx(g2, forced ? "điểm treo dao động" : "điểm treo đứng yên", cx + 30, ys - 3, C2.mute, { s: 13 });
         const my = yEq + S2.x * sc;
         spring(g2, cx, ys, cx, my - mh, 14, 9, C2.metal2, 2);
-        rr(g2, cx - 20, my - mh, 40, 2 * mh, 5);
-        g2.fillStyle = C2.pen;
-        g2.fill();
-        tx(g2, "m", cx, my, C2.onpen, { a: "center", it: true, s: 15, halo: false });
+        block(g2, cx - 20, my - mh, 40, 2 * mh, C2.pen, 5);
+        tx(g2, "m", cx, my, "#ffffff", { a: "center", it: true, s: 15, halo: false });
         dash(g2, cx - 44, yEq, cx + 44, yEq, C2.mute, 1, [3, 3]);
         const rx = Math.round(W2 * (nar ? 0.44 : 0.37)), rr_ = { x: rx, y: 30, w: W2 - rx - 26, h: Hd - 30 - 34 }, M = axes(g2, rr_, { x0: 0, x1: 2.5, y0: 0, y1: 12, xt: [0.5, 1, 1.5, 2, 2.5].map((v) => [v, num(v, 1)]), yt: [[4, "4"], [8, "8"], [12, "12"]], xl: "f (Hz)", yl: "A (cm)" });
         g2.globalAlpha = forced ? 1 : 0.3;
@@ -857,7 +1726,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           const at = this.Ath(S2, f);
           dash(g2, M.X(f), M.Y(0), M.X(f), M.Y(Math.min(12, at)), C2.mute, 1, [2, 3]);
           dot(g2, M.X(f), M.Y(Math.min(12, this.Am(S2))), 6, C2.orange, true);
-          dot(g2, M.X(f), M.Y(Math.min(12, at)), 5, C2.pen);
+          ball(g2, M.X(f), M.Y(Math.min(12, at)), 5.5, C2.pen, false);
         }
         g2.globalAlpha = 1;
         if (!forced) tx(g2, "Chọn chế độ cưỡng bức để thấy cộng hưởng", rr_.x + rr_.w / 2, rr_.y + rr_.h * 0.45, C2.ink, { a: "center", w: 600 });
@@ -921,19 +1790,18 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           if (kd === "ngang") {
             const ex = Math.min(4, lh * 0.3 / (Am * s * 1)), sy = Math.max(1, Math.min(4, lh * 0.28 / (0.07 * s)));
             const Y = (x) => yc - u(x) * s * sy;
-            g2.fillStyle = C2.mute;
-            g2.fillRect(xs - 22, Y(0) - 14, 8, 28);
-            g2.strokeStyle = C2.metal2;
-            g2.lineWidth = 1.5;
+            metalR(g2, xs - 23, Y(0) - 15, 9, 30, true);
+            g2.strokeStyle = C2.dark ? "#8d96b0" : "#7b8499";
+            g2.lineWidth = 2;
             g2.beginPath();
-            for (let i = 0; i <= 40; i++) {
-              const x = i * 0.1;
+            for (let i = 0; i <= 160; i++) {
+              const x = i * 0.025;
               i ? g2.lineTo(X(x), Y(x)) : g2.moveTo(X(x), Y(x));
             }
             g2.stroke();
             for (let i = 0; i <= 40; i++) {
               const x = i * 0.1;
-              dot(g2, X(x), Y(x), i === mi && mark ? 6 : 4, i === mi && mark ? C2.red : C2.pen);
+              ball(g2, X(x), Y(x), i === mi && mark ? 7 : 5, i === mi && mark ? C2.red : C2.pen, false);
             }
             if (mark) {
               const mx = X(mi * 0.1);
@@ -963,8 +1831,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           } else {
             const rows = nar ? 4 : 5, rs = Math.min(14, lh * 0.5 / rows), top = yc - rs * (rows - 1) / 2;
             const pxp = xs - 16 + u(0) * s;
-            g2.fillStyle = C2.mute;
-            g2.fillRect(pxp - 4, top - rs, 8, rs * (rows + 1));
+            metalR(g2, pxp - 5, top - rs, 10, rs * (rows + 1), true);
             for (let n = 0; n < 40; n++) {
               const xc = v * t - n * lam;
               if (xc < 0) break;
@@ -979,7 +1846,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
             }
             for (let i = 0; i <= 40; i++) {
               const x = i * 0.1, px = X(x + u(x));
-              for (let r = 0; r < rows; r++) dot(g2, px, top + r * rs, i === mi && mark ? 4.5 : 3, i === mi && mark ? C2.red : C2.pen);
+              for (let r = 0; r < rows; r++) ball(g2, px, top + r * rs, i === mi && mark ? 5 : 3.6, i === mi && mark ? C2.red : C2.pen, false);
             }
             if (mark) {
               const mx = X(mi * 0.1), yb = top + rs * (rows - 1) + 12;
@@ -996,66 +1863,517 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         q: [["Theo dõi chấm đỏ: nó có đi về bên phải cùng sóng không?", "Không. Chấm đỏ chỉ dao động quanh vị trí cũ (lên xuống với sóng ngang, qua lại với sóng dọc)."], ["Giữ nguyên v, tăng f lên gấp đôi. Bước sóng thay đổi thế nào?", "Giảm một nửa, vì λ = v/f."], ["Sóng âm truyền trong không khí là sóng ngang hay sóng dọc?", "Sóng dọc: không khí bị nén và dãn liên tiếp, giống hàng chấm ở hình dưới."]]
       }
     });
+    const SUBN = ["₁", "₂", "₃", "₄", "₅", "₆"];
+    const rowSrc = (n, d) => {
+      const sp = n > 1 ? Math.min(d, 20 / (n - 1)) : 0;
+      return Array.from({ length: n }, (_, i) => ({ x: (i - (n - 1) / 2) * sp, y: 0 }));
+    };
+    const WLUT = lut3([[0, [8, 48, 96]], [0.45, [26, 104, 170]], [0.75, [90, 170, 220]], [1, [225, 246, 255]]], 24, 12, 0.5);
+    const SKYF = "uniform vec3 uSun,uZen,uHor,uSunCol;vec3 sky(vec3 d){float t=clamp(d.z,0.0,1.0);vec3 c=mix(uHor,uZen,pow(t,0.55));float s=max(dot(d,uSun),0.0);return c+uSunCol*(pow(s,600.0)*2.5+pow(s,10.0)*0.22);}";
+    const LAKE = {
+      ok: null,
+      LA: 15,
+      LB: 11.5,
+      NX: 240,
+      NY: 190,
+      WX: 17,
+      WY: 13.5,
+      sm(a, b, x) {
+        const t = cl((x - a) / (b - a), 0, 1);
+        return t * t * (3 - 2 * t);
+      },
+      qn(x, y) {
+        const a = Math.atan2(y, x);
+        return Math.sqrt((x / this.LA) ** 2 + (y / this.LB) ** 2) + 0.05 * Math.sin(a * 5 + 1) + 0.03 * Math.sin(a * 9 + 2);
+      },
+      th(x, y) {
+        const q = this.qn(x, y), r = Math.hypot(x, y), a = Math.atan2(y, x), hills = 1.7 * Math.sin(0.11 * x + 1.3) * Math.cos(0.09 * y - 0.4) + 0.9 * Math.sin(0.21 * x - 0.15 * y + 2) + 0.6 * Math.cos(0.33 * x + 0.27 * y) + 1.6;
+        let h;
+        if (q < 1) h = -2.4 * Math.pow(1 - q, 0.6) - 0.05;
+        else {
+          const t = q - 1, f = this.sm(0.12, 0.9, t);
+          h = 6 * t * (1 - f) + f * (1.2 + Math.max(0, hills) * 1.3);
+        }
+        return h + this.sm(46, 92, r) * (15 + 7 * Math.sin(a * 5 + 0.7) + 4 * Math.sin(a * 13 + 2) + 3 * Math.cos(a * 7));
+      },
+      tc(x, y, h, nz) {
+        const q = this.qn(x, y);
+        let c;
+        if (q < 1) c = [0.6, 0.55, 0.4];
+        else if (h < 0.6) c = [0.9, 0.82, 0.6];
+        else {
+          const n = 0.5 + 0.5 * Math.sin(x * 0.7 + Math.cos(y * 0.5) * 2);
+          c = [0.36 - 0.1 * n, 0.62 - 0.12 * n, 0.2 - 0.05 * n];
+        }
+        if (h > 8) {
+          const k = this.sm(8, 12, h);
+          c = c.map((v, i) => v * (1 - k) + [0.5, 0.49, 0.52][i] * k);
+        }
+        if (h > 18) {
+          const k = this.sm(18, 21, h);
+          c = c.map((v) => v * (1 - k) + 0.97 * k);
+        }
+        if (nz < 0.8 && h > 0.6 && h < 8) c = c.map((v) => v * 0.82);
+        return c;
+      },
+      setup(cv2) {
+        try {
+          const gl = cv2.getContext("webgl", { antialias: true, alpha: false, stencil: true }) || cv2.getContext("experimental-webgl");
+          if (!gl || !gl.createShader) return false;
+          this.gl = gl;
+          const mk = (vs, fs) => {
+            const sh = (t, src) => {
+              const o = gl.createShader(t);
+              gl.shaderSource(o, src);
+              gl.compileShader(o);
+              if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o));
+              return o;
+            };
+            const p = gl.createProgram();
+            gl.attachShader(p, sh(gl.VERTEX_SHADER, vs));
+            gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs));
+            gl.linkProgram(p);
+            if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+            const U = {}, A = {};
+            return { p, u: (n) => n in U ? U[n] : U[n] = gl.getUniformLocation(p, n), a: (n) => n in A ? A[n] : A[n] = gl.getAttribLocation(p, n) };
+          };
+          this.pSky = mk("attribute vec2 aQ;varying vec2 vQ;void main(){vQ=aQ;gl_Position=vec4(aQ,0.9999,1.0);}", FP + SKYF + "varying vec2 vQ;uniform mat4 uInv;uniform vec3 uEye;void main(){vec4 p=uInv*vec4(vQ,1.0,1.0);vec3 d=normalize(p.xyz/p.w-uEye);gl_FragColor=vec4(d.z<0.0?uHor:sky(d),1.0);}");
+          this.pTer = mk(
+            "attribute vec3 aPos,aNor,aCol;uniform mat4 uMVP;varying vec3 vPos,vNor,vCol;void main(){vPos=aPos;vNor=aNor;vCol=aCol;gl_Position=uMVP*vec4(aPos,1.0);}",
+            FP + "varying vec3 vPos,vNor,vCol;uniform vec3 uEye,uSun,uHor,uSunCol;uniform float uFog,uAmb;void main(){vec3 N=normalize(vNor);float d=max(dot(N,uSun),0.0);vec3 c=vCol*(uAmb+(1.0-uAmb)*d)*mix(vec3(1.0),uSunCol,0.35);float f=1.0-exp(-pow(length(uEye-vPos)/uFog,2.0));gl_FragColor=vec4(mix(c,uHor,f),1.0);}"
+          );
+          this.pWat = mk(
+            "attribute vec2 aXY;uniform mat4 uMVP;uniform vec4 uSrc[6];uniform float uN,uZs,uZm;uniform vec2 uL;varying vec3 vPos,vNor;varying float vH;void main(){float u=0.0;vec2 gr=vec2(0.0);for(int i=0;i<6;i++){if(float(i)>=uN)break;vec2 d=aXY-uSrc[i].xy;float r=max(length(d),0.02);float s=1.0+r/3.0;float A=inversesqrt(s);float Ap=-A/(6.0*s);float th=uSrc[i].z-uSrc[i].w*r;float c=cos(th);float sn=sin(th);u+=A*c;gr+=(Ap*c+A*uSrc[i].w*sn)*d/r;}float fd=1.0-smoothstep(0.82,0.97,length(aXY/uL));float h=clamp(uZs*u,-uZm,uZm)*fd;gr*=uZs*fd;vNor=normalize(vec3(-gr.x,-gr.y,1.0));vPos=vec3(aXY,h);vH=h/uZm;gl_Position=uMVP*vec4(vPos,1.0);}",
+            FP + SKYF + "varying vec3 vPos,vNor;varying float vH;uniform vec3 uEye;uniform float uFog;void main(){vec3 N=normalize(vNor);vec3 V=normalize(uEye-vPos);vec3 base=mix(vec3(0.02,0.15,0.28),vec3(0.22,0.55,0.68),clamp(vH*0.5+0.5,0.0,1.0));vec3 col=base*(0.45+0.55*max(dot(N,uSun),0.0));vec3 R=reflect(-V,N);R.z=abs(R.z);float F=0.04+0.96*pow(1.0-max(dot(N,V),0.0),5.0);col=mix(col,sky(R),F*0.8);col+=uSunCol*pow(max(dot(R,uSun),0.0),160.0)*1.3;float f=1.0-exp(-pow(length(uEye-vPos)/uFog,2.0));gl_FragColor=vec4(mix(col,uHor,f),1.0);}"
+          );
+          const buf = (arr, el) => {
+            const b = gl.createBuffer(), t = el ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
+            gl.bindBuffer(t, b);
+            gl.bufferData(t, arr, gl.STATIC_DRAW);
+            return b;
+          };
+          this.bQ = buf(new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]));
+          const { NX, NY, WX, WY } = this, wv = new Float32Array((NX + 1) * (NY + 1) * 2);
+          for (let j = 0; j <= NY; j++) for (let i = 0; i <= NX; i++) {
+            const k = 2 * (j * (NX + 1) + i);
+            wv[k] = -WX + 2 * WX * i / NX;
+            wv[k + 1] = -WY + 2 * WY * j / NY;
+          }
+          const grid = (nx, ny) => {
+            const ix = new Uint16Array(nx * ny * 6);
+            let p = 0;
+            for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+              const a = j * (nx + 1) + i, b = a + 1, c = a + nx + 1, d = c + 1;
+              ix[p++] = a;
+              ix[p++] = b;
+              ix[p++] = d;
+              ix[p++] = a;
+              ix[p++] = d;
+              ix[p++] = c;
+            }
+            return ix;
+          };
+          this.bW = buf(wv);
+          this.bWi = buf(grid(NX, NY), 1);
+          this.nWi = NX * NY * 6;
+          const N = 150, R = 95, nv = (N + 1) * (N + 1), tp = new Float32Array(nv * 3), tn = new Float32Array(nv * 3), tcol = new Float32Array(nv * 3), e = 2 * R / N;
+          for (let j = 0; j <= N; j++) for (let i = 0; i <= N; i++) {
+            const x = -R + e * i, y = -R + e * j, h = this.th(x, y), gx = (this.th(x + e, y) - this.th(x - e, y)) / (2 * e), gy = (this.th(x, y + e) - this.th(x, y - e)) / (2 * e), nl = Math.hypot(gx, gy, 1), k = 3 * (j * (N + 1) + i), c = this.tc(x, y, h, 1 / nl);
+            tp[k] = x;
+            tp[k + 1] = y;
+            tp[k + 2] = h;
+            tn[k] = -gx / nl;
+            tn[k + 1] = -gy / nl;
+            tn[k + 2] = 1 / nl;
+            tcol[k] = c[0];
+            tcol[k + 1] = c[1];
+            tcol[k + 2] = c[2];
+          }
+          this.bTp = buf(tp);
+          this.bTn = buf(tn);
+          this.bTc = buf(tcol);
+          this.bTi = buf(grid(N, N), 1);
+          this.nTi = N * N * 6;
+          const T = [];
+          let sd = 11;
+          const rnd = () => (sd = sd * 16807 % 2147483647) / 2147483647;
+          const face = (a, b, c, col, ct) => {
+            const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+            let n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+            const g2 = [(a[0] + b[0] + c[0]) / 3 - ct[0], (a[1] + b[1] + c[1]) / 3 - ct[1], (a[2] + b[2] + c[2]) / 3 - ct[2]];
+            if (n[0] * g2[0] + n[1] * g2[1] + n[2] * g2[2] < 0) n = n.map((q) => -q);
+            const l = Math.hypot(n[0], n[1], n[2]) || 1;
+            for (const p of [a, b, c]) T.push(p[0], p[1], p[2], n[0] / l, n[1] / l, n[2] / l, col[0], col[1], col[2]);
+          };
+          const cone = (x, y, z0, r, h, col, sg = 8) => {
+            const ap = [x, y, z0 + h], ct = [x, y, z0 + h * 0.35];
+            for (let k = 0; k < sg; k++) {
+              const a1 = TAU * k / sg, a2 = TAU * (k + 1) / sg;
+              face([x + r * Math.cos(a1), y + r * Math.sin(a1), z0], [x + r * Math.cos(a2), y + r * Math.sin(a2), z0], ap, col, ct);
+            }
+          };
+          const cyl = (x, y, z0, r, h, col, sg = 6) => {
+            const ct = [x, y, z0 + h / 2];
+            for (let k = 0; k < sg; k++) {
+              const a1 = TAU * k / sg, a2 = TAU * (k + 1) / sg, p1 = [x + r * Math.cos(a1), y + r * Math.sin(a1)], p2 = [x + r * Math.cos(a2), y + r * Math.sin(a2)];
+              face([p1[0], p1[1], z0], [p2[0], p2[1], z0], [p2[0], p2[1], z0 + h], col, ct);
+              face([p1[0], p1[1], z0], [p2[0], p2[1], z0 + h], [p1[0], p1[1], z0 + h], col, ct);
+            }
+          };
+          const blob = (x, y, z, r, rz, col) => {
+            const la = 4, lo = 7, ct = [x, y, z], P = (i, j) => {
+              const t = Math.PI * i / la, f = TAU * j / lo;
+              return [x + r * Math.sin(t) * Math.cos(f), y + r * Math.sin(t) * Math.sin(f), z + rz * Math.cos(t)];
+            };
+            for (let i = 0; i < la; i++) for (let j = 0; j < lo; j++) {
+              const a = P(i, j), b = P(i + 1, j), c = P(i + 1, j + 1), d = P(i, j + 1);
+              face(a, b, c, col, ct);
+              face(a, c, d, col, ct);
+            }
+          };
+          let placed = 0;
+          for (let tries = 0; tries < 1500 && placed < 78; tries++) {
+            const big = placed < 60, a0 = rnd() * TAU, rr3 = big ? 40 + rnd() * 16 : 0, x = big ? Math.cos(a0) * rr3 : (rnd() * 2 - 1) * 26, y = big ? Math.sin(a0) * rr3 : (rnd() * 2 - 1) * 20, q = this.qn(x, y), z = this.th(x, y);
+            if (z > 9) continue;
+            if (!big && (q < 1.22 || q > 1.6)) continue;
+            const s = big ? 0.8 + rnd() * 0.7 : 0.42 + rnd() * 0.22, v = rnd() * 0.08;
+            placed++;
+            if (rnd() < 0.62) {
+              cyl(x, y, z - 0.2, 0.22 * s, 0.9 * s, [0.42, 0.28, 0.16]);
+              cone(x, y, z + 0.5 * s, 1.5 * s, 2.6 * s, [0.11 + v, 0.36 + v, 0.19 + v]);
+              cone(x, y, z + 1.8 * s, 1.1 * s, 2.3 * s, [0.13 + v, 0.41 + v, 0.21 + v]);
+            } else {
+              cyl(x, y, z - 0.2, 0.26 * s, 1.6 * s, [0.45, 0.3, 0.17]);
+              blob(x, y, z + 2.3 * s, 1.35 * s, 1.2 * s, [0.27 + v, 0.55 + v, 0.2 + v]);
+            }
+          }
+          for (let k = 0; k < 9; k++) {
+            const a = rnd() * TAU, q = 1.05 + rnd() * 0.12, x = Math.cos(a) * this.LA * q, y = Math.sin(a) * this.LB * q, z = this.th(x, y);
+            blob(x, y, z + 0.1, 0.5 + rnd() * 0.5, 0.35 + rnd() * 0.25, [0.55, 0.55, 0.58]);
+          }
+          this.bTr = buf(new Float32Array(T));
+          this.nTr = T.length / 9;
+          this.ok = true;
+          return true;
+        } catch (err) {
+          console.warn("WebGL off:", err && err.message);
+          this.ok = false;
+          return false;
+        }
+      },
+      env(dark) {
+        return dark ? { sun: [0.25, 0.92, 0.3], zen: [0.05, 0.07, 0.2], hor: [0.52, 0.38, 0.44], sc: [1, 0.7, 0.48], amb: 0.3 } : { sun: [0.32, 0.8, 0.5], zen: [0.25, 0.5, 0.86], hor: [0.8, 0.87, 0.94], sc: [1, 0.96, 0.86], amb: 0.45 };
+      },
+      render(S2, W2, H2, cv2, o) {
+        const gl = this.gl, dpr2 = Math.min(2, devicePixelRatio || 1), pw = Math.round(W2 * dpr2), ph = Math.round(H2 * dpr2);
+        if (cv2.width !== pw || cv2.height !== ph) {
+          cv2.width = pw;
+          cv2.height = ph;
+        }
+        cv2.style.width = W2 + "px";
+        cv2.style.height = H2 + "px";
+        gl.viewport(0, 0, pw, ph);
+        const c = S2.cg, dd = c.dist * Math.max(1, 1.25 * H2 / W2), eye = [dd * Math.cos(c.el) * Math.cos(c.az), dd * Math.cos(c.el) * Math.sin(c.az), dd * Math.sin(c.el)], Pm = M4.persp(0.8, W2 / H2, 0.3, 700), Vm = M4.look(eye, [0, 0, 0], [0, 0, 1]), MVP = M4.mul(Pm, Vm), I = M4.inv(MVP);
+        const E = this.env(o.dark), sl = Math.hypot(...E.sun), sun = E.sun.map((v) => v / sl);
+        const off = () => {
+          for (let i = 0; i < 4; i++) gl.disableVertexAttribArray(i);
+        }, at = (pr, n, b, sz, st, of) => {
+          const l = pr.a(n);
+          if (l < 0) return;
+          gl.bindBuffer(gl.ARRAY_BUFFER, b);
+          gl.enableVertexAttribArray(l);
+          gl.vertexAttribPointer(l, sz, gl.FLOAT, false, st || 0, of || 0);
+        };
+        const env = (pr) => {
+          gl.uniform3fv(pr.u("uSun"), sun);
+          gl.uniform3fv(pr.u("uHor"), E.hor);
+          gl.uniform3fv(pr.u("uSunCol"), E.sc);
+          gl.uniform3fv(pr.u("uEye"), eye);
+          const z = pr.u("uZen");
+          if (z) gl.uniform3fv(z, E.zen);
+        };
+        gl.disable(gl.DEPTH_TEST);
+        gl.depthMask(false);
+        off();
+        let p = this.pSky;
+        gl.useProgram(p.p);
+        at(p, "aQ", this.bQ, 2);
+        env(p);
+        gl.uniformMatrix4fv(p.u("uInv"), false, I);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthMask(true);
+        gl.clear(gl.DEPTH_BUFFER_BIT);
+        off();
+        p = this.pTer;
+        gl.useProgram(p.p);
+        env(p);
+        gl.uniformMatrix4fv(p.u("uMVP"), false, MVP);
+        gl.uniform1f(p.u("uFog"), 150);
+        gl.uniform1f(p.u("uAmb"), E.amb);
+        at(p, "aPos", this.bTp, 3);
+        at(p, "aNor", this.bTn, 3);
+        at(p, "aCol", this.bTc, 3);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bTi);
+        gl.drawElements(gl.TRIANGLES, this.nTi, gl.UNSIGNED_SHORT, 0);
+        off();
+        at(p, "aPos", this.bTr, 3, 36, 0);
+        at(p, "aNor", this.bTr, 3, 36, 12);
+        at(p, "aCol", this.bTr, 3, 36, 24);
+        gl.drawArrays(gl.TRIANGLES, 0, this.nTr);
+        off();
+        p = this.pWat;
+        gl.useProgram(p.p);
+        env(p);
+        gl.uniformMatrix4fv(p.u("uMVP"), false, MVP);
+        gl.uniform1f(p.u("uFog"), 150);
+        gl.uniform4fv(p.u("uSrc"), o.src);
+        gl.uniform1f(p.u("uN"), o.n);
+        gl.uniform1f(p.u("uZs"), o.zs);
+        gl.uniform1f(p.u("uZm"), o.zm);
+        gl.uniform2f(p.u("uL"), this.LA, this.LB);
+        at(p, "aXY", this.bW, 2);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bWi);
+        gl.drawElements(gl.TRIANGLES, this.nWi, gl.UNSIGNED_SHORT, 0);
+        off();
+        return { MVP, I, eye };
+      }
+    };
+    const segd = (px, py, a, b) => {
+      const dx = b[0] - a[0], dy = b[1] - a[1], l = dx * dx + dy * dy || 1, t = cl(((px - a[0]) * dx + (py - a[1]) * dy) / l, 0, 1);
+      return Math.hypot(px - a[0] - t * dx, py - a[1] - t * dy);
+    };
     def({
       id: "giao-thoa-nuoc",
       ch: 1,
       name: "Giao thoa sóng mặt nước",
-      topic: "Giao thoa của hai sóng kết hợp, vân cực đại và cực tiểu",
-      r: 0.68,
-      rm: 1,
-      hint: "Chạm hoặc kéo trên mặt nước để đặt điểm M và đo hiệu đường đi.",
+      topic: "Giao thoa sóng: tần số, bước sóng và nhiều nguồn kết hợp",
+      r: 0.82,
+      rm: 1.25,
+      vh: 0.62,
+      hd: 760,
+      hint: "2D: chạm mặt nước để đặt điểm M, kéo chấm trắng để dời nguồn. 3D: kéo cột trắng để dời nguồn, kéo chỗ khác để xoay, chụm hai ngón để phóng to. Chuyển động được làm chậm 25 lần.",
       ctl: [
-        { t: "r", id: "d", l: "Khoảng cách hai nguồn S₁S₂", min: 2, max: 12, st: 0.5, v: 6, u: "cm", d: 1 },
-        { t: "r", id: "lam", l: "Bước sóng λ", min: 0.8, max: 3, st: 0.1, v: 1.5, u: "cm", d: 1 },
-        { t: "s", id: "ph", l: "Hai nguồn", o: [["0", "Dao động cùng pha"], ["1", "Dao động ngược pha"]], v: "0" },
-        { t: "c", id: "hyp", l: "Hiện các vân cực đại và cực tiểu", v: true }
+        { t: "s", id: "fm", l: "Tần số các nguồn", o: [["same", "Tất cả cùng một tần số f"], ["each", "Mỗi nguồn một tần số riêng"]], v: "same" },
+        { t: "r", id: "f", l: "Tần số f của các nguồn", min: 5, max: 50, st: 1, v: 20, u: "Hz", d: 0, show: (S2) => S2.p.fm !== "each" },
+        ...[1, 2, 3, 4, 5, 6].map((j) => ({ t: "r", id: "f" + j, l: "Tần số nguồn S" + SUBN[j - 1], min: 5, max: 50, st: 1, v: 20, u: "Hz", d: 0, show: (S2) => S2.p.fm === "each" && S2.p.n >= j })),
+        { t: "r", id: "v", l: "Tốc độ truyền sóng v", min: 20, max: 80, st: 1, v: 30, u: "cm/s", d: 0 },
+        { t: "r", id: "d", l: "Khoảng cách hai nguồn liền kề", min: 2, max: 12, st: 0.5, v: 6, u: "cm", d: 1 },
+        { t: "s", id: "ph", l: "Pha của các nguồn", o: [["0", "Tất cả dao động cùng pha"], ["1", "Hai nguồn liền kề ngược pha"]], v: "0" },
+        { t: "b", id: "add", l: "+ Thêm nguồn" },
+        { t: "b", id: "rem", l: "− Bớt nguồn" },
+        { t: "c", id: "hyp", l: "Hiện vân cực đại, cực tiểu (khi có 2 nguồn)", v: true },
+        { t: "c", id: "d3", l: "Xem 3D: hồ nước giữa đồi núi", v: false }
       ],
       init(S2) {
+        if (!S2.p.n) S2.p.n = 2;
+        S2.src = rowSrc(S2.p.n, S2.p.d);
         if (!S2.M) S2.M = { x: -3.2, y: -4.5 };
         S2.t = 0;
+        S2.key = null;
+        cam3(S2, -0.5, 0.78);
+        if (!S2.cg) S2.cg = { az: -1.75, el: 0.42, dist: 34 };
+      },
+      chg(S2, id) {
+        if (id === "d") {
+          S2.src = rowSrc(S2.p.n, S2.p.d);
+          S2.key = null;
+        }
+        if (id === "fm" && S2.p.fm === "each") {
+          for (let j = 1; j <= 6; j++) setP("f" + j, S2.p.f);
+        }
+        if (id[0] === "f" || id === "v") S2.key = null;
+      },
+      act(S2, id) {
+        const n = cl(S2.p.n + (id === "add" ? 1 : -1), 1, 6);
+        S2.p.n = n;
+        S2.src = rowSrc(n, S2.p.d);
+        S2.key = null;
       },
       step(S2, dt) {
         S2.t += dt;
       },
-      ptr(tp, x, y, S2) {
-        if (tp === "up") return;
-        const s = S2.W / 24;
-        S2.M = { x: cl((x - S2.W / 2) / s, -12, 12), y: cl((y - S2.H / 2) / s, -S2.H / 2 / s, S2.H / 2 / s) };
+      lam(S2) {
+        return S2.p.v / Math.max(...S2.src.map((_, j) => this.fj(S2, j)));
+      },
+      phs(S2, j) {
+        return S2.p.ph === "1" && j % 2 ? Math.PI : 0;
+      },
+      fj(S2, j) {
+        return S2.p.fm === "each" ? S2.p["f" + (j + 1)] : S2.p.f;
+      },
+      coh(S2) {
+        const f0 = this.fj(S2, 0);
+        return S2.src.every((_, j) => this.fj(S2, j) === f0);
+      },
+      kj(S2, j) {
+        return TAU * this.fj(S2, j) / S2.p.v;
+      },
+      pj(S2, j) {
+        return TAU * this.fj(S2, j) / 25 * S2.t + this.phs(S2, j);
+      },
+      bl(S2) {
+        if (this.coh(S2)) {
+          const f = this.fj(S2, 0);
+          return ["f = " + f + " Hz", "λ = " + num(S2.p.v / f, 2) + " cm"];
+        }
+        return ["Nguồn không kết hợp", S2.src.slice(0, 3).map((_, j) => "f" + SUBN[j] + " = " + this.fj(S2, j)).join(", ") + (S2.src.length > 3 ? "…" : "") + " Hz"];
+      },
+      ptr(tp, x, y, S2, id) {
+        if (S2.p.d3) {
+          if (LAKE.ok) return this.ptrGL(tp, x, y, S2, id);
+          rot3(S2, tp, x, y);
+          return;
+        }
+        if (tp === "up") {
+          S2.dg = null;
+          return;
+        }
+        const s = S2.W / 24, X = (x - S2.W / 2) / s, Y = (y - S2.H / 2) / s;
+        if (tp === "down") S2.dg = S2.src.find((q) => Math.hypot(q.x - X, q.y - Y) * s < 20) || "M";
+        if (S2.dg === "M") S2.M = { x: cl(X, -12, 12), y: cl(Y, -S2.H / 2 / s, S2.H / 2 / s) };
+        else if (S2.dg) {
+          S2.dg.x = cl(X, -11.5, 11.5);
+          S2.dg.y = cl(Y, -S2.H / 2 / s + 0.5, S2.H / 2 / s - 0.5);
+          S2.key = null;
+        }
+      },
+      ptrGL(tp, x, y, S2, id) {
+        const P = S2.pts || (S2.pts = {});
+        if (tp === "down") {
+          P[id] = [x, y];
+          const ids = Object.keys(P);
+          if (ids.length >= 2) {
+            const a2 = P[ids[0]], b2 = P[ids[1]];
+            S2.drg = { t: "pinch", d0: Math.hypot(a2[0] - b2[0], a2[1] - b2[1]) || 1, z0: S2.cg.dist };
+            return;
+          }
+          let best = null, bd = 26;
+          for (const pk of S2.picks || []) {
+            const d2 = segd(x, y, pk.a, pk.b);
+            if (d2 < bd) {
+              bd = d2;
+              best = pk;
+            }
+          }
+          S2.drg = best ? { t: "move", j: best.j } : { t: "rot", x, y };
+          return;
+        }
+        if (tp === "up") {
+          delete P[id];
+          const ids = Object.keys(P);
+          S2.drg = ids.length === 1 ? { t: "rot", x: P[ids[0]][0], y: P[ids[0]][1] } : null;
+          return;
+        }
+        P[id] = [x, y];
+        const d = S2.drg;
+        if (!d) return;
+        if (d.t === "pinch") {
+          const ids = Object.keys(P);
+          if (ids.length < 2) return;
+          const a2 = P[ids[0]], b2 = P[ids[1]];
+          S2.cg.dist = cl(d.z0 * d.d0 / (Math.hypot(a2[0] - b2[0], a2[1] - b2[1]) || 1), 12, 95);
+          return;
+        }
+        if (d.t === "rot") {
+          S2.cg.az -= (x - d.x) * 9e-3;
+          S2.cg.el = cl(S2.cg.el + (y - d.y) * 7e-3, 0.1, 1.45);
+          d.x = x;
+          d.y = y;
+          return;
+        }
+        const I = S2.gm && S2.gm.I;
+        if (!I) return;
+        const nx = 2 * x / S2.W - 1, ny = 1 - 2 * y / S2.H, p0 = M4.xf(I, [nx, ny, -1, 1]), p1 = M4.xf(I, [nx, ny, 1, 1]), a = p0.map((v) => v / p0[3]), b = p1.map((v) => v / p1[3]);
+        if (Math.abs(b[2] - a[2]) < 1e-9) return;
+        const t = -a[2] / (b[2] - a[2]);
+        if (t < 0) return;
+        let X = a[0] + (b[0] - a[0]) * t, Y = a[1] + (b[1] - a[1]) * t;
+        const q = Math.sqrt((X / LAKE.LA) ** 2 + (Y / LAKE.LB) ** 2), lim = d.j === "M" ? 0.95 : 0.88;
+        if (q > lim) {
+          X *= lim / q;
+          Y *= lim / q;
+        }
+        if (d.j === "M") S2.M = { x: X, y: Y };
+        else if (S2.src[d.j]) {
+          S2.src[d.j].x = X;
+          S2.src[d.j].y = Y;
+          S2.key = null;
+        }
+      },
+      wheel(dy, S2) {
+        if (!S2.p.d3 || !LAKE.ok) return false;
+        S2.cg.dist = cl(S2.cg.dist * Math.pow(1.0012, dy), 12, 95);
       },
       mdat(S2) {
-        const { d, lam, ph } = S2.p, M = S2.M, d1 = Math.hypot(M.x + d / 2, M.y), d2 = Math.hypot(M.x - d / 2, M.y), n = (d2 - d1) / lam, anti = ph === "1";
-        const fr = n - Math.round(n), fh = n - Math.floor(n) - 0.5, tol = 0.07;
-        let vd = "biên độ trung gian";
-        if (Math.abs(fr) < tol) vd = anti ? "cực tiểu (đứng yên)" : "cực đại (k = " + Math.round(n) + ")";
-        else if (Math.abs(fh) < tol) vd = anti ? "cực đại" : "cực tiểu (đứng yên)";
-        return { d1, d2, n, vd };
+        const lam = this.lam(S2), M = S2.M, n = S2.src.length, co = this.coh(S2), ds = S2.src.map((q) => Math.hypot(M.x - q.x, M.y - q.y));
+        let re = 0, im = 0;
+        ds.forEach((r, j) => {
+          const th = (co ? this.phs(S2, j) : this.pj(S2, j)) - this.kj(S2, j) * r;
+          re += Math.cos(th);
+          im += Math.sin(th);
+        });
+        const amp = Math.hypot(re, im);
+        if (n === 1) return { ds, amp, vd: "chỉ có một nguồn nên không có giao thoa" };
+        if (!co) return { ds, amp, vd: "các nguồn khác tần số nên biên độ tại M lúc lớn lúc nhỏ, không có vân đứng yên" };
+        if (n === 2) {
+          const nn = (ds[1] - ds[0]) / lam, anti = S2.p.ph === "1", fr = nn - Math.round(nn), fh = nn - Math.floor(nn) - 0.5, tol = 0.07;
+          let vd = "biên độ trung gian";
+          if (Math.abs(fr) < tol) vd = anti ? "vân cực tiểu (đứng yên)" : "vân cực đại (k = " + Math.round(nn) + ")";
+          else if (Math.abs(fh) < tol) vd = anti ? "vân cực đại" : "vân cực tiểu (đứng yên)";
+          return { ds, amp, nn, vd };
+        }
+        return { ds, amp, vd: amp >= 0.9 * n ? "cực đại: các sóng tới gần như cùng pha" : amp <= 0.15 * n ? "gần như đứng yên: các sóng triệt tiêu nhau" : "biên độ trung gian" };
       },
       cnt(S2) {
-        const { d, lam, ph } = S2.p, q = d / lam;
+        const a0 = S2.src[0], a1 = S2.src[1], q = Math.hypot(a1.x - a0.x, a1.y - a0.y) / this.lam(S2);
         let a = 0, b = 0;
-        for (let k = -40; k <= 40; k++) {
+        for (let k = -80; k <= 80; k++) {
           if (Math.abs(k) < q - 1e-9) a++;
           if (Math.abs(k + 0.5) < q - 1e-9) b++;
         }
-        return ph === "1" ? [b, a] : [a, b];
+        return S2.p.ph === "1" ? [b, a] : [a, b];
       },
       reads(S2) {
-        const { d, lam } = S2.p, m = this.mdat(S2), [mx, mn] = this.cnt(S2);
-        return [["Tỉ số d/λ", num(d / lam, 2)], ["Số cực đại trên S₁S₂", String(mx)], ["Số cực tiểu trên S₁S₂", String(mn)], ["Điểm M: d₁", num(m.d1, 2) + " cm"], ["Điểm M: d₂", num(m.d2, 2) + " cm"], ["d₂ − d₁", num(m.d2 - m.d1, 2) + " cm = " + num(m.n, 2) + "λ"], ["M nằm trên", m.vd, 1]];
+        const lam = this.lam(S2), n = S2.src.length, m = this.mdat(S2), co = this.coh(S2), r = [];
+        if (co) {
+          const f = this.fj(S2, 0);
+          r.push(["Bước sóng λ = v/f", num(lam, 2) + " cm"], ["Chu kì T = 1/f", num(1e3 / f, 1) + " ms"]);
+        } else S2.src.forEach((_, j) => r.push(["Nguồn S" + SUBN[j], this.fj(S2, j) + " Hz, λ = " + num(S2.p.v / this.fj(S2, j), 2) + " cm"]));
+        r.push(["Số nguồn sóng", String(n)]);
+        if (n === 2 && co) {
+          const L = Math.hypot(S2.src[1].x - S2.src[0].x, S2.src[1].y - S2.src[0].y), [mx, mn] = this.cnt(S2);
+          r.push(["Khoảng cách S₁S₂", num(L, 2) + " cm"], ["Số cực đại trên S₁S₂", String(mx)], ["Số cực tiểu trên S₁S₂", String(mn)], ["Tại M: d₂ − d₁", num(m.ds[1] - m.ds[0], 2) + " cm = " + num(m.nn, 2) + "λ"]);
+        }
+        r.push(["Biên độ tổng hợp tại M", num(m.amp, 2) + "·a"], ["M nằm trên", m.vd, 1]);
+        if (!co) r.push(["Vì sao vân không đứng yên", "Giao thoa ổn định chỉ có khi các nguồn là nguồn kết hợp: cùng tần số và hiệu số pha không đổi. Ở đây hiệu số pha giữa các nguồn thay đổi liên tục nên vân trôi đi.", 1]);
+        return r;
       },
       draw(g2, W2, H2, S2, C2) {
-        const { d, lam, ph, hyp } = S2.p, s = W2 / 24, cx = W2 / 2, cy = H2 / 2, cell = 3, cw = Math.ceil(W2 / cell), ch = Math.ceil(H2 / cell), key = [W2, H2, d, lam].join();
+        const glc = document.getElementById("gl");
+        if (S2.p.d3) {
+          if (LAKE.ok === null) LAKE.setup(glc);
+          if (LAKE.ok) return this.drawGL(g2, W2, H2, S2, C2, glc);
+          glc.style.display = "none";
+          return this.draw3(g2, W2, H2, S2, C2);
+        }
+        if (glc.style.display !== "none") glc.style.display = "none";
+        const { ph, hyp } = S2.p, lam = this.lam(S2), s = W2 / 24, cx = W2 / 2, cy = H2 / 2, lpx = lam * s, cell = lpx < 10 ? 1 : lpx < 16 ? 2 : 3, cw = Math.ceil(W2 / cell), ch = Math.ceil(H2 / cell), n = S2.src.length, key = [W2, H2, cell, S2.p.v, S2.src.map((_, j) => this.fj(S2, j)).join("/"), JSON.stringify(S2.src)].join();
         if (S2.key !== key) {
           S2.key = key;
-          const n2 = cw * ch, K12 = new Float32Array(n2), K22 = new Float32Array(n2), A12 = new Float32Array(n2), A22 = new Float32Array(n2), k = TAU / lam;
-          for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) {
-            const x = ((i + 0.5) * cell - cx) / s, y = ((j + 0.5) * cell - cy) / s, r1 = Math.hypot(x + d / 2, y), r2 = Math.hypot(x - d / 2, y), p = j * cw + i;
-            K12[p] = k * r1;
-            K22[p] = k * r2;
-            A12[p] = 1 / Math.sqrt(1 + r1 / 3);
-            A22[p] = 1 / Math.sqrt(1 + r2 / 3);
-          }
-          S2.arr = { K1: K12, K2: K22, A1: A12, A2: A22 };
+          const N2 = cw * ch;
+          S2.K = [];
+          S2.A = [];
+          S2.src.forEach((q, jj) => {
+            const k = this.kj(S2, jj), K2 = new Float32Array(N2), A2 = new Float32Array(N2);
+            for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) {
+              const x = ((i + 0.5) * cell - cx) / s, y = ((j + 0.5) * cell - cy) / s, r = Math.hypot(x - q.x, y - q.y), p = j * cw + i;
+              K2[p] = k * r;
+              A2[p] = 1 / Math.sqrt(1 + r / 3);
+            }
+            S2.K.push(K2);
+            S2.A.push(A2);
+          });
           S2.off = document.createElement("canvas");
           S2.off.width = cw;
           S2.off.height = ch;
@@ -1071,104 +2389,267 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
             }
           }
         }
-        const { K1, K2, A1, A2 } = S2.arr, wt = TAU * 0.8 * S2.t, phi = ph === "1" ? Math.PI : 0, u32 = S2.u32, lut = S2.lut, n = cw * ch;
-        for (let p = 0; p < n; p++) {
-          const val = A1[p] * Math.cos(wt - K1[p]) + A2[p] * Math.cos(wt - K2[p] + phi);
-          u32[p] = lut[Math.max(0, Math.min(255, (val * 0.5 + 1) * 127.5 | 0))];
+        const wt = TAU * S2.p.f / 25 * S2.t, u32 = S2.u32, lut = S2.lut, N = cw * ch, nrm = (n === 1 ? 1.6 : 2 / (Math.sqrt(n) * 1.4)) * 63.75, ps = S2.src.map((_, j) => this.pj(S2, j)), K = S2.K, A = S2.A;
+        if (!S2.Vb || S2.Vb.length !== N) S2.Vb = new Float32Array(N);
+        const Vb = S2.Vb;
+        for (let p = 0; p < N; p++) {
+          let v = 0;
+          for (let j = 0; j < n; j++) v += A[j][p] * Math.cos(ps[j] - K[j][p]);
+          Vb[p] = v;
+        }
+        if (!S2.lut2) {
+          S2.lut2 = new Uint32Array(64 * 16);
+          const st = [[0, [4, 36, 78]], [0.5, [22, 98, 166]], [1, [170, 226, 255]]];
+          for (let h = 0; h < 64; h++) {
+            const t = h / 63, a = t < 0.5 ? st[0] : st[1], b = t < 0.5 ? st[1] : st[2], q = (t - a[0]) / (b[0] - a[0]), c = a[1].map((v, j) => v + (b[1][j] - v) * q);
+            for (let k = 0; k < 16; k++) {
+              const sv = (k - 8) / 7.5, li = 0.62 + 0.4 * sv, sp = sv > 0 ? Math.pow(sv, 5) * 235 : 0, o = c.map((v) => Math.max(0, Math.min(255, Math.round(v * li + sp))));
+              S2.lut2[h * 16 + k] = 255 << 24 | o[2] << 16 | o[1] << 8 | o[0];
+            }
+          }
+        }
+        const kk = (n >= 3 ? 0.7 : 1) / Math.max(0.15, 2 * Math.sin(Math.min(1.5, TAU / lpx * cell))), L2 = S2.lut2, nr4 = nrm / 4;
+        for (let jy = 0; jy < ch; jy++) for (let ix = 0; ix < cw; ix++) {
+          const p = jy * cw + ix, gx = ix > 0 && ix < cw - 1 ? Vb[p + 1] - Vb[p - 1] : 0, gy = jy > 0 && jy < ch - 1 ? Vb[p + cw] - Vb[p - cw] : 0;
+          let hi = Vb[p] * nr4 + 32 | 0;
+          hi = hi < 0 ? 0 : hi > 63 ? 63 : hi;
+          let si3 = -(gx * 0.55 + gy * 0.83) * kk * 7.5 + 8 | 0;
+          si3 = si3 < 0 ? 0 : si3 > 15 ? 15 : si3;
+          u32[p] = L2[hi * 16 + si3];
         }
         S2.oc.putImageData(S2.img, 0, 0);
         g2.imageSmoothingEnabled = true;
         g2.drawImage(S2.off, 0, 0, cw, ch, 0, 0, cw * cell, ch * cell);
-        const X = (x) => cx + x * s, Y = (y) => cy + y * s, ymax = H2 / 2 / s + 0.5;
-        if (hyp) {
-          const c = d / 2, lines = [];
-          for (let k = -30; k <= 30; k++) {
-            for (const half of [0, 0.5]) {
+        const X = (x) => cx + x * s, Y = (y) => cy + y * s;
+        if (n === 2 && hyp && this.coh(S2)) {
+          const A0 = S2.src[0], A1 = S2.src[1], L = Math.hypot(A1.x - A0.x, A1.y - A0.y);
+          if (L > 0.2) {
+            const ux = (A1.x - A0.x) / L, uy = (A1.y - A0.y) / L, nx_ = -uy, ny_ = ux, mx = (A0.x + A1.x) / 2, my = (A0.y + A1.y) / 2, c = L / 2, lines = [];
+            for (let k = -60; k <= 60; k++) for (const half of [0, 0.5]) {
               const D = (k + half) * lam;
-              if (Math.abs(D) < d - 1e-6) lines.push([D, half === 0 ? ph !== "1" : ph === "1", k + half]);
+              if (Math.abs(D) < L - 1e-6) lines.push([D, half === 0 ? ph !== "1" : ph === "1", k + half]);
             }
-          }
-          let lastX = -99;
-          for (const [D, isMax, kk] of lines.sort((a, b) => b[0] - a[0])) {
-            g2.beginPath();
-            if (Math.abs(D) < 1e-9) {
-              g2.moveTo(X(0), 0);
-              g2.lineTo(X(0), H2);
-            } else {
-              const a = Math.abs(D) / 2, b = Math.sqrt(c * c - a * a), sg = -Math.sign(D);
-              for (let i = 0; i <= 90; i++) {
-                const y = -ymax + 2 * ymax * i / 90, x = sg * a * Math.sqrt(1 + y * y / (b * b));
-                i ? g2.lineTo(X(x), Y(y)) : g2.moveTo(X(x), Y(y));
+            const Ylab = -(H2 / 2 / s - 1.1);
+            let last2 = [];
+            for (const [D, isMax, kk2] of lines) {
+              const a = Math.abs(D) / 2, b = Math.sqrt(Math.max(1e-9, c * c - a * a)), sg = -Math.sign(D), pt2 = (t) => {
+                const Xl = Math.abs(D) < 1e-9 ? 0 : sg * a * Math.sqrt(1 + t * t / (b * b));
+                return [X(mx + Xl * ux + t * nx_), Y(my + Xl * uy + t * ny_)];
+              };
+              g2.beginPath();
+              for (let i = 0; i <= 120; i++) {
+                const t = -40 + 80 * i / 120, [px, py] = pt2(t);
+                i ? g2.lineTo(px, py) : g2.moveTo(px, py);
               }
-            }
-            if (isMax) {
+              if (isMax) {
+                g2.setLineDash([]);
+                g2.strokeStyle = "rgba(255,92,72,.95)";
+                g2.lineWidth = 1.7;
+              } else {
+                g2.setLineDash([5, 4]);
+                g2.strokeStyle = "rgba(255,255,255,.8)";
+                g2.lineWidth = 1.3;
+              }
+              g2.stroke();
               g2.setLineDash([]);
-              g2.strokeStyle = "rgba(255,92,72,.95)";
-              g2.lineWidth = 1.7;
-            } else {
-              g2.setLineDash([5, 4]);
-              g2.strokeStyle = "rgba(255,255,255,.8)";
-              g2.lineWidth = 1.3;
-            }
-            g2.stroke();
-            g2.setLineDash([]);
-            if (isMax) {
-              const a = Math.abs(D) / 2, b = Math.sqrt(c * c - a * a), yy = -ymax + 1.1, xx = Math.abs(D) < 1e-9 ? 0 : -Math.sign(D) * a * Math.sqrt(1 + yy * yy / (b * b)), px = X(xx);
-              if (px > 12 && px < W2 - 12 && Math.abs(px - lastX) > 26) {
-                lastX = px;
-                tx(g2, (ph === "1" ? "" : "k = ") + (ph === "1" ? num(kk, 1) : Math.round(kk)), px, 14, "#fff", { a: "center", w: 700, halo: "rgba(6,46,92,.85)" });
+              if (isMax) {
+                const [px, py] = pt2(ny_ >= 0 ? Ylab : -Ylab);
+                if (px > 14 && px < W2 - 14 && py > 8 && py < H2 - 8 && !(px > W2 - 150 && py < 64) && last2.every(([qx, qy]) => Math.hypot(qx - px, qy - py) > 28)) {
+                  last2.push([px, py]);
+                  tx(g2, ph === "1" ? num(kk2, 1) : "k = " + Math.round(kk2), px, py, "#fff", { a: "center", w: 700, halo: "rgba(6,46,92,.85)" });
+                }
               }
             }
           }
         }
-        const M = S2.M, mx = X(M.x), my = Y(M.y);
-        g2.strokeStyle = "rgba(255,255,255,.9)";
-        g2.lineWidth = 1.2;
-        for (const sx of [-d / 2, d / 2]) {
-          g2.beginPath();
-          g2.moveTo(X(sx), cy);
-          g2.lineTo(mx, my);
-          g2.stroke();
+        const M = S2.M, mxp = X(M.x), myp = Y(M.y);
+        if (n <= 3) {
+          g2.strokeStyle = "rgba(255,255,255,.85)";
+          g2.lineWidth = 1.1;
+          for (const q of S2.src) {
+            g2.beginPath();
+            g2.moveTo(X(q.x), Y(q.y));
+            g2.lineTo(mxp, myp);
+            g2.stroke();
+          }
         }
-        for (const [sx, l] of [[-d / 2, "S₁"], [d / 2, "S₂"]]) {
-          dot(g2, X(sx), cy, 6, "#fff");
+        S2.src.forEach((q, j) => {
+          const px = X(q.x), py = Y(q.y);
+          dot(g2, px, py, 7, "#fff");
           g2.lineWidth = 2;
-          g2.strokeStyle = "#0b2a52";
+          g2.strokeStyle = this.phs(S2, j) ? "#ff5c48" : "#0b2a52";
           g2.beginPath();
-          g2.arc(X(sx), cy, 6, 0, TAU);
+          g2.arc(px, py, 7, 0, TAU);
           g2.stroke();
-          tx(g2, l, X(sx), cy + 18, "#fff", { a: "center", w: 700, s: 14, halo: "rgba(6,46,92,.85)" });
-        }
-        dot(g2, mx, my, 7, "#ffd84d");
+          tx(g2, "S" + SUBN[j], px, py + 19, "#fff", { a: "center", w: 700, s: 14, halo: "rgba(6,46,92,.85)" });
+        });
+        dot(g2, mxp, myp, 7, "#ffd84d");
         g2.lineWidth = 2;
         g2.strokeStyle = "#0b2a52";
         g2.beginPath();
-        g2.arc(mx, my, 7, 0, TAU);
+        g2.arc(mxp, myp, 7, 0, TAU);
         g2.stroke();
-        tx(g2, "M", mx + 12, my - 10, "#ffd84d", { w: 800, s: 15, halo: "rgba(6,46,92,.9)" });
-        g2.fillStyle = "rgba(6,30,60,.78)";
-        rr(g2, 10, H2 - 50, W2 < 560 ? 150 : 176, 40, 8);
-        g2.fill();
-        g2.strokeStyle = "rgba(255,92,72,.95)";
-        g2.lineWidth = 2;
-        g2.beginPath();
-        g2.moveTo(20, H2 - 38);
-        g2.lineTo(44, H2 - 38);
-        g2.stroke();
-        tx(g2, "vân cực đại", 52, H2 - 38, "#fff", { halo: false });
-        g2.setLineDash([5, 4]);
-        g2.strokeStyle = "#fff";
-        g2.beginPath();
-        g2.moveTo(20, H2 - 20);
-        g2.lineTo(44, H2 - 20);
-        g2.stroke();
-        g2.setLineDash([]);
-        tx(g2, "vân cực tiểu", 52, H2 - 20, "#fff", { halo: false });
+        tx(g2, "M", mxp + 12, myp - 10, "#ffd84d", { w: 800, s: 15, halo: "rgba(6,46,92,.9)" });
+        if (n === 2 && hyp && this.coh(S2)) {
+          g2.fillStyle = "rgba(6,30,60,.78)";
+          rr(g2, 10, H2 - 50, W2 < 560 ? 150 : 176, 40, 8);
+          g2.fill();
+          g2.strokeStyle = "rgba(255,92,72,.95)";
+          g2.lineWidth = 2;
+          g2.beginPath();
+          g2.moveTo(20, H2 - 38);
+          g2.lineTo(44, H2 - 38);
+          g2.stroke();
+          tx(g2, "vân cực đại", 52, H2 - 38, "#fff", { halo: false });
+          g2.setLineDash([5, 4]);
+          g2.strokeStyle = "#fff";
+          g2.beginPath();
+          g2.moveTo(20, H2 - 20);
+          g2.lineTo(44, H2 - 20);
+          g2.stroke();
+          g2.setLineDash([]);
+          tx(g2, "vân cực tiểu", 52, H2 - 20, "#fff", { halo: false });
+        }
+        if (lpx < 6) tx(g2, "Bước sóng quá nhỏ so với màn hình: hãy giảm f hoặc tăng v", W2 / 2, H2 - 62, "#fff", { a: "center", w: 600, halo: "rgba(6,46,92,.9)" });
+        badge(g2, this.bl(S2), W2 - 10, 10, "right");
+      },
+      drawGL(g2, W2, H2, S2, C2, glc) {
+        glc.style.display = "block";
+        const lam = this.lam(S2), n = S2.src.length, k = TAU / lam, wt = TAU * S2.p.f / 25 * S2.t, zs = 0.2 * lam * (n <= 2 ? 1 : 1.4 / Math.sqrt(n)), zm = 0.6 * lam, nar = W2 < 560;
+        for (const q of S2.src) {
+          const qq = Math.sqrt((q.x / LAKE.LA) ** 2 + (q.y / LAKE.LB) ** 2);
+          if (qq > 0.88) {
+            q.x *= 0.88 / qq;
+            q.y *= 0.88 / qq;
+            S2.key = null;
+          }
+        }
+        const src = new Float32Array(24);
+        S2.src.forEach((q, j) => {
+          src[4 * j] = q.x;
+          src[4 * j + 1] = q.y;
+          src[4 * j + 2] = this.pj(S2, j);
+          src[4 * j + 3] = this.kj(S2, j);
+        });
+        const R = LAKE.render(S2, W2, H2, glc, { src, n, wt, k, zs, zm, dark: C2.dark });
+        S2.gm = R;
+        g2.clearRect(0, 0, W2, H2);
+        const hAt = (x, y) => {
+          let u = 0;
+          for (let j = 0; j < n; j++) {
+            const r = Math.max(0.02, Math.hypot(x - S2.src[j].x, y - S2.src[j].y));
+            u += Math.cos(this.pj(S2, j) - this.kj(S2, j) * r) / Math.sqrt(1 + r / 3);
+          }
+          return cl(u * zs, -zm, zm) * (1 - LAKE.sm(0.82, 0.97, Math.sqrt((x / LAKE.LA) ** 2 + (y / LAKE.LB) ** 2)));
+        };
+        const pr = (x, y, z) => {
+          const v = M4.xf(R.MVP, [x, y, z, 1]);
+          if (v[3] <= 0.01) return null;
+          return [(v[0] / v[3] * 0.5 + 0.5) * W2, (1 - (v[1] / v[3] * 0.5 + 0.5)) * H2];
+        };
+        S2.picks = [];
+        S2.src.forEach((q, j) => {
+          const z = hAt(q.x, q.y), a = pr(q.x, q.y, z), b = pr(q.x, q.y, z + 2.4);
+          if (!a || !b) return;
+          S2.picks.push({ j, a, b });
+          g2.lineCap = "round";
+          g2.strokeStyle = "rgba(0,0,0,.45)";
+          g2.lineWidth = 5.5;
+          g2.beginPath();
+          g2.moveTo(a[0], a[1]);
+          g2.lineTo(b[0], b[1]);
+          g2.stroke();
+          g2.strokeStyle = "#fff";
+          g2.lineWidth = 2.8;
+          g2.stroke();
+          dot(g2, b[0], b[1], 8, this.phs(S2, j) ? "#ff5c48" : "#ffffff");
+          g2.lineWidth = 2;
+          g2.strokeStyle = "#0b2a52";
+          g2.beginPath();
+          g2.arc(b[0], b[1], 8, 0, TAU);
+          g2.stroke();
+          tx(g2, "S" + SUBN[j], b[0], b[1] - 19, "#fff", { a: "center", w: 800, s: 14, halo: "rgba(6,30,60,.8)" });
+        });
+        const M = S2.M;
+        if (Math.sqrt((M.x / LAKE.LA) ** 2 + (M.y / LAKE.LB) ** 2) < 0.97) {
+          const z = hAt(M.x, M.y), a = pr(M.x, M.y, z), b = pr(M.x, M.y, z + 1.6);
+          if (a && b) {
+            S2.picks.push({ j: "M", a, b });
+            g2.strokeStyle = "#8a6d00";
+            g2.lineWidth = 2.6;
+            g2.beginPath();
+            g2.moveTo(a[0], a[1]);
+            g2.lineTo(b[0], b[1]);
+            g2.stroke();
+            dot(g2, b[0], b[1], 6.5, "#ffd84d");
+            g2.lineWidth = 1.5;
+            g2.strokeStyle = "#5a4700";
+            g2.beginPath();
+            g2.arc(b[0], b[1], 6.5, 0, TAU);
+            g2.stroke();
+            tx(g2, "M", b[0] + 11, b[1] - 6, "#fff", { w: 800, s: 14, halo: "rgba(6,30,60,.8)" });
+          }
+        }
+        badge(g2, this.bl(S2), W2 - 10, 10, "right");
+        tx(g2, nar ? "Kéo cột trắng: dời nguồn. Kéo nền: xoay." : "Kéo cột trắng để dời nguồn, kéo nền để xoay, chụm hai ngón hoặc lăn chuột để phóng to", 12, H2 - 14, "#fff", { w: 600, halo: "rgba(0,0,0,.5)" });
+      },
+      draw3(g2, W2, H2, S2, C2) {
+        g2.fillStyle = C2.bg;
+        g2.fillRect(0, 0, W2, H2);
+        const lam = this.lam(S2), k = TAU / lam, n = S2.src.length, nar = W2 < 560;
+        const xs = S2.src.map((q) => q.x), ys = S2.src.map((q) => q.y), span = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)), Wd = cl(Math.max(9 * lam, span + 4 * lam, 8), 8, 22), gx = (Math.max(...xs) + Math.min(...xs)) / 2, gy = (Math.max(...ys) + Math.min(...ys)) / 2;
+        const nx = nar ? 60 : 84, ny = Math.round(nx * 0.72), Hd = Wd * 0.72, x0 = gx - Wd / 2, x1 = gx + Wd / 2, y0 = gy - Hd / 2, y1 = gy + Hd / 2, zs = 0.16 * lam * (n <= 2 ? 1 : 1.4 / Math.sqrt(n)), zm = 0.5 * lam;
+        if (!S2.Z3 || S2.Z3.length !== (nx + 1) * (ny + 1)) S2.Z3 = new Float32Array((nx + 1) * (ny + 1));
+        const Z = S2.Z3, ps = S2.src.map((_, j) => this.pj(S2, j)), ks = S2.src.map((_, j) => this.kj(S2, j));
+        const zAt = (x, y) => {
+          let u = 0;
+          for (let j = 0; j < n; j++) {
+            const r = Math.hypot(x - S2.src[j].x, y - S2.src[j].y);
+            u += Math.cos(ps[j] - ks[j] * r) / Math.sqrt(1 + r / 3);
+          }
+          return cl(u * zs, -zm, zm);
+        };
+        for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) Z[j * (nx + 1) + i] = zAt(x0 + (x1 - x0) * i / nx, y0 + (y1 - y0) * j / ny);
+        const s = Math.min(W2 * 0.8, H2 * 1.15) / Wd, Pc = P3(S2.cam, W2 / 2, H2 * 0.5, s, Wd * 2.4), Pp = (x, y, z) => Pc(x - gx, y - gy, z);
+        floor3(g2, Pp, x0, x1, y0, y1, -zm * 1.15, C2.dark ? "rgba(139,152,255,.08)" : "rgba(35,56,201,.07)");
+        surf3(g2, S2, { nx, ny, x0, x1, y0, y1, Z, P: Pp, lut: WLUT, nh: 24, ns: 12, zlo: -zm, zhi: zm });
+        S2.src.forEach((q, j) => {
+          if (q.x < x0 || q.x > x1 || q.y < y0 || q.y > y1) return;
+          const z = zAt(q.x, q.y), a = Pp(q.x, q.y, z), b = Pp(q.x, q.y, z + zm * 1.1);
+          g2.strokeStyle = C2.ink;
+          g2.lineWidth = 2.5;
+          g2.beginPath();
+          g2.moveTo(a[0], a[1]);
+          g2.lineTo(b[0], b[1]);
+          g2.stroke();
+          dot(g2, b[0], b[1], 6, this.phs(S2, j) ? C2.red : "#ffffff");
+          g2.lineWidth = 1.5;
+          g2.strokeStyle = C2.ink;
+          g2.beginPath();
+          g2.arc(b[0], b[1], 6, 0, TAU);
+          g2.stroke();
+          tx(g2, "S" + SUBN[j], b[0], b[1] - 15, C2.ink, { a: "center", w: 700, s: 14 });
+        });
+        const M = S2.M;
+        if (M.x > x0 && M.x < x1 && M.y > y0 && M.y < y1) {
+          const z = zAt(M.x, M.y), a = Pp(M.x, M.y, z), b = Pp(M.x, M.y, z + zm * 0.7);
+          g2.strokeStyle = "#b8860b";
+          g2.lineWidth = 2;
+          g2.beginPath();
+          g2.moveTo(a[0], a[1]);
+          g2.lineTo(b[0], b[1]);
+          g2.stroke();
+          dot(g2, b[0], b[1], 5.5, "#ffd84d");
+          tx(g2, "M", b[0] + 10, b[1] - 6, C2.ink, { w: 800, s: 14 });
+        }
+        badge(g2, this.bl(S2), W2 - 10, 10, "right");
+        tx(g2, "Kéo để xoay", 12, H2 - 14, C2.mute, { w: 600 });
+        if (lam * s < 5) tx(g2, "Bước sóng quá nhỏ để vẽ 3D rõ: hãy giảm f hoặc tăng v", W2 / 2, 24, C2.red, { a: "center", w: 700 });
       },
       info: {
-        what: ["Hai nguồn kết hợp S₁ và S₂ (cùng tần số, hiệu số pha không đổi) tạo trên mặt nước hai hệ sóng tròn. Tại mỗi điểm, hai sóng chồng lên nhau: chỗ chúng luôn cùng pha thì tăng cường nhau (cực đại), chỗ luôn ngược pha thì triệt tiêu nhau (cực tiểu, nước gần như đứng yên).", "Các điểm cực đại và cực tiểu nằm trên những đường hypebol xen kẽ, nhận S₁, S₂ làm tiêu điểm. Hình ảnh ổn định đó là hình ảnh giao thoa, dấu hiệu đặc trưng của sóng."],
-        f: [["Cực đại: d₂ − d₁ = kλ", "Hai nguồn cùng pha; k = 0, ±1, ±2…"], ["Cực tiểu: d₂ − d₁ = (k + ½)λ", "Hai nguồn ngược pha thì hai điều kiện đổi chỗ cho nhau"], ["Hai cực đại liền kề trên S₁S₂ cách nhau λ/2", "Cực đại và cực tiểu liền kề cách nhau λ/4"]],
-        q: [["Điểm M nằm trên đường trung trực của S₁S₂ là cực đại hay cực tiểu?", "Cực đại (k = 0) khi hai nguồn cùng pha, vì d₁ = d₂. Kéo M lên đường thẳng đứng chính giữa để kiểm tra."], ["Giảm bước sóng λ, số vân cực đại trên đoạn S₁S₂ thay đổi thế nào?", "Tăng lên. Số cực đại là số giá trị nguyên k thỏa −d/λ < k < d/λ."], ["Chuyển sang hai nguồn ngược pha. Đường trung trực bây giờ là gì?", "Một vân cực tiểu: tại đó hai sóng tới luôn ngược pha."]]
+        what: ["Hai (hoặc nhiều) nguồn kết hợp, tức là cùng tần số và có hiệu số pha không đổi, tạo trên mặt nước các hệ sóng tròn. Tại mỗi điểm các sóng chồng lên nhau: chỗ chúng luôn cùng pha thì tăng cường nhau (cực đại), chỗ luôn ngược pha thì triệt tiêu nhau (cực tiểu, nước gần như đứng yên).", "Với hai nguồn, các điểm cực đại và cực tiểu nằm trên những đường hypebol xen kẽ, nhận S₁, S₂ làm tiêu điểm. Khi thêm nhiều nguồn cùng pha xếp thẳng hàng, các hướng sóng tăng cường trở nên hẹp và rõ hơn, giữa chúng mặt nước khá yên.", "Tần số f do nguồn quyết định; tốc độ v do môi trường quyết định. Đổi f thì bước sóng λ = v/f đổi theo, nên hình giao thoa sít lại hoặc thưa ra. Bật Xem 3D để thấy mặt hồ nhấp nhô mạnh trên vân cực đại và gần như phẳng trên vân cực tiểu; có thể kéo cột trắng để dời nguồn ngay trong 3D. Đồi núi, bờ hồ chỉ để trang trí: mô phỏng bỏ qua sóng phản xạ ở bờ."],
+        f: [["λ = v/f = v·T", "Bước sóng tính từ tần số và tốc độ truyền sóng"], ["Nguồn kết hợp: cùng f, hiệu số pha không đổi", "Điều kiện để có hình giao thoa ổn định"], ["Cực đại: d₂ − d₁ = kλ", "Hai nguồn cùng pha; k = 0, ±1, ±2…"], ["Cực tiểu: d₂ − d₁ = (k + ½)λ", "Hai nguồn ngược pha thì hai điều kiện đổi chỗ cho nhau"], ["Hai cực đại liền kề trên S₁S₂ cách nhau λ/2", "Cực đại và cực tiểu liền kề cách nhau λ/4"]],
+        q: [['Chọn "Mỗi nguồn một tần số riêng", đặt f₁ = 20 Hz, f₂ = 22 Hz. Hình giao thoa thay đổi thế nào?', "Các vân không còn đứng yên mà trôi liên tục, biên độ tại M lúc lớn lúc nhỏ. Hai nguồn khác tần số không phải nguồn kết hợp nên không tạo được hình giao thoa ổn định."], ["Giữ v = 30 cm/s, tăng f từ 20 Hz lên 40 Hz. Bước sóng và số vân cực đại trên S₁S₂ thay đổi thế nào?", "λ giảm từ 1,5 cm còn 0,75 cm nên vân sít lại; số cực đại trên S₁S₂ (là số giá trị nguyên k thỏa −S₁S₂/λ < k < S₁S₂/λ) tăng gần gấp đôi."], ["Điểm M nằm trên đường trung trực của S₁S₂ là cực đại hay cực tiểu?", "Cực đại (k = 0) khi hai nguồn cùng pha, vì d₁ = d₂. Kéo M lên đường trung trực để kiểm tra."], ["Bật Xem 3D. Trên vân cực tiểu, mặt nước trông như thế nào?", "Gần như phẳng và đứng yên, vì hai sóng tới luôn ngược pha nên triệt tiêu nhau. Trên vân cực đại mặt nước nhấp nhô mạnh nhất."], ["Thêm nguồn thứ ba thẳng hàng, cùng pha. Hình giao thoa thay đổi ra sao?", "Các dải cực đại chính hẹp lại và rõ hơn, xen giữa là những vùng gần như yên. Với rất nhiều nguồn, ta có hình ảnh giống cách tử."]]
       }
     });
     def({
@@ -1276,10 +2757,19 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           g2.stroke();
         }
         g2.restore();
-        g2.fillStyle = C2.ink;
-        g2.fillRect(px - 3, yc - sh - 4, 6, sh - gap / 2 + 4 - 3);
-        g2.fillRect(px - 3, yc - gap / 2 + 3, 6, gap - 6);
-        g2.fillRect(px - 3, yc + gap / 2 + 3, 6, sh - gap / 2 + 1);
+        {
+          const pg = g2.createLinearGradient(px - 4, 0, px + 4, 0);
+          pg.addColorStop(0, "#252a36");
+          pg.addColorStop(0.5, "#717a8e");
+          pg.addColorStop(1, "#1d212b");
+          g2.fillStyle = pg;
+          g2.save();
+          shd(g2, true, 8, 3);
+          g2.fillRect(px - 4, yc - sh - 4, 8, sh - gap / 2 + 4 - 3);
+          g2.fillRect(px - 4, yc - gap / 2 + 3, 8, gap - 6);
+          g2.fillRect(px - 4, yc + gap / 2 + 3, 8, sh - gap / 2 + 1);
+          g2.restore();
+        }
         tx(g2, "S₁", px - 10, yc - gap / 2, C2.ink, { a: "right", w: 600 });
         tx(g2, "S₂", px - 10, yc + gap / 2, C2.ink, { a: "right", w: 600 });
         g2.strokeStyle = C2.ink;
@@ -1347,10 +2837,26 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           }
           cx.putImageData(im, 0, 0);
         }
-        g2.fillStyle = "#000";
-        g2.fillRect(bl, by0, bw, by1 - by0);
+        g2.save();
+        shd(g2, true, 14, 5);
+        rr(g2, bl, by0, bw, by1 - by0, 8);
+        g2.fillStyle = "#05060a";
+        g2.fill();
+        g2.restore();
+        g2.save();
+        rr(g2, bl, by0, bw, by1 - by0, 8);
+        g2.clip();
         g2.imageSmoothingEnabled = true;
+        g2.shadowColor = white ? "rgba(255,255,255,.55)" : css(lc, 0.75);
+        g2.shadowBlur = 14;
         g2.drawImage(S2.boff, bl, by0, bw, by1 - by0);
+        g2.shadowBlur = 0;
+        const sg = g2.createLinearGradient(0, by0, 0, by1);
+        sg.addColorStop(0, "rgba(255,255,255,.16)");
+        sg.addColorStop(0.45, "rgba(255,255,255,0)");
+        g2.fillStyle = sg;
+        g2.fillRect(bl, by0, bw, by1 - by0);
+        g2.restore();
         const ipx = i / (2 * X) * bw;
         if (!white) {
           let last2 = -99;
@@ -1420,17 +2926,14 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       draw(g2, W2, H2, S2, C2) {
         paper(g2, W2, H2, C2);
         const { end, n, L, parts } = S2.p, nar = W2 < 560, lam = this.lam(S2), x0 = nar ? 54 : 84, x1 = W2 - (nar ? 28 : 46), Lp = x1 - x0, sc = Lp / L, lp = lam * sc, k = TAU / lp, yc = Math.round(H2 * 0.48), A2 = Math.min(H2 * 0.17, 60), Am = A2 / 2, ct = Math.cos(TAU * 0.7 * S2.t), st = Math.sin(TAU * 0.7 * S2.t);
-        g2.fillStyle = C2.metal;
-        g2.fillRect(x0 - (nar ? 44 : 68), yc - 18, nar ? 34 : 52, 36);
+        metalR(g2, x0 - (nar ? 44 : 68), yc - 18, nar ? 34 : 52, 36);
         tx(g2, nar ? "rung" : "máy rung", x0 - (nar ? 27 : 42), yc, C2.ink, { a: "center", w: 600, s: 13, halo: false });
         g2.fillStyle = C2.metal2;
         g2.fillRect(x0 - 10, yc - 2, 10, 4);
         if (end === "ff") {
-          g2.fillStyle = C2.metal2;
-          g2.fillRect(x1, yc - 34, 8, 68);
+          metalR(g2, x1, yc - 34, 9, 68, true);
         } else {
-          g2.fillStyle = C2.metal;
-          g2.fillRect(x1 + 6, yc - A2 - 24, 5, 2 * A2 + 48);
+          metalR(g2, x1 + 6, yc - A2 - 24, 6, 2 * A2 + 48, true);
           const ye = yc + 2 * Am * ct * Math.sin(k * Lp) * -1;
           g2.strokeStyle = C2.ink;
           g2.lineWidth = 2;
@@ -1464,8 +2967,11 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           tx(g2, "sóng tới →", x0 + 6, yc - A2 - 30, C2.orange, { w: 600 });
           tx(g2, "← sóng phản xạ", x1 - 6, yc - A2 - 30, C2.teal, { a: "right", w: 600 });
         }
+        g2.shadowColor = C2.pen;
+        g2.shadowBlur = 9;
         g2.strokeStyle = C2.pen;
-        g2.lineWidth = 3;
+        g2.lineWidth = 3.4;
+        g2.lineCap = "round";
         g2.beginPath();
         for (let i = 0; i <= 300; i++) {
           const x = Lp * i / 300, y = yc + 2 * Am * ct * Math.sin(k * x);
@@ -1479,8 +2985,9 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           const xa = (m + 0.5) * lp / 2;
           if (xa <= Lp + 0.5) anti.push(xa);
         }
+        g2.shadowBlur = 0;
         nodes.forEach((x) => {
-          dot(g2, x0 + x, yc, 5, C2.red, true);
+          ball(g2, x0 + x, yc, 5.5, C2.red, false);
           tx(g2, "N", x0 + x, yc + A2 + 18, C2.red, { a: "center", w: 700 });
         });
         anti.forEach((x) => tx(g2, "B", x0 + x, yc - A2 - 12, C2.teal, { a: "center", w: 700 }));
@@ -1511,6 +3018,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       ch: 1,
       name: "Sóng điện từ",
       topic: "Sóng điện từ và thang sóng điện từ",
+      hint: "Kéo trên hình sóng để xoay 3D và nhìn E, B từ mọi phía.",
       r: 0.62,
       rm: 1.15,
       ctl: [
@@ -1531,49 +3039,63 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         const l = 10 ** S2.p.lg, r = this.rg(S2);
         return [["Bước sóng λ", si(l, "m")], ["Tần số f = c/λ", nf(3e8 / l, 3) + " Hz"], ["Thuộc vùng", r[2]], ["Ứng dụng", r[4].trim(), 1]];
       },
+      ptr(tp, x, y, S2) {
+        if (tp === "down" && y > S2.Hs) return false;
+        rot3(S2, tp, x, y);
+      },
       draw(g2, W2, H2, S2, C2) {
         paper(g2, W2, H2, C2);
-        const { lg, vec } = S2.p, nar = W2 < 560, Hs = Math.round(H2 * 0.55), x0 = nar ? 30 : 50, x1 = W2 - (nar ? 30 : 50), y0 = Math.round(Hs * 0.52), Ae = Hs * 0.33, Lv = Math.max(120, (x1 - x0) / 2.6), kk = TAU / Lv, ph = TAU * 0.5 * S2.t, zx = -0.34, zy = 0.5, Ab = Ae * 0.72;
-        dash(g2, x0, y0, x1, y0, C2.mute, 1, []);
-        arrow(g2, x1 - 30, y0, x1 + 18, y0, C2.ink, 2, 9);
-        tx(g2, "c", x1 + 8, y0 - 14, C2.ink, { it: true, s: 16, w: 600 });
-        arrow(g2, x0, y0, x0, y0 - Ae - 16, C2.mute, 1.2, 7);
-        arrow(g2, x0, y0, x0 + zx * (Ab + 20), y0 + zy * (Ab + 20), C2.mute, 1.2, 7);
-        const E = (x) => Ae * Math.cos(kk * (x - x0) - ph), B = (x) => Ab * Math.cos(kk * (x - x0) - ph);
+        const { lg, vec } = S2.p, nar = W2 < 560, Hs = Math.round(H2 * 0.55);
+        S2.Hs = Hs;
+        cam3(S2, -0.42, 0.3);
+        g2.fillStyle = C2.bg;
+        g2.fillRect(0, 0, W2, Hs);
+        g2.save();
+        g2.beginPath();
+        g2.rect(0, 0, W2, Hs);
+        g2.clip();
+        const sc = Math.min(W2 * 0.92 / 2.9, Hs * 1.05), P = P3(S2.cam, W2 / 2, Hs * 0.55, sc, 7), ph = TAU * 0.5 * S2.t, L = 1.3, Ae = 0.42, Ab = 0.36, E = (x) => Ae * Math.cos(TAU * (x + L) - ph), B = (x) => Ab * Math.cos(TAU * (x + L) - ph);
+        const seg = (p, q, col, w) => {
+          g2.strokeStyle = col;
+          g2.lineWidth = w;
+          g2.beginPath();
+          g2.moveTo(p[0], p[1]);
+          g2.lineTo(q[0], q[1]);
+          g2.stroke();
+        };
+        const ax0 = P(-L - 0.08, 0, 0), ax1 = P(L + 0.2, 0, 0);
+        seg(ax0, ax1, C2.mute, 1.2);
+        arrow(g2, P(L, 0, 0)[0], P(L, 0, 0)[1], ax1[0], ax1[1], C2.ink, 2, 10);
+        tx(g2, "c", ax1[0] + 8, ax1[1] - 12, C2.ink, { it: true, s: 16, w: 600 });
+        const ez = P(-L - 0.08, 0, Ae + 0.14), by_ = P(-L - 0.08, Ab + 0.16, 0);
+        arrow(g2, ax0[0], ax0[1], ez[0], ez[1], C2.mute, 1.2, 7);
+        arrow(g2, ax0[0], ax0[1], by_[0], by_[1], C2.mute, 1.2, 7);
+        const ecol = C2.dark ? "rgba(255,117,102,.55)" : "rgba(217,45,32,.5)", bcol = C2.dark ? "rgba(139,152,255,.55)" : "rgba(35,56,201,.45)";
         if (vec) {
-          for (let x = x0 + 6; x < x1 - 20; x += nar ? 10 : 12) {
-            const e = E(x), b = B(x);
-            g2.strokeStyle = css(C2.dark ? [1, 0.46, 0.4] : [0.85, 0.18, 0.13], 0.55);
-            g2.lineWidth = 1.2;
-            g2.beginPath();
-            g2.moveTo(x, y0);
-            g2.lineTo(x, y0 - e);
-            g2.stroke();
-            g2.strokeStyle = css(C2.dark ? [0.55, 0.6, 1] : [0.14, 0.22, 0.79], 0.5);
-            g2.beginPath();
-            g2.moveTo(x, y0);
-            g2.lineTo(x + zx * b, y0 + zy * b);
-            g2.stroke();
+          for (let x = -L; x <= L + 1e-6; x += nar ? 0.065 : 0.05) {
+            const o = P(x, 0, 0);
+            seg(o, P(x, 0, E(x)), ecol, 1.2);
+            seg(o, P(x, B(x), 0), bcol, 1.2);
           }
         }
-        g2.lineWidth = 2.6;
-        g2.strokeStyle = C2.red;
-        g2.beginPath();
-        for (let x = x0; x <= x1 - 20; x += 2) {
-          const y = y0 - E(x);
-          x === x0 ? g2.moveTo(x, y) : g2.lineTo(x, y);
+        for (const [f, col, isE] of [[E, C2.red, 1], [B, C2.pen, 0]]) {
+          g2.shadowColor = col;
+          g2.shadowBlur = 8;
+          g2.strokeStyle = col;
+          g2.lineWidth = 2.8;
+          g2.beginPath();
+          for (let i = 0; i <= 260; i++) {
+            const x = -L + 2 * L * i / 260, p = isE ? P(x, 0, f(x)) : P(x, f(x), 0);
+            i ? g2.lineTo(p[0], p[1]) : g2.moveTo(p[0], p[1]);
+          }
+          g2.stroke();
         }
-        g2.stroke();
-        g2.strokeStyle = C2.pen;
-        g2.beginPath();
-        for (let x = x0; x <= x1 - 20; x += 2) {
-          const b = B(x);
-          x === x0 ? g2.moveTo(x + zx * b, y0 + zy * b) : g2.lineTo(x + zx * b, y0 + zy * b);
-        }
-        g2.stroke();
-        tx(g2, "E", x0 + 10, y0 - Ae - 12, C2.red, { it: true, s: 17, w: 600 });
-        tx(g2, "B", Math.max(8, x0 + zx * (Ab + 20)) + 12, y0 + zy * (Ab + 20) + 4, C2.pen, { it: true, s: 17, w: 600 });
-        if (!nar) tx(g2, "hình vẽ không theo tỉ lệ bước sóng", W2 - 14, 14, C2.mute, { a: "right" });
+        g2.shadowBlur = 0;
+        tx(g2, "E", ez[0] + 8, ez[1] - 4, C2.red, { it: true, s: 17, w: 600 });
+        tx(g2, "B", by_[0] + (by_[0] < ax0[0] ? -14 : 10), by_[1] + 4, C2.pen, { it: true, s: 17, w: 600 });
+        g2.restore();
+        tx(g2, "Kéo để xoay 3D", 12, 16, C2.mute, { w: 600 });
+        if (!nar) tx(g2, "hình vẽ không theo tỉ lệ bước sóng", W2 - 14, 16, C2.mute, { a: "right" });
         const r = this.rg(S2), by = Hs + 40, bh = 24, bl = 24, bw = W2 - 48, LX = (v) => bl + (v + 13) / 17 * bw;
         for (const q of this.RG) {
           const a = LX(Math.max(-13, q[0])), b = LX(Math.min(4, q[1]));
@@ -1719,16 +3241,8 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           }
         }
         for (const [x, q, Rq, lab] of [[L.X1, q1, R1, "q₁"], [L.X2, q2, R2, "q₂"]]) {
-          const col = q > 0 ? C2.pos : q < 0 ? C2.neg : C2.metal2, gd = g2.createRadialGradient(x - Rq * 0.35, yc - Rq * 0.35, 1, x, yc, Rq);
-          gd.addColorStop(0, "rgba(255,255,255,.75)");
-          gd.addColorStop(0.35, col);
-          gd.addColorStop(1, col);
-          g2.globalAlpha = t < 0 && Lf > 0 && lab === "q₂" ? 0.92 : 1;
-          g2.fillStyle = gd;
-          g2.beginPath();
-          g2.arc(x, yc, Rq, 0, TAU);
-          g2.fill();
-          g2.globalAlpha = 1;
+          const col = q > 0 ? C2.pos : q < 0 ? C2.neg : C2.metal2;
+          ball(g2, x, yc, Rq, col);
           if (Rq > 7) tx(g2, q > 0 ? "+" : q < 0 ? "−" : "0", x, yc + 1, "#fff", { a: "center", w: 800, s: Math.min(18, Rq + 4), halo: false });
           tx(g2, gap < 130 ? lab : lab + " = " + qfmt(q), x, yc - Math.max(R1, R2) - (t < 0 && Lf > 0 ? 34 : 16), C2.ink, { a: "center", w: 600, it: gap < 130, s: gap < 130 ? 16 : 13 });
         }
@@ -1769,12 +3283,13 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       topic: "Cường độ điện trường, đường sức điện, điện thế",
       r: 0.66,
       rm: 1,
-      hint: "Kéo các điện tích hoặc điểm thử P. Thêm điện tích bằng các nút trong bảng.",
+      hint: "Kéo các điện tích hoặc điểm thử P; thêm điện tích bằng các nút trong bảng. Ở chế độ 3D, kéo để xoay.",
       ctl: [
         { t: "s", id: "pre", l: "Cấu hình", o: [["one+", "Một điện tích dương"], ["one-", "Một điện tích âm"], ["dip", "Hai điện tích trái dấu"], ["same", "Hai điện tích cùng dấu"], ["uneq", "Điện tích +2q và −q"]], v: "dip" },
         { t: "c", id: "lines", l: "Đường sức điện", v: true },
         { t: "c", id: "vec", l: "Vectơ cường độ điện trường", v: false },
         { t: "c", id: "pot", l: "Tô màu điện thế", v: false },
+        { t: "c", id: "d3", l: "Xem 3D: đồi và hố điện thế (kéo để xoay)", v: false },
         { t: "b", id: "addp", l: "Thêm điện tích +" },
         { t: "b", id: "addn", l: "Thêm điện tích −" },
         { t: "b", id: "clr", l: "Xóa hết" }
@@ -1784,6 +3299,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         S2.P = { x: 0, y: -4 };
         S2.key = null;
         S2.pk = null;
+        cam3(S2, -0.55, 0.7);
       },
       chg(S2, id) {
         if (id === "pre") this.init(S2);
@@ -1803,6 +3319,10 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         return S2.W / 20;
       },
       ptr(tp, x, y, S2) {
+        if (S2.p.d3) {
+          rot3(S2, tp, x, y);
+          return;
+        }
         const s = this.sc(S2), cx = S2.W / 2, cy = S2.H / 2, X = (x - cx) / s, Y = (y - cy) / s;
         if (tp === "up") {
           S2.dg = null;
@@ -1842,6 +3362,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         return [["Số điện tích", String(S2.Q.length)], ["Độ lớn mỗi điện tích", "q = 1 nC (+2q = 2 nC)"], ["Tại P: cường độ E", nf(E, 3) + " V/m"], ["Tại P: điện thế V", nf(V, 3) + " V"], ["Hướng của E tại P", E ? num(Math.atan2(-ey, ex) / DEG, 0) + "° so với trục ngang" : "—"]];
       },
       draw(g2, W2, H2, S2, C2) {
+        if (S2.p.d3) return this.draw3(g2, W2, H2, S2, C2);
         paper(g2, W2, H2, C2);
         const { lines, vec, pot } = S2.p, s = this.sc(S2), cx = W2 / 2, cy = H2 / 2, PX = (c) => [cx + c.x * s, cy + c.y * s], Qp = S2.Q.map((c) => {
           const [x, y] = PX(c);
@@ -1894,8 +3415,8 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
               for (let i = 0; i < 1500; i++) {
                 let [ex2, ey2] = Ep(x, y), m = Math.hypot(ex2, ey2);
                 if (m < 1e-12) return { pts, end: "stall" };
-                const hx = x + dir * ex2 / m * 1.5, hy = y + dir * ey2 / m * 1.5;
-                [ex2, ey2] = Ep(hx, hy);
+                const hx2 = x + dir * ex2 / m * 1.5, hy = y + dir * ey2 / m * 1.5;
+                [ex2, ey2] = Ep(hx2, hy);
                 m = Math.hypot(ex2, ey2);
                 if (m < 1e-12) return { pts, end: "stall" };
                 x += dir * ex2 / m * 3;
@@ -1953,14 +3474,14 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           }
         }
         for (const c of Qp) {
-          const Rq = Math.abs(c.q) > 1 ? 16 : 13, col = c.q > 0 ? C2.pos : C2.neg, gd = g2.createRadialGradient(c.x - Rq * 0.35, c.y - Rq * 0.35, 1, c.x, c.y, Rq);
-          gd.addColorStop(0, "rgba(255,255,255,.7)");
-          gd.addColorStop(0.35, col);
-          gd.addColorStop(1, col);
-          g2.fillStyle = gd;
+          const Rq = Math.abs(c.q) > 1 ? 16 : 13, col = c.q > 0 ? C2.pos : C2.neg, hg = g2.createRadialGradient(c.x, c.y, Rq * 0.6, c.x, c.y, Rq * 2.6), rgb = hx(col);
+          hg.addColorStop(0, "rgba(".concat(rgb, ",.35)"));
+          hg.addColorStop(1, "rgba(".concat(rgb, ",0)"));
+          g2.fillStyle = hg;
           g2.beginPath();
-          g2.arc(c.x, c.y, Rq, 0, TAU);
+          g2.arc(c.x, c.y, Rq * 2.6, 0, TAU);
           g2.fill();
+          ball(g2, c.x, c.y, Rq, col);
           tx(g2, (c.q > 0 ? "+" : "−") + (Math.abs(c.q) > 1 ? "2" : ""), c.x, c.y + 1, "#fff", { a: "center", w: 800, s: Math.abs(c.q) > 1 ? 14 : 18, halo: false });
         }
         const [px, py] = [cx + S2.P.x * s, cy + S2.P.y * s], [ex, ey] = this.Ei(S2, S2.P.x, S2.P.y), E = Math.hypot(ex, ey);
@@ -1974,8 +3495,39 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         if (!Qp.length) tx(g2, "Thêm điện tích để thấy điện trường", W2 / 2, H2 / 2, C2.mute, { a: "center", w: 600, s: 15 });
         badge(g2, ["Tại P: E = " + nf(E, 3) + " V/m"], 10, 10);
       },
+      draw3(g2, W2, H2, S2, C2) {
+        g2.fillStyle = C2.bg;
+        g2.fillRect(0, 0, W2, H2);
+        const nar = W2 < 560, Wd = 20, Hd = cl(20 * H2 / W2, 10, 20), nx = nar ? 56 : 80, ny = Math.round(nx * Hd / Wd), x0 = -Wd / 2, x1 = Wd / 2, y0 = -Hd / 2, y1 = Hd / 2, zm = 4.2;
+        if (!S2.PL) S2.PL = [lut3([[0, [35, 56, 201]], [0.5, [226, 230, 242]], [1, [217, 45, 32]]], 25, 10, 0.4), lut3([[0, [110, 130, 255]], [0.5, [200, 205, 225]], [1, [255, 117, 102]]], 25, 10, 0.4)];
+        const V = (x, y) => {
+          let v = 0;
+          for (const c of S2.Q) v += c.q / Math.sqrt((x - c.x) ** 2 + (y - c.y) ** 2 + 0.12);
+          return cl(v * 1.5, -zm, zm);
+        };
+        const key = [nx, ny, Hd, JSON.stringify(S2.Q)].join();
+        if (S2.zk !== key) {
+          S2.zk = key;
+          S2.Z3 = new Float32Array((nx + 1) * (ny + 1));
+          for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) S2.Z3[j * (nx + 1) + i] = V(x0 + Wd * i / nx, y0 + Hd * j / ny);
+        }
+        const s = Math.min(W2 * 0.82, H2 * 1.2) / Wd, P = P3(S2.cam, W2 / 2, H2 * 0.56, s, Wd * 2.4);
+        floor3(g2, P, x0, x1, y0, y1, -zm * 1.1, C2.dark ? "rgba(139,152,255,.08)" : "rgba(35,56,201,.06)");
+        surf3(g2, S2, { nx, ny, x0, x1, y0, y1, Z: S2.Z3, P, lut: S2.PL[C2.dark ? 1 : 0], nh: 25, ns: 10, zlo: -zm, zhi: zm });
+        for (const c of S2.Q) {
+          const p = P(c.x, c.y, V(c.x, c.y) + 0.35);
+          dot(g2, p[0], p[1], Math.abs(c.q) > 1 ? 11 : 9, c.q > 0 ? C2.pos : C2.neg);
+          tx(g2, (c.q > 0 ? "+" : "−") + (Math.abs(c.q) > 1 ? "2" : ""), p[0], p[1] + 1, "#fff", { a: "center", w: 800, s: 13, halo: false });
+        }
+        const pp = P(S2.P.x, S2.P.y, V(S2.P.x, S2.P.y) + 0.25);
+        dot(g2, pp[0], pp[1], 6, C2.orange, true);
+        tx(g2, "P", pp[0] + 10, pp[1] - 8, C2.orange, { w: 800 });
+        if (!S2.Q.length) tx(g2, "Thêm điện tích để thấy điện thế", W2 / 2, H2 / 2, C2.mute, { a: "center", w: 600, s: 15 });
+        badge(g2, ["Đồi đỏ: điện thế cao", "Hố xanh: điện thế thấp"], 10, 10);
+        tx(g2, "Kéo để xoay", W2 - 12, H2 - 14, C2.mute, { a: "right", w: 600 });
+      },
       info: {
-        what: ["Xung quanh mỗi điện tích có điện trường, tác dụng lực điện lên điện tích khác đặt trong nó. Cường độ điện trường E đặc trưng cho tác dụng lực đó tại từng điểm.", "Đường sức điện là đường mà tiếp tuyến tại mỗi điểm trùng với phương của vectơ E. Đường sức đi ra từ điện tích dương và kết thúc ở điện tích âm (hoặc ở vô cực), không bao giờ cắt nhau; nơi đường sức dày thì điện trường mạnh.", "Khi bật tô màu, vùng đỏ có điện thế cao, vùng xanh có điện thế thấp; ranh giới giữa các dải màu là các đường đẳng thế."],
+        what: ["Xung quanh mỗi điện tích có điện trường, tác dụng lực điện lên điện tích khác đặt trong nó. Cường độ điện trường E đặc trưng cho tác dụng lực đó tại từng điểm.", "Đường sức điện là đường mà tiếp tuyến tại mỗi điểm trùng với phương của vectơ E. Đường sức đi ra từ điện tích dương và kết thúc ở điện tích âm (hoặc ở vô cực), không bao giờ cắt nhau; nơi đường sức dày thì điện trường mạnh.", "Khi bật tô màu, vùng đỏ có điện thế cao, vùng xanh có điện thế thấp; ranh giới giữa các dải màu là các đường đẳng thế. Ở chế độ 3D, độ cao của mặt là điện thế: điện tích dương tạo một đồi, điện tích âm tạo một hố. Một điện tích thử dương đặt trên mặt này có xu hướng chuyển động từ đồi xuống hố, giống như lực điện đẩy nó từ nơi điện thế cao về nơi điện thế thấp."],
         f: [["E = F/q", "Định nghĩa cường độ điện trường (V/m)"], ["E = k·|Q| / (ε·r²)", "Điện trường của điện tích điểm Q"], ["E = E₁ + E₂ + …", "Nguyên lí chồng chất (cộng vectơ)"]],
         q: [["Kéo hai điện tích lại gần nhau. Các đường sức có lúc nào cắt nhau không?", "Không bao giờ, vì tại mỗi điểm vectơ E chỉ có một hướng duy nhất."], ["Với hai điện tích cùng dấu, bằng nhau, điểm nào có E = 0?", "Trung điểm của đoạn nối hai điện tích: hai vectơ cường độ cùng độ lớn, ngược chiều. Kéo P tới đó để kiểm tra."], ["Bật tô màu điện thế: đường sức và đường đẳng thế cắt nhau theo góc nào?", "Vuông góc. Đường sức luôn hướng từ nơi điện thế cao về nơi điện thế thấp."]]
       }
@@ -2050,10 +3602,8 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         paper(g2, W2, H2, C2);
         const { mode, par, U, d } = S2.p, P = PAR[par], o = this.ph(S2), nar = W2 < 560, s = Math.min((W2 - 50) / 16.5, (H2 - 120) / 6) * 100, xL = 24 + 0.015 * s, yc = Math.round(H2 * 0.46), Lp = 0.08 * s, ys = xL + 0.14 * s;
         const X = (x) => xL + x * s, Y = (y) => yc - y * s, gp = d / 100 * s, pt2 = 7;
-        g2.fillStyle = C2.pos;
-        g2.fillRect(X(0), yc - gp / 2 - pt2, Lp, pt2);
-        g2.fillStyle = C2.neg;
-        g2.fillRect(X(0), yc + gp / 2, Lp, pt2);
+        metalR(g2, X(0), yc - gp / 2 - pt2, Lp, pt2, false, C2.pos);
+        metalR(g2, X(0), yc + gp / 2, Lp, pt2, false, C2.neg);
         for (let i = 0; i < 9; i++) {
           const x = X(0) + Lp * (i + 0.5) / 9;
           tx(g2, "+", x, yc - gp / 2 - pt2 - 9, C2.pos, { a: "center", w: 800, s: 14 });
@@ -2102,8 +3652,11 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         g2.stroke();
         g2.setLineDash([]);
         const tv = Math.min(1, S2.tau / o.Tv), tr = tv * tEnd, cp = this.pos(S2, o, tr), col = P.q > 0 ? C2.pos : C2.neg;
+        g2.shadowColor = col;
+        g2.shadowBlur = 10;
         g2.strokeStyle = col;
-        g2.lineWidth = 2.4;
+        g2.lineWidth = 2.6;
+        g2.lineCap = "round";
         g2.beginPath();
         for (let i = 0; i <= 60; i++) {
           const [x, y] = this.pos(S2, o, tr * i / 60);
@@ -2120,7 +3673,17 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           const vy = cp[0] <= 0.08 ? o.a * tr : o.vy, ang = Math.atan2(vy, o.v0);
           arrow(g2, cx, cy, cx + 34 * Math.cos(ang), cy - 34 * Math.sin(ang), C2.orange, 2.5, 8);
         }
-        dot(g2, cx, cy, 8, col);
+        g2.shadowBlur = 0;
+        {
+          const hg = g2.createRadialGradient(cx, cy, 3, cx, cy, 22);
+          hg.addColorStop(0, "rgba(".concat(hx(col), ",.45)"));
+          hg.addColorStop(1, "rgba(".concat(hx(col), ",0)"));
+          g2.fillStyle = hg;
+          g2.beginPath();
+          g2.arc(cx, cy, 22, 0, TAU);
+          g2.fill();
+        }
+        ball(g2, cx, cy, 8.5, col, false);
         tx(g2, P.l, cx, cy + 1, "#fff", { a: "center", w: 800, s: 12, halo: false });
         if (mode === "ngang" && !o.hit && tv >= 1) {
           const sy = Y(o.ys);
@@ -2174,6 +3737,8 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         paper(g2, W2, H2, C2);
         const { mode, S: Sa, d, eps } = S2.p, o = this.st(S2), nar = W2 < 560, k = nar ? 0.62 : 1, pw = (80 + 190 * Math.sqrt(Sa / 400)) * k, dp = pw * 0.32, gp = (10 + d * 14) * k, cx = Math.round(W2 * (nar ? 0.5 : 0.52)), yc = Math.round(H2 * 0.5), x0 = cx - pw / 2 - dp / 2;
         const plate = (y, col, th) => {
+          g2.save();
+          shd(g2, true, 14, 6);
           g2.fillStyle = col;
           g2.beginPath();
           g2.moveTo(x0, y);
@@ -2182,6 +3747,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           g2.lineTo(x0 + dp, y - dp * 0.55);
           g2.closePath();
           g2.fill();
+          shd(g2, false);
           g2.fillStyle = C2.dark ? "rgba(0,0,0,.35)" : "rgba(0,0,0,.18)";
           g2.fillRect(x0, y, pw, th);
           g2.fillStyle = col;
@@ -2191,6 +3757,18 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           g2.strokeStyle = C2.ink;
           g2.lineWidth = 1;
           g2.strokeRect(x0 + 0.5, y + 0.5, pw, th);
+          const sh2 = g2.createLinearGradient(x0, y - dp * 0.55, x0 + pw, y);
+          sh2.addColorStop(0, "rgba(255,255,255,.28)");
+          sh2.addColorStop(0.6, "rgba(255,255,255,0)");
+          g2.fillStyle = sh2;
+          g2.beginPath();
+          g2.moveTo(x0, y);
+          g2.lineTo(x0 + pw, y);
+          g2.lineTo(x0 + pw + dp, y - dp * 0.55);
+          g2.lineTo(x0 + dp, y - dp * 0.55);
+          g2.closePath();
+          g2.fill();
+          g2.restore();
         };
         const yT = yc - gp / 2 - 8, yB = yc + gp / 2;
         plate(yB, C2.neg, 8);
@@ -2234,16 +3812,13 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         g2.lineTo(ccx, yB + 40);
         g2.lineTo(ccx, yB + 8);
         g2.stroke();
-        g2.lineWidth = 3;
-        g2.beginPath();
-        g2.moveTo(bx - 16, yc - 10);
-        g2.lineTo(bx + 16, yc - 10);
-        g2.stroke();
-        g2.lineWidth = 6;
-        g2.beginPath();
-        g2.moveTo(bx - 8, yc + 10);
-        g2.lineTo(bx + 8, yc + 10);
-        g2.stroke();
+        g2.save();
+        shd(g2, true, 10, 4);
+        cylH(g2, bx - 18, yc - 12, 36, 24, C2.dark ? "#3a3f52" : "#2c3140");
+        g2.restore();
+        g2.fillStyle = C2.pos;
+        g2.fillRect(bx + 16, yc - 5, 5, 10);
+        tx(g2, "pin", bx, yc, "#fff", { a: "center", w: 700, s: 12, halo: false });
         tx(g2, "+", bx + 22, yc - 14, C2.pos, { w: 800, s: 15 });
         tx(g2, num(S2.p.U0, 1) + " V", nar ? bx + 8 : bx - 22, nar ? yc + 28 : yc, C2.ink, { a: nar ? "left" : "right", w: 600 });
         const swx = (bx + ccx) / 2, swy = yT - 30 - dp * 0.3;
@@ -2270,7 +3845,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         g2.lineTo(vx, yB + 4);
         g2.lineTo(x0 + pw, yB + 4);
         g2.stroke();
-        dot(g2, vx, yc, 17, C2.ink, true);
+        ball(g2, vx, yc, 17, C2.dark ? "#c9cfe3" : "#e9ecf4");
         tx(g2, "V", vx, yc + 1, C2.ink, { a: "center", w: 800, s: 15, halo: false });
         tx(g2, num(o.U, 2) + " V", vx, yc + 32, C2.ink, { a: nar ? "right" : "center", w: 700 });
         g2.strokeStyle = C2.mute;
@@ -2391,16 +3966,12 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         g2.lineTo(x1 - 14, by);
         g2.lineTo(x1 - 14, top);
         g2.stroke();
-        g2.lineWidth = 2.5;
-        g2.beginPath();
-        g2.moveTo(xc - 8, by - 16);
-        g2.lineTo(xc - 8, by + 16);
-        g2.stroke();
-        g2.lineWidth = 6;
-        g2.beginPath();
-        g2.moveTo(xc + 8, by - 8);
-        g2.lineTo(xc + 8, by + 8);
-        g2.stroke();
+        g2.save();
+        shd(g2, true, 10, 4);
+        cylH(g2, xc - 20, by - 12, 40, 24, C2.dark ? "#3a3f52" : "#2c3140");
+        g2.restore();
+        g2.fillStyle = C2.pos;
+        g2.fillRect(xc - 25, by - 5, 5, 10);
         tx(g2, "+", xc - 20, by - 16, C2.pos, { a: "center", w: 800, s: 15 });
         tx(g2, "−", xc + 20, by - 16, C2.neg, { a: "center", w: 800, s: 15 });
         if (!nar) tx(g2, "nguồn điện", xc, by + 28, C2.mute, { a: "center" });
@@ -2408,20 +3979,31 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           arrow(g2, x0 + 60, by, x0 + 120, by, C2.red, 2, 8);
           arrow(g2, x1 - 120, by, x1 - 60, by, C2.red, 2, 8);
         }
-        g2.fillStyle = C2.dark ? "rgba(231,164,107,.16)" : "rgba(214,140,80,.16)";
-        rr(g2, x0, top, x1 - x0, th, th / 2.6);
-        g2.fill();
-        g2.strokeStyle = C2.dark ? "#c98a55" : "#b8733e";
-        g2.lineWidth = 2;
-        g2.stroke();
+        {
+          g2.save();
+          shd(g2, true, 16, 6);
+          rr(g2, x0, top, x1 - x0, th, th / 2.6);
+          const cg = g2.createLinearGradient(0, top, 0, top + th);
+          cg.addColorStop(0, "rgba(150,85,40,.55)");
+          cg.addColorStop(0.28, "rgba(255,214,170,.55)");
+          cg.addColorStop(0.6, "rgba(214,140,80,.32)");
+          cg.addColorStop(1, "rgba(120,65,30,.6)");
+          g2.fillStyle = cg;
+          g2.fill();
+          g2.restore();
+          g2.strokeStyle = C2.dark ? "#d79a62" : "#a8622f";
+          g2.lineWidth = 2;
+          rr(g2, x0, top, x1 - x0, th, th / 2.6);
+          g2.stroke();
+        }
         if (S2.p.ion) {
           g2.save();
           rr(g2, x0, top, x1 - x0, th, th / 2.6);
           g2.clip();
           for (let y = top + 12; y < bot - 6; y += 24) for (let x = x0 + 14 + (y - top) / 24 % 2 * 12; x < x1 - 6; x += 24) {
             const jx = S2.p.th ? Math.sin(S2.t * 20 + x * 0.7 + y) * 1.2 : 0, jy = S2.p.th ? Math.cos(S2.t * 17 + x + y * 0.3) * 1.2 : 0;
-            dot(g2, x + jx, y + jy, 6.5, C2.dark ? "rgba(169,177,201,.45)" : "rgba(93,102,128,.32)");
-            tx(g2, "+", x + jx, y + jy + 0.5, C2.dark ? "#d7dbea" : "#fff", { a: "center", w: 800, s: 11, halo: false });
+            ball(g2, x + jx, y + jy, 6, C2.dark ? "#7d859e" : "#9aa2b6", false);
+            tx(g2, "+", x + jx, y + jy + 0.5, "#fff", { a: "center", w: 800, s: 11, halo: false });
           }
           g2.restore();
         }
@@ -2433,7 +4015,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         g2.stroke();
         g2.setLineDash([]);
         tx(g2, "tiết diện S", xc + 14, top - 12, C2.teal, { w: 600 });
-        for (const e of S2.E) dot(g2, e.x, e.y, 3, C2.neg);
+        for (const e of S2.E) ball(g2, e.x, e.y, 3.3, C2.neg, false);
         if (S2.tr.length > 1) {
           g2.strokeStyle = C2.orange;
           g2.lineWidth = 1.5;
@@ -2441,7 +4023,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           S2.tr.forEach(([x, y], i) => i ? g2.lineTo(x, y) : g2.moveTo(x, y));
           g2.stroke();
           const e = S2.E[0];
-          dot(g2, e.x, e.y, 5, C2.orange);
+          ball(g2, e.x, e.y, 5.5, C2.orange, false);
         }
         const ay = bot + 26;
         if (I > 0) {
@@ -2497,9 +4079,16 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           g2.fillStyle = gl;
           g2.fillRect(Rx - 70, my - 70, 140, 140);
         }
-        g2.strokeStyle = C2.ink;
-        g2.lineWidth = 2;
+        g2.save();
+        shd(g2, true, 6, 2);
+        g2.strokeStyle = C2.dark ? "#d79a62" : "#b8733e";
+        g2.lineWidth = 4;
+        g2.lineJoin = "round";
         g2.strokeRect(L, T, Rx - L, B - T);
+        g2.restore();
+        g2.strokeStyle = "rgba(255,230,200,.6)";
+        g2.lineWidth = 1.2;
+        g2.strokeRect(L - 1, T - 1, Rx - L, B - T);
         const vx = Rx + (nar ? 40 : 70);
         g2.lineWidth = 1.4;
         g2.strokeStyle = C2.mute;
@@ -2525,7 +4114,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         const avoid = (x, y) => Math.hypot(x - ax, y - T) < 20 || Math.abs(x - L) < 16 && Math.abs(y - my) < 40 || Math.abs(x - Rx) < 16 && Math.abs(y - my) < 36;
         for (let s = 0; s < per; s += 24) {
           const [x, y] = posAt(s + S2.s);
-          if (!avoid(x, y)) dot(g2, x, y, 3, C2.orange);
+          if (!avoid(x, y)) ball(g2, x, y, 3.8, C2.orange, false);
         }
         g2.fillStyle = C2.bg;
         g2.fillRect(L - 14, my - 36, 28, 72);
@@ -2537,16 +4126,14 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         g2.moveTo(L, my + 34);
         g2.lineTo(L, my + 36);
         g2.stroke();
-        g2.lineWidth = 2.5;
-        g2.beginPath();
-        g2.moveTo(L - 16, my - 14);
-        g2.lineTo(L + 16, my - 14);
-        g2.stroke();
-        g2.lineWidth = 6;
-        g2.beginPath();
-        g2.moveTo(L - 8, my - 4);
-        g2.lineTo(L + 8, my - 4);
-        g2.stroke();
+        g2.save();
+        shd(g2, true, 10, 4);
+        g2.translate(L, my - 9);
+        g2.rotate(Math.PI / 2);
+        cylH(g2, -14, -11, 28, 22, C2.dark ? "#3a3f52" : "#2c3140");
+        g2.restore();
+        g2.fillStyle = C2.pos;
+        g2.fillRect(L - 4, my - 27, 8, 5);
         g2.lineWidth = 2;
         g2.beginPath();
         g2.moveTo(L, my - 1);
@@ -2566,17 +4153,22 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         g2.setLineDash([]);
         tx(g2, "E = " + num(E, 1) + " V", L + 30, my - 2, C2.ink, { w: 700 });
         tx(g2, "r = " + num(r, 1) + " Ω", L + 30, my + 18, C2.ink, { w: 600 });
-        dot(g2, ax, T, 16, C2.ink, true);
+        ball(g2, ax, T, 16, C2.dark ? "#c9cfe3" : "#e9ecf4");
         tx(g2, "A", ax, T + 1, C2.ink, { a: "center", w: 800, s: 15, halo: false });
         tx(g2, num(o.I, 2) + " A", ax, T + 30, C2.ink, { a: "center", w: 800, s: 16 });
-        g2.fillStyle = C2.bg;
-        g2.fillRect(Rx - 11, my - 30, 22, 60);
-        g2.strokeStyle = C2.ink;
-        g2.lineWidth = 1.8;
-        g2.strokeRect(Rx - 11, my - 30, 22, 60);
+        g2.save();
+        shd(g2, true, 10, 4);
+        g2.translate(Rx, my);
+        g2.rotate(Math.PI / 2);
+        cylH(g2, -31, -11, 62, 22, "#d9c9a8");
+        g2.restore();
+        for (const [yy, cc] of [[-18, "#8b4a1d"], [-8, "#1f1f1f"], [2, "#c2271c"], [12, "#d4a21a"]]) {
+          g2.fillStyle = cc;
+          g2.fillRect(Rx - 11, my + yy, 22, 4);
+        }
         arrow(g2, Rx - 22, my + 24, Rx + 22, my - 26, C2.pen, 1.8, 8);
         tx(g2, "R = " + num(R, 1) + " Ω", Rx - 18, my + 46, C2.ink, { a: "right", w: 700 });
-        dot(g2, vx, my, 17, C2.ink, true);
+        ball(g2, vx, my, 17, C2.dark ? "#c9cfe3" : "#e9ecf4");
         tx(g2, "V", vx, my + 1, C2.ink, { a: "center", w: 800, s: 15, halo: false });
         tx(g2, num(o.U, 2) + " V", vx + (nar ? 0 : 24), my + (nar ? 32 : 0), C2.ink, { a: nar ? "center" : "left", w: 800, s: 16 });
         if (R < 0.3) tx(g2, "Đoản mạch! I = E/r rất lớn, nguồn nhanh hỏng", (L + Rx) / 2, B - 22, C2.red, { a: "center", w: 800, s: nar ? 13 : 15 });
@@ -2599,6 +4191,411 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         f: [["I = E / (R + r)", "Cường độ dòng điện trong mạch kín"], ["U = E − I·r = I·R", "Hiệu điện thế giữa hai cực nguồn (mạch ngoài)"], ["P = U·I = I²R ;  P_nguồn = E·I", "Công suất mạch ngoài và công suất của nguồn"], ["H = U/E = R/(R + r)", "Hiệu suất của nguồn"]],
         q: [["Giảm R về 0 (đoản mạch). Cường độ dòng điện bằng bao nhiêu?", "I = E/r, rất lớn khi r nhỏ, còn U gần bằng 0. Vì thế không được nối tắt hai cực của pin hay acquy."], ["Chỉnh R sao cho công suất mạch ngoài lớn nhất.", "R = r. Khi đó P = E²/(4r) và hiệu suất H = 50%."], ["Khi R rất lớn (gần như mạch hở), vôn kế chỉ bao nhiêu?", "Gần bằng E: suất điện động bằng hiệu điện thế giữa hai cực khi nguồn không phát dòng điện."]]
       }
+    });
+    const helix = (a, b, R, coils, n, axis) => {
+      const pts = [];
+      for (let i = 0; i <= n; i++) {
+        const s = i / n, an = TAU * coils * s;
+        if (axis === "z") pts.push([a[0] + R * Math.cos(an), a[1] + R * Math.sin(an), a[2] + (b[2] - a[2]) * s]);
+        else pts.push([a[0] + (b[0] - a[0]) * s, a[1] + R * Math.cos(an), a[2] + R * Math.sin(an)]);
+      }
+      return pts;
+    };
+    const ring3 = (c, R, n, plane) => {
+      const p = [];
+      for (let i = 0; i <= n; i++) {
+        const a = TAU * i / n;
+        p.push(plane === "xz" ? [c[0] + R * Math.cos(a), c[1], c[2] + R * Math.sin(a)] : plane === "yz" ? [c[0], c[1] + R * Math.cos(a), c[2] + R * Math.sin(a)] : [c[0] + R * Math.cos(a), c[1] + R * Math.sin(a), c[2]]);
+      }
+      return p;
+    };
+    add3("lo-xo", { fit: 1.5, az: -1.2, el: 0.36, dist: 58, t: [-5, 0, 6] }, function(G, S2, W2, H2, C2) {
+      const { A, circ, vec } = S2.p, o = this.q(S2), bx = o.x, bs = 5;
+      G.ground([-3, 0, -1], [64, 20, 2], K3.wood);
+      G.box([-25.5, 0, 7], [2, 16, 14], K3.steel);
+      G.tube(helix([-24.5, 0, bs / 2], [bx - bs / 2, 0, bs / 2], 1.4, 15, 240, "x"), 0.2, K3.metal);
+      G.box([bx, 0, bs / 2], [bs, bs, bs], K3.pen);
+      G.box([0, 0, 0.03], [0.25, 12, 0.08], K3.ink);
+      for (const s of [-1, 1]) G.box([s * A, 0, 0.03], [0.18, 8, 0.08], K3.red);
+      G.lab([0, -7.2, 0], "O", C2.ink);
+      G.lab([-A, -5.5, 0], "−A", C2.red);
+      G.lab([A, -5.5, 0], "+A", C2.red);
+      if (circ) {
+        const zc = bs + 6 + A, ph = o.ph, M = [A * Math.cos(ph), 0, zc + A * Math.sin(ph)];
+        G.tube(ring3([0, 0, zc], A, 64, "xz"), 0.1, K3.steel, 0.6);
+        G.cyl([0, 0, zc], M, 0.12, K3.pen);
+        G.sphere(M, 0.75, K3.pen);
+        G.cyl(M, [bx, 0, bs], 0.06, K3.pen, 0.5);
+        G.lab([M[0], 0, M[2] + 1.8], "M", C2.pen, { it: 1 });
+      }
+      if (vec) {
+        const L = 7, vl = o.v / (A * o.w) * L, al = o.a / (A * o.w * o.w) * L;
+        G.arrow([bx, -3.2, bs + 1.6], [bx + vl, -3.2, bs + 1.6], 0.22, K3.orange);
+        G.arrow([bx, -3.2, bs + 3.4], [bx + al, -3.2, bs + 3.4], 0.22, K3.red);
+        if (Math.abs(vl) > 1) G.lab([bx + vl * 1.15, -3.2, bs + 1.6], "v", C2.orange, { it: 1 });
+        if (Math.abs(al) > 1) G.lab([bx + al * 1.15, -3.2, bs + 3.4], "a", C2.red, { it: 1 });
+      }
+      G.badge(["T = " + num(o.T, 2) + " s", "x = " + num(o.x, 1) + " cm"]);
+    });
+    add3("con-lac-don", { fit: 0.6, az: -1.35, el: 0.2, dist: 80, t: [0, 0, 25] }, function(G, S2, W2, H2, C2) {
+      const { l, a0, m, vec } = S2.p, k = 18, pz = 44, L = l * k, th = S2.th, bx = L * Math.sin(th), bz = pz - L * Math.cos(th), rb = 1.1 + 1.4 * Math.cbrt(m);
+      G.ground([0, 0, -0.5], [70, 40, 1], K3.wood);
+      G.box([0, -14, 1], [18, 8, 2], K3.steel);
+      G.cyl([0, -14, 2], [0, -14, pz + 1.2], 0.7, K3.metal);
+      G.cyl([0, -14, pz + 0.6], [0, 1.4, pz + 0.6], 0.6, K3.metal);
+      G.sphere([0, 0, pz + 0.2], 0.6, K3.dark);
+      const arc = [];
+      for (let i = 0; i <= 60; i++) {
+        const a = (-a0 + 2 * a0 * i / 60) * DEG;
+        arc.push([L * Math.sin(a), 0, pz - L * Math.cos(a)]);
+      }
+      G.tube(arc, 0.13, K3.steel, 0.5);
+      G.cyl([0, 0, pz], [0, 0, pz - L - 2.5], 0.05, K3.steel, 0.35);
+      G.cyl([0, 0, pz], [bx, 0, bz], 0.09, K3.ink);
+      G.sphere([bx, 0, bz], rb, K3.pen);
+      if (vec) {
+        const P = 8, s = Math.sin(th), fx = -s * Math.cos(th) * P, fz = -s * Math.sin(th) * P;
+        G.arrow([bx, 0, bz], [bx, 0, bz - P], 0.22, K3.steel);
+        G.lab([bx + 1.6, 0, bz - P], "P", C2.mute, { it: 1 });
+        G.arrow([bx, 0, bz], [bx + fx, 0, bz + fz], 0.24, K3.red);
+        if (Math.abs(s) * P > 1.4) G.lab([bx + fx * 1.25, 0, bz + fz * 1.25 + 1.2], "Pₜ", C2.red, { it: 1 });
+      }
+      G.lab([bx / 2 + 2, 0, (pz + bz) / 2], "l = " + num(l, 2) + " m", C2.ink, { a: "left", s: 13 });
+      G.badge(["T = 2π√(l/g) = " + num(this.T0(S2), 2) + " s", "Đo được: " + (S2.Tm ? num(S2.Tm, 2) + " s" : "…")]);
+    });
+    add3("cong-huong", { fit: 0.6, az: -1.3, el: 0.24, dist: 100, t: [0, 0, 24] }, function(G, S2, W2, H2, C2) {
+      const { f, f0, b, mode } = S2.p, forced = mode === "f", s = 1.6, zEq = 22, top = 46, ph = forced ? S2.ph : 0, D = 0.5 * s, ys = top - 7 + D * Math.cos(ph), mh = 2.8, mz = zEq - S2.x * s;
+      G.ground([0, 0, -0.5], [60, 40, 1], K3.wood);
+      G.cyl([-12, 0, 0], [-12, 0, top + 2], 0.7, K3.metal);
+      G.cyl([12, 0, 0], [12, 0, top + 2], 0.7, K3.metal);
+      G.box([0, 0, top + 2], [26, 3, 2], K3.steel);
+      const wz = top - 2.5, wr = 2.6;
+      G.cyl([0, -1.6, wz], [0, -2.8, wz], wr, K3.dark);
+      const pin = [wr * Math.cos(ph), -3, wz + wr * Math.sin(ph)];
+      G.sphere(pin, 0.5, K3.red);
+      G.cyl(pin, [0, -0.6, ys + 0.5], 0.22, K3.red);
+      G.box([0, 0, ys], [8, 4, 0.8], K3.steel);
+      G.tube(helix([0, 0, ys - 0.4], [0, 0, mz + mh], 1.6, 14, 220, "z"), 0.18, K3.metal);
+      G.box([0, 0, mz], [5.6, 5.6, 2 * mh], K3.pen);
+      G.box([0, 0, 1.2], [14.4, 14.4, 0.6], K3.steel);
+      G.box([0, 0, 17], [14, 14, 31], K3.teal, 0.1 + 0.2 * (b - 0.3) / 2.7);
+      G.lab([7.5, -7.5, 30], "chất lỏng", C2.teal, { a: "left", s: 13 });
+      G.badge(forced ? ["f = " + num(f, 2) + " Hz, f₀ = " + num(f0, 2) + " Hz", "A ≈ " + num(this.Am(S2), 1) + " cm"] : ["Dao động tắt dần", "A = " + num(8 * Math.exp(-b * S2.t / 2), 1) + " cm"]);
+    });
+    add3("song-ngang-doc", { fit: 2.6, az: -1.3, el: 0.42, dist: 100, t: [0, 0, 4] }, function(G, S2, W2, H2, C2) {
+      const { kind, f, v, A, mark } = S2.p, w = TAU * f, Am = A / 100, t = S2.t, u = (x) => t > x / v ? Am * Math.sin(w * (t - x / v)) : 0, sc = 20, X = (x) => x * sc - 40, mi = 12;
+      G.ground([0, 0, -0.6], [96, 46, 1.2], K3.wood);
+      const lanes = kind === "both" ? [["ngang", 10], ["doc", -10]] : [[kind, 0]];
+      for (const [kd, y] of lanes) {
+        if (kd === "ngang") {
+          const zc = 6, ex = 3.5, Z = (x) => zc + u(x) * sc * ex, sp = [];
+          for (let i = 0; i <= 200; i++) {
+            const x = i * 0.02;
+            sp.push([X(x), y, Z(x)]);
+          }
+          G.tube(sp, 0.12, K3.steel);
+          const bs = [];
+          for (let i = 0; i <= 40; i++) if (!(mark && i === mi)) bs.push([X(i * 0.1), y, Z(i * 0.1)]);
+          G.beads(bs, 0.55, K3.pen);
+          if (mark) {
+            G.sphere([X(mi * 0.1), y, Z(mi * 0.1)], 0.85, K3.red);
+            G.cyl([X(mi * 0.1), y, zc - Am * sc * ex - 1], [X(mi * 0.1), y, zc + Am * sc * ex + 1], 0.05, K3.red, 0.5);
+          }
+          G.box([X(0) - 2, y, Z(0)], [1, 4, 3], K3.dark);
+          G.lab([X(0) - 3, y, zc + Am * sc * ex + 5], "Sóng ngang", C2.ink, { a: "left", s: 15 });
+        } else {
+          const zc = 5, R = 2.4, coils = 56, n = coils * 16, pts = [];
+          for (let i = 0; i <= n; i++) {
+            const s = i / n * 4, an = TAU * coils * s / 4;
+            pts.push([X(s + u(s)), y + R * Math.cos(an), zc + R * Math.sin(an)]);
+          }
+          G.tube(pts, 0.13, K3.metal);
+          if (mark) {
+            const s = mi * 0.1;
+            G.sphere([X(s + u(s)), y, zc + R + 0.5], 0.75, K3.red);
+          }
+          G.box([X(u(0)) - 1.6, y, zc], [1, 6.5, 6.5], K3.dark);
+          G.lab([X(0) - 3, y, zc + R + 5], "Sóng dọc", C2.ink, { a: "left", s: 15 });
+        }
+      }
+      const ya = lanes[0][1];
+      G.arrow([28, ya, 15], [42, ya, 15], 0.3, K3.steel);
+      G.lab([35, ya, 17.5], "phương truyền", C2.mute, { s: 13 });
+      G.badge(["λ = v/f = " + num(v / f, 2) + " m"]);
+    });
+    add3("young", { fit: 2.4, az: -2.3, el: 0.3, dist: 108, t: [2, 0, 10] }, function(G, S2, W2, H2, C2) {
+      const { lam, a, D, white } = S2.p, Xm = 12, lc = white ? [1, 1, 1] : wl2rgb(lam), xs = -14, xq = 36, zc = 12, g2 = 2 + a * 3, sw = 0.6, Y = (x) => x / Xm * 18;
+      G.ground([10, 0, -1], [112, 12, 2], K3.steel);
+      G.sphere([-42, 0, zc], 2.2, lc, null, 0.95);
+      G.cyl([-42, 0, 0], [-42, 0, zc - 2], 0.5, K3.dark);
+      const y1 = -g2 / 2, y2 = g2 / 2;
+      G.box([xs, (-15 + y1 - sw / 2) / 2, zc], [1, y1 - sw / 2 + 15, 20], K3.dark);
+      G.box([xs, 0, zc], [1, g2 - sw, 20], K3.dark);
+      G.box([xs, (15 + y2 + sw / 2) / 2, zc], [1, 15 - y2 - sw / 2, 20], K3.dark);
+      G.box([xq + 0.9, 0, zc], [1.2, 40, 24], K3.metal);
+      const nx = 220, pos = new Float32Array((nx + 1) * 6), col = new Float32Array((nx + 1) * 6), ix = new Uint16Array(nx * 6);
+      for (let i = 0; i <= nx; i++) {
+        const y = -18 + 36 * i / nx, c = this.col(S2, -y / 18 * Xm);
+        for (const k of [0, 1]) {
+          const o = 6 * i + 3 * k;
+          pos[o] = xq;
+          pos[o + 1] = y;
+          pos[o + 2] = zc + (k ? 10 : -10);
+          col[o] = Math.min(1, c[0] ** 0.8);
+          col[o + 1] = Math.min(1, c[1] ** 0.8);
+          col[o + 2] = Math.min(1, c[2] ** 0.8);
+        }
+      }
+      for (let i = 0; i < nx; i++) {
+        const a0 = 2 * i;
+        ix.set([a0, a0 + 1, a0 + 2, a0 + 1, a0 + 3, a0 + 2], 6 * i);
+      }
+      G.vmesh(pos, col, [-1, 0, 0], ix, 1);
+      const ym = -Y(S2.xm), rc = white ? [0.95, 0.95, 0.95] : lc;
+      for (const sy of [y1, y2]) {
+        G.cyl([-40, 0, zc], [xs, sy, zc], 0.1, rc, 0.45, 1);
+        G.cyl([xs, sy, zc], [xq - 0.1, ym, zc], 0.13, rc, 0.85, 1);
+      }
+      G.sphere([xq - 0.3, ym, zc], 0.55, K3.red);
+      G.lab([xq - 0.5, ym, zc + 2.6], "M", C2.red, { it: 1 });
+      G.lab([xs, y1 - 1.6, zc + 11.5], "S₁", C2.ink);
+      G.lab([xs, y2 + 1.6, zc + 11.5], "S₂", C2.ink);
+      G.lab([xq, 0, zc + 13.5], "màn", C2.mute);
+      G.lab([-42, 0, zc + 4], "nguồn sáng", C2.mute, { s: 13 });
+      G.badge(["i = λD/a = " + num(this.i(S2), 2) + " mm"]);
+    });
+    add3("song-dung", { fit: 2.6, az: -1.35, el: 0.3, dist: 96, t: [0, 0, 9] }, function(G, S2, W2, H2, C2) {
+      const { end, parts } = S2.p, lam = this.lam(S2), x0 = -40, Lp = 80, x1 = x0 + Lp, k = TAU / (lam * Lp / S2.p.L), A2 = 6, Am = A2 / 2, ph = TAU * 0.7 * S2.t, ct = Math.cos(ph), zc = 10, Z = (x) => zc - 2 * Am * ct * Math.sin(k * (x - x0));
+      G.ground([0, 0, -0.6], [104, 30, 1.2], K3.wood);
+      G.box([x0 - 4, 0, zc / 2], [6, 7, zc + 2], K3.dark);
+      G.cyl([x0 - 1, 0, zc], [x0, 0, zc], 0.35, K3.steel);
+      if (end === "ff") G.cyl([x1, 0, 0], [x1, 0, zc + 4], 0.6, K3.steel);
+      else {
+        G.cyl([x1 + 0.9, 0, 0], [x1 + 0.9, 0, zc + A2 + 5], 0.3, K3.metal);
+        G.tube(ring3([x1 + 0.9, 0, Z(x1)], 0.9, 24, "xy"), 0.25, K3.dark);
+      }
+      const sp = [];
+      for (let i = 0; i <= 300; i++) {
+        const x = x0 + Lp * i / 300;
+        sp.push([x, 0, Z(x)]);
+      }
+      G.tube(sp, 0.3, K3.pen);
+      for (const sg of [1, -1]) {
+        const e = [];
+        for (let i = 0; i <= 200; i++) {
+          const x = x0 + Lp * i / 200;
+          e.push([x, 0, zc + sg * A2 * Math.abs(Math.sin(k * (x - x0)))]);
+        }
+        G.tube(e, 0.08, K3.steel, 0.35);
+      }
+      if (parts) {
+        for (const [f, cl_] of [[(x) => Am * Math.sin(ph - k * (x - x0)), K3.orange], [(x) => -Am * Math.sin(ph + k * (x - x0)), K3.teal]]) {
+          const p = [];
+          for (let i = 0; i <= 240; i++) {
+            const x = x0 + Lp * i / 240;
+            p.push([x, 0, zc + f(x)]);
+          }
+          G.tube(p, 0.12, cl_, 0.85);
+        }
+      }
+      const lp = TAU / k;
+      for (let m = 0; m <= 40; m++) {
+        const xn = x0 + m * lp / 2;
+        if (xn <= x1 + 0.01) {
+          G.sphere([xn, 0, zc], 0.6, K3.red);
+          G.lab([xn, 0, zc - A2 - 2], "N", C2.red);
+        }
+        const xa = x0 + (m + 0.5) * lp / 2;
+        if (xa <= x1 + 0.01) G.lab([xa, 0, zc + A2 + 2], "B", C2.teal);
+      }
+      G.badge([end === "ff" ? "l = n·λ/2" : "l = (2n − 1)·λ/4", "f = " + num(S2.p.v / lam, 2) + " Hz"]);
+    });
+    add3("coulomb", { fit: 1.4, az: -1.42, el: 0.26, dist: 52, t: [0, 0, 9] }, function(G, S2, W2, H2, C2) {
+      const { q1, q2, r, eps } = S2.p, F = this.F(S2, r), t = q1 * q2, s = 1.5, x1 = -r * s / 2, x2 = r * s / 2, zc = 12, R = (q) => q === 0 ? 0.8 : 1.1 + 1.6 * Math.cbrt(Math.abs(q) / 10), R1 = Math.min(R(q1), r * s / 2 - 0.15), R2 = Math.min(R(q2), r * s / 2 - 0.15), cq = (q) => q > 0 ? K3.red : q < 0 ? K3.pen : K3.metal;
+      G.ground([0, 0, -0.6], [74, 30, 1.2], K3.wood);
+      for (const [x, q, Rq] of [[x1, q1, R1], [x2, q2, R2]]) {
+        G.cyl([x, 0, 0], [x, 0, 0.6], 2, K3.steel);
+        G.cyl([x, 0, 0.6], [x, 0, zc - Rq], 0.3, K3.glass);
+        G.sphere([x, 0, zc], Rq, cq(q));
+      }
+      if (eps > 1) G.box([0, 0, 12], [70, 26, 24], eps > 50 ? [0.3, 0.55, 0.9] : eps > 5 ? [0.6, 0.85, 0.92] : [0.92, 0.76, 0.35], 0.14);
+      const Lf = F > 0 ? cl(1.6 + 2.3 * (Math.log10(F) + 4), 1.2, 15) : 0;
+      if (Lf) {
+        if (t > 0) {
+          G.arrow([x1 - R1, 0, zc], [x1 - R1 - Lf, 0, zc], 0.32, K3.orange);
+          G.arrow([x2 + R2, 0, zc], [x2 + R2 + Lf, 0, zc], 0.32, K3.orange);
+          G.lab([x1 - R1 - Lf / 2, 0, zc + 2.2], "F₂₁", C2.orange, { it: 1 });
+          G.lab([x2 + R2 + Lf / 2, 0, zc + 2.2], "F₁₂", C2.orange, { it: 1 });
+        } else {
+          const a = Math.min(Lf, Math.max(0.8, r * s / 2 - 0.3)), z1 = zc + R1 + 1.4, z2 = zc + R2 + 1.4;
+          G.arrow([x1, 0, z1], [x1 + a, 0, z1], 0.32, K3.orange);
+          G.arrow([x2, 0, z2], [x2 - a, 0, z2], 0.32, K3.orange);
+          G.lab([x1, 0, z1 + 2], "F₂₁", C2.orange, { it: 1 });
+          G.lab([x2, 0, z2 + 2], "F₁₂", C2.orange, { it: 1 });
+        }
+      }
+      G.cyl([x1, -5, 0.7], [x2, -5, 0.7], 0.1, K3.ink);
+      G.cyl([x1, -5, 0.2], [x1, -5, 1.4], 0.1, K3.ink);
+      G.cyl([x2, -5, 0.2], [x2, -5, 1.4], 0.1, K3.ink);
+      G.lab([0, -5, 2.4], "r = " + num(r, 1) + " cm", C2.ink);
+      G.lab([x1, 0, zc - R1 - 2.2], "q₁ = " + qfmt(q1), C2.ink, { s: 13 });
+      G.lab([x2, 0, zc - R2 - 2.2], "q₂ = " + qfmt(q2), C2.ink, { s: 13 });
+      G.badge(["F = " + nf(F, 3) + " N", t > 0 ? "lực đẩy" : t < 0 ? "lực hút" : "không tương tác"]);
+    });
+    add3("dien-truong-deu", { fit: 2.6, az: -1.95, el: 0.3, dist: 58, t: [26, 0, 12] }, function(G, S2, W2, H2, C2) {
+      const { mode, par, U, d } = S2.p, P = PAR[par], o = this.ph(S2), s = 400, zc = 12, gp = d / 100 * s, L = 0.08 * s, xs = 0.14 * s, V = (p) => [p[0] * s, 0, zc + p[1] * s];
+      G.ground([24, 0, -0.6], [92, 36, 1.2], K3.wood);
+      G.box([L / 2, 0, zc + gp / 2 + 0.4], [L, 16, 0.8], K3.red);
+      G.box([L / 2, 0, zc - gp / 2 - 0.4], [L, 16, 0.8], K3.pen);
+      G.cyl([L / 2, 7, 0], [L / 2, 7, zc - gp / 2 - 0.8], 0.4, K3.glass);
+      if (U > 0) for (let i = 0; i < 6; i++) for (let j = 0; j < 3; j++) {
+        const x = L * (i + 0.5) / 6, y = -5.5 + 5.5 * j;
+        G.arrow([x, y, zc + gp / 2 - 0.3], [x, y, zc - gp / 2 + 0.3], 0.1, K3.red, 0.3 + 0.5 * U / 200);
+      }
+      if (mode === "ngang") G.box([xs, 0, zc], [0.6, 20, 30], K3.white);
+      const n = 80, tE = o.T, pts = [];
+      for (let i = 0; i <= n; i++) pts.push(V(this.pos(S2, o, tE * i / n)));
+      G.tube(pts, 0.12, K3.steel, 0.4);
+      const tv = Math.min(1, S2.tau / o.Tv), tr = tv * tE, tp = [];
+      for (let i = 0; i <= 60; i++) tp.push(V(this.pos(S2, o, tr * i / 60)));
+      const cc = P.q > 0 ? K3.red : K3.blue;
+      G.tube(tp, 0.2, cc);
+      const cp = this.pos(S2, o, tr), c3 = V(cp);
+      G.sphere(c3, 0.9, cc);
+      const inside = cp[0] <= 0.0801 && Math.abs(cp[1]) < d / 200 + 1e-6;
+      if (U > 0 && inside && tv < 1) {
+        const up2 = o.a > 0;
+        G.arrow(c3, [c3[0], 0, c3[2] + (up2 ? 5 : -5)], 0.2, K3.red);
+      }
+      if (mode === "ngang" && tv < 1) {
+        const vy = cp[0] <= 0.08 ? o.a * tr : o.vy, ang = Math.atan2(vy, o.v0);
+        G.arrow(c3, [c3[0] + 5 * Math.cos(ang), 0, c3[2] + 5 * Math.sin(ang)], 0.2, K3.orange);
+      }
+      if (mode === "ngang" && !o.hit) {
+        const hz = zc + o.ys * s;
+        if (Math.abs(o.ys * s) < 15) {
+          G.sphere([xs - 0.4, 0, hz], 0.6, K3.orange);
+          if (tv >= 1) G.lab([xs - 0.4, 0, hz + 2.2], "lệch " + num(Math.abs(o.ys) * 100, 2) + " cm", C2.orange, { s: 13 });
+        }
+      }
+      G.lab([L / 2, -8, zc + gp / 2 + 2], "bản +", C2.red, { s: 13 });
+      G.lab([L / 2, -8, zc - gp / 2 - 2], "bản −", C2.pen, { s: 13 });
+      G.lab([L / 2, 0, zc + gp / 2 + 5], "U = " + U + " V", C2.ink);
+      G.badge([P.n + ": " + (P.q > 0 ? "lệch về bản âm" : "lệch về bản dương"), "E = U/d = " + nf(o.E, 3) + " V/m"]);
+    });
+    add3("tu-dien", { fit: 1.6, az: -1.25, el: 0.36, dist: 64, t: [2, 0, 10] }, function(G, S2, W2, H2, C2) {
+      const { mode, S: Sa, d, eps, U0 } = S2.p, o = this.st(S2), side = 1.6 * Math.sqrt(Sa), gp = 2 + d * 1.2, zc = 13, zt = zc + gp / 2, zb = zc - gp / 2;
+      G.ground([0, 0, -0.6], [84, 46, 1.2], K3.wood);
+      G.cyl([0, 0, 0], [0, 0, zb - 0.8], 0.6, K3.glass);
+      G.box([0, 0, zt + 0.4], [side, side, 0.8], K3.red);
+      G.box([0, 0, zb - 0.4], [side, side, 0.8], K3.pen);
+      if (eps > 1) G.box([0, 0, zc], [side * 0.97, side * 0.97, gp - 0.15], [0.45, 0.8, 0.55], Math.min(0.5, 0.1 + 0.035 * eps));
+      const nq = cl(Math.round(o.Q / 708e-12 * 16), 0, 81), gq = Math.max(1, Math.ceil(Math.sqrt(nq))), cp = [], cn = [];
+      for (let i = 0; i < nq; i++) {
+        const x = -side / 2 + side * (i % gq + 0.5) / gq, y = -side / 2 + side * (Math.floor(i / gq) + 0.5) / gq;
+        cp.push([x, y, zt - 0.35]);
+        cn.push([x, y, zb + 0.35]);
+      }
+      G.beads(cp, 0.3, K3.red, 0.3);
+      G.beads(cn, 0.3, K3.blue, 0.3);
+      const nl = cl(Math.round(o.E / 4e3 * 6), 1, 25), ga = Math.ceil(Math.sqrt(nl));
+      for (let i = 0; i < nl; i++) {
+        const x = -side / 2 + side * (i % ga + 0.5) / ga, y = -side / 2 + side * (Math.floor(i / ga) + 0.5) / ga;
+        if (gp > 2.4) G.arrow([x, y, zt - 0.75], [x, y, zb + 0.75], 0.09, K3.orange, 0.75);
+      }
+      const bx = -side / 2 - 13;
+      G.cyl([bx, 0, 0], [bx, 0, 9], 2, K3.dark);
+      G.cyl([bx, 0, 9], [bx, 0, 10], 0.7, K3.red);
+      const wy = zt + 5, sx = (bx + -side / 2) / 2;
+      G.tube([[bx, 0, 10], [bx, 0, wy], [sx - 2.2, 0, wy]], 0.22, K3.copper);
+      G.tube([[sx + 2.2, 0, wy], [0, 0, wy], [0, 0, zt + 0.8]], 0.22, K3.copper);
+      if (mode === "noi") G.cyl([sx - 2.2, 0, wy], [sx + 2.2, 0, wy], 0.22, K3.steel);
+      else G.cyl([sx - 2.2, 0, wy], [sx + 1.4, 0, wy + 2.8], 0.22, K3.steel);
+      G.tube([[bx + 2, 0, 0.8], [0, 0, 0.8]], 0.22, K3.copper);
+      const vx = side / 2 + 9;
+      G.box([vx, 0, 4], [6, 4, 8], K3.steel);
+      G.tube([[side / 2, 0, zt + 0.4], [vx, 0, zt + 0.4], [vx, 0, 8]], 0.12, K3.steel);
+      G.tube([[side / 2, 0, zb - 0.4], [vx - 2, 0, zb - 0.4], [vx - 2, 0, 4]], 0.12, K3.steel);
+      G.lab([vx, -2.4, 6], num(o.U, 2) + " V", C2.ink);
+      G.lab([bx, 0, 13], num(U0, 1) + " V", C2.ink, { s: 13 });
+      G.lab([sx, 0, wy + 4], mode === "noi" ? "khóa đóng" : "khóa mở", C2.mute, { s: 13 });
+      G.lab([side / 2 + 1.5, -side / 2, zt + 1.5], "+Q", C2.red, { a: "left" });
+      G.lab([side / 2 + 1.5, -side / 2, zb - 1.5], "−Q", C2.pen, { a: "left" });
+      G.badge(["C = " + si(o.C, "F"), "Q = " + si(o.Q, "C"), "W = " + si(o.W, "J")]);
+    });
+    add3("dong-dien", { fit: 3.4, az: -1.3, el: 0.34, dist: 74, t: [0, 0, 9] }, function(G, S2, W2, H2, C2) {
+      const g2 = this.setup(S2), I = S2.p.I, R = g2.th * 0.06, zc = 9, L = 80, X = (x) => (x - g2.x0) / (g2.x1 - g2.x0) * L - L / 2, top = g2.yc - g2.th / 2;
+      G.ground([0, 0, -0.6], [100, 40, 1.2], K3.wood);
+      if (S2.p.ion) {
+        const ions = [];
+        for (let x = -L / 2 + 1.6; x < L / 2; x += 3.2) for (const [a, rr3] of [[0, 0], [0, 0.6], [2.09, 0.6], [4.19, 0.6]]) ions.push([x + (rr3 ? 1.6 : 0), rr3 * R * Math.cos(a), zc + rr3 * R * Math.sin(a)]);
+        G.beads(ions, 0.5, K3.metal);
+      }
+      if (!S2.e3 || S2.e3.length !== S2.E.length) S2.e3 = S2.E.map(() => Math.random() * 2 - 1);
+      const Rm = R - 0.45, el = S2.E.map((e, i) => {
+        const yl = ((e.y - top) / g2.th * 2 - 1) * Rm, zl = S2.e3[i] * Math.sqrt(Math.max(0, Rm * Rm - yl * yl));
+        return [X(e.x), yl, zc + zl];
+      });
+      G.beads(el.slice(1), 0.3, K3.blue);
+      if (el[0]) G.sphere(el[0], 0.5, K3.orange);
+      G.cyl([-L / 2, 0, zc], [L / 2, 0, zc], R, K3.copper, 0.2);
+      G.tube(ring3([0, 0, zc], R + 0.1, 48, "yz"), 0.12, K3.teal);
+      G.lab([0, -R - 1, zc + R + 1.5], "tiết diện S", C2.teal, { s: 13 });
+      G.cyl([-L / 2 - 1, 0, zc + R + 0.5], [-L / 2 - 1, 0, zc + R + 9], 0.25, K3.copper);
+      G.cyl([L / 2 + 1, 0, zc + R + 0.5], [L / 2 + 1, 0, zc + R + 9], 0.25, K3.copper);
+      G.cyl([-L / 2 - 1, 0, zc + R + 9], [-3, 0, zc + R + 9], 0.25, K3.copper);
+      G.cyl([3, 0, zc + R + 9], [L / 2 + 1, 0, zc + R + 9], 0.25, K3.copper);
+      G.box([-2.2, 0, zc + R + 9], [0.4, 3.2, 3.2], K3.red);
+      G.box([2.2, 0, zc + R + 9], [1, 2, 2], K3.dark);
+      G.lab([-2.2, 0, zc + R + 12.5], "+", C2.red, { s: 16 });
+      if (I > 0) {
+        const za = zc + R + 3.5;
+        G.arrow([-9, 0, za], [9, 0, za], 0.32, K3.red);
+        G.lab([12, 0, za], "chiều dòng điện I", C2.red, { a: "left", s: 13 });
+        const ye = -R - 5, ze = Math.max(1.2, zc - R);
+        G.arrow([9, ye, ze], [-9, ye, ze], 0.32, K3.blue);
+        G.lab([-12, ye, ze], "electron trôi", C2.pen, { a: "right", s: 13 });
+      }
+      G.badge(["v trôi ≈ " + (I ? num(this.vd(S2) * 1e3, 3) : "0") + " mm/s"]);
+    });
+    add3("mach-dien", { fit: 3, az: -1.45, el: 0.78, dist: 78, t: [5, 0, 0] }, function(G, S2, W2, H2, C2) {
+      const { E, r, R } = S2.p, o = this.q(S2), xl = -22, xr = 20, yb = -12, yt = 12, z = 1.6, vx = xr + 9;
+      G.ground([0, 0, -0.5], [66, 40, 1], [0.2, 0.42, 0.3]);
+      G.tube([[xl, yt, z], [xr, yt, z], [xr, yb, z], [xl, yb, z], [xl, yt, z]], 0.35, K3.copper);
+      G.cyl([xl, -5, z], [xl, 5, z], 1.6, K3.dark);
+      G.cyl([xl, 5, z], [xl, 6, z], 0.6, K3.red);
+      G.box([xl, -8, z], [1.4, 2.4, 1.4], [0.85, 0.75, 0.55]);
+      G.lab([xl + 3.6, 6, z + 1.5], "+", C2.red, { s: 16 });
+      G.lab([xl + 3, -1, z + 3], "E = " + num(E, 1) + " V", C2.ink, { a: "left" });
+      G.lab([xl + 3, -8, z + 2], "r = " + num(r, 1) + " Ω", C2.ink, { a: "left", s: 13 });
+      const gw = o.P / o.Pm;
+      G.cyl([xr, -4.5, z], [xr, 4.5, z], 1.2, [0.86, 0.77, 0.58]);
+      if (o.P > 0) G.cyl([xr, -4.6, z], [xr, 4.6, z], 1.5, [1, 0.45, 0.1], 0.12 + 0.45 * gw, 1);
+      const sy = -4 + 8 * Math.min(1, R / 20);
+      G.box([xr, sy, z + 1.9], [2.6, 0.8, 0.8], K3.steel);
+      G.lab([xr + 3, -7, z + 2], "R = " + num(R, 1) + " Ω", C2.ink, { a: "left" });
+      G.tube([[xr, yt, z], [vx, yt, z], [vx, yb, z], [xr, yb, z]], 0.18, K3.steel);
+      G.cyl([vx, 0, z - 0.8], [vx, 0, z + 0.8], 2.4, K3.white);
+      G.lab([vx, 0, z + 1.4], "V", C2.ink);
+      G.lab([vx + 3.4, 0, z + 3], num(o.U, 2) + " V", C2.ink, { a: "left", s: 15 });
+      G.cyl([0, yt, z - 0.8], [0, yt, z + 0.8], 2.4, K3.white);
+      G.lab([0, yt, z + 1.4], "A", C2.ink);
+      G.lab([0, yt + 4, z + 3], num(o.I, 2) + " A", C2.ink, { s: 15 });
+      const per = 2 * (xr - xl) + 2 * (yt - yb), P = (s) => {
+        s = (s % per + per) % per;
+        const w = xr - xl, h = yt - yb;
+        if (s < w) return [xl + s, yt, z];
+        s -= w;
+        if (s < h) return [xr, yt - s, z];
+        s -= h;
+        if (s < w) return [xr - s, yb, z];
+        s -= w;
+        return [xl, yb + s, z];
+      }, dots = [];
+      for (let s = 0; s < per; s += 3.4) dots.push(P(s + S2.s * 0.18));
+      G.beads(dots, 0.45, K3.orange, 0.6);
+      if (R < 0.3) G.lab([0, 0, z + 4], "Đoản mạch! I = E/r rất lớn", C2.red, { s: 16 });
+      G.badge(["I = " + num(o.I, 2) + " A", "P mạch ngoài = " + num(o.P, 2) + " W", "H = " + num(o.H * 100, 1) + " %"]);
     });
     const CH = [["Chương 1", "Dao động"], ["Chương 2", "Sóng"], ["Chương 3", "Trường điện"], ["Chương 4", "Dòng điện, mạch điện"]];
     const cv = $("#cv"), g = cv.getContext("2d");
@@ -2629,6 +4626,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       });
       buildCtls();
       cur.init(S);
+      vis();
     });
     $("#spd").addEventListener("click", (e) => {
       const b = e.target.closest("button");
@@ -2640,11 +4638,12 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       const r = cv.getBoundingClientRect();
       return [e.clientX - r.left, e.clientY - r.top];
     };
+    const act = /* @__PURE__ */ new Set();
     cv.addEventListener("pointerdown", (e) => {
-      if (!cur.ptr) return;
+      if (!cur.ptr || cur.wantPtr && !cur.wantPtr(S)) return;
       const [x, y] = pt(e);
-      if (cur.ptr("down", x, y, S) !== false) {
-        drag = true;
+      if (cur.ptr("down", x, y, S, e.pointerId) !== false) {
+        act.add(e.pointerId);
         try {
           cv.setPointerCapture(e.pointerId);
         } catch (_) {
@@ -2652,17 +4651,23 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       }
     });
     cv.addEventListener("pointermove", (e) => {
-      if (cur.ptr && drag) {
+      if (cur.ptr && act.has(e.pointerId)) {
         const [x, y] = pt(e);
-        cur.ptr("drag", x, y, S);
+        cur.ptr("drag", x, y, S, e.pointerId);
       }
     });
-    const up = () => {
-      if (drag && cur.ptr) cur.ptr("up", 0, 0, S);
-      drag = false;
+    const up = (e) => {
+      if (act.has(e.pointerId)) {
+        act.delete(e.pointerId);
+        const [x, y] = pt(e);
+        cur.ptr && cur.ptr("up", x, y, S, e.pointerId);
+      }
     };
     cv.addEventListener("pointerup", up);
     cv.addEventListener("pointercancel", up);
+    cv.addEventListener("wheel", (e) => {
+      if (cur.wheel && cur.wheel(e.deltaY, S) !== false) e.preventDefault();
+    }, { passive: false });
     let rw = 0;
     new ResizeObserver(() => {
       const w = cv.parentElement.clientWidth;
