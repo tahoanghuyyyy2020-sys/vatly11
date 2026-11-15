@@ -1,0 +1,2694 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2338c9">
+<title>Phòng thí nghiệm Vật lý 11</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Noto+Serif:ital,wght@1,500;1,600&display=swap">
+<style>
+/* VOICE everyday learning: a calm, exact school physics lab
+   IDEA a student's lab notebook on graph paper, written in blue ballpoint, marked with the teacher's red pen
+   PICTURE the live simulation drawn large on graph paper, reacting to every control
+   COLOUR white paper, ballpoint blue band and ink #2338c9, red pen #d92d20 for positive charge and key marks, orange as third series
+   TYPE Be Vietnam Pro 800 titles and text; Noto Serif italic for physical quantities
+   LAYOUT laptop: blue band with title and chapter tabs, simulation left, control panel right, notes in three columns; phone: title, tabs, sticky simulation, controls, notes */
+:root{color-scheme:light;--bg:#ffffff;--ink:#121a33;--mute:#5a6480;--line:#dfe3f1;--panel:#f3f5fd;--pen:#2338c9;--onpen:#ffffff;--band:#2338c9}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#0d1122;--ink:#e9ecf6;--mute:#a3abc4;--line:#283050;--panel:#151a33;--pen:#8b98ff;--onpen:#0d1122;--band:#18206b}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#0d1122;--ink:#e9ecf6;--mute:#a3abc4;--line:#283050;--panel:#151a33;--pen:#8b98ff;--onpen:#0d1122;--band:#18206b}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:clip}
+button,select,input{font:inherit;color:inherit}
+button,select,input,label,summary{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.band{background:var(--band);color:#fff;padding:26px max(4vw,16px) 0}
+.in{max-width:1320px;margin:0 auto}
+h1{font-size:clamp(30px,3.8vw,46px);line-height:1.05;letter-spacing:-.02em;font-weight:800;margin:0 0 10px;text-wrap:balance}
+.lede{margin:0 0 20px;max-width:68ch;color:#dfe3ff}
+.chs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:0 -4px;padding:0 4px}
+.chs::-webkit-scrollbar{display:none}
+.chs button{flex:none;font-size:16px;font-weight:700;line-height:1.2;color:#fff;background:transparent;border:0;border-radius:14px 14px 0 0;padding:10px 18px 14px;cursor:pointer;text-align:left;white-space:nowrap}
+.chs button small{display:block;font-size:13px;font-weight:500;opacity:.8;margin-bottom:2px}
+.chs button:hover{background:rgba(255,255,255,.13)}
+.chs button:focus-visible{outline:2px solid #fff;outline-offset:-4px}
+.chs button[aria-selected=true]{background:var(--bg);color:var(--pen)}
+.wrap{max-width:1320px;margin:0 auto;padding:18px max(4vw,16px) 36px}
+.sims{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.sims button{min-height:44px;padding:8px 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);font-size:15px;font-weight:500;cursor:pointer}
+.sims button:hover{border-color:var(--pen)}
+.sims button:focus-visible,.ib:focus-visible,.btn:focus-visible,.seg button:focus-visible,select:focus-visible,.lnk:focus-visible{outline:2px solid var(--pen);outline-offset:2px}
+.sims button[aria-pressed=true]{background:var(--pen);border-color:var(--pen);color:var(--onpen)}
+.lab{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.stage{background:var(--bg);border:1.5px solid var(--line);border-radius:16px;overflow:hidden}
+.sh{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 10px 16px;border-bottom:1.5px solid var(--line)}
+.sh h2{margin:0;font-size:20px;line-height:1.25;font-weight:700}
+.sh p{margin:2px 0 0;font-size:14px;line-height:1.35;color:var(--mute)}
+.tp{display:flex;gap:6px;flex:none}
+.tp[hidden],[hidden]{display:none!important}
+.ib{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);display:grid;place-items:center;cursor:pointer;padding:0}
+.ib:hover{border-color:var(--pen);color:var(--pen)}
+.ib svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cvb{position:relative;line-height:0}
+canvas{display:block;width:100%;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.panel{background:var(--panel);border-radius:16px;padding:18px}
+.hint{margin:0 0 14px;font-size:15px;line-height:1.45;padding:10px 12px;border-radius:10px;background:var(--bg);border:1.5px dashed var(--line)}
+.lbl{display:block;font-size:14px;color:var(--mute);margin:0 0 4px}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;margin:0 0 16px;background:var(--bg)}
+.seg button{flex:1;min-height:40px;border:0;background:transparent;cursor:pointer;font-size:14px;font-weight:600;color:var(--mute)}
+.seg button[aria-pressed=true]{background:var(--pen);color:var(--onpen)}
+.ctl{margin:0 0 12px}
+.ctl label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:15px;font-weight:500;margin-bottom:2px;line-height:1.35}
+.ctl output{color:var(--pen);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+input[type=range]{width:100%;height:32px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--pen);border:3px solid var(--bg);box-shadow:0 0 0 1.5px var(--pen);margin-top:-8px}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--line)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--pen);border:3px solid var(--bg);box-shadow:0 0 0 1.5px var(--pen)}
+input[type=range]:focus-visible{outline:2px solid var(--pen);outline-offset:2px;border-radius:6px}
+select{width:100%;min-height:44px;font-size:16px;padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg)}
+.chk{display:flex;align-items:center;gap:10px;min-height:40px;margin:0 0 6px;font-size:15px;line-height:1.35;cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--pen);flex:none;margin:0}
+.btn{min-height:44px;padding:8px 14px;border-radius:12px;border:1.5px solid var(--pen);background:transparent;color:var(--pen);font-weight:600;cursor:pointer;margin:0 8px 12px 0}
+.btn:hover{background:var(--pen);color:var(--onpen)}
+.reads{margin:4px 0 0;padding:14px 0 0;border-top:1.5px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;font-size:15px;line-height:1.4}
+.reads dt{color:var(--mute)}
+.reads dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.reads dd.w{white-space:normal;grid-column:1/-1;text-align:left;font-weight:500;color:var(--ink);margin-top:-2px}
+.lnk{background:none;border:0;padding:12px 0 0;color:var(--pen);font-size:14px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.info{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1.15fr);gap:32px;margin-top:32px;padding-top:26px;border-top:1.5px solid var(--line)}
+.info h3{font-size:19px;margin:0 0 10px;line-height:1.25}
+.info p{margin:0 0 10px;max-width:68ch}
+.fl{list-style:none;padding:0;margin:0}
+.fl li{padding:9px 0;border-bottom:1px solid var(--line)}
+.fm{font-family:"Noto Serif",Georgia,"Times New Roman",serif;font-style:italic;font-size:18px;font-weight:500}
+.fl small{display:block;color:var(--mute);font-size:14px;line-height:1.4;margin-top:2px}
+details{border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;margin:0 0 10px}
+summary{cursor:pointer;font-weight:500;line-height:1.45}
+details[open] summary{color:var(--pen)}
+details p{margin:8px 0 0!important;color:var(--mute)}
+.foot{max-width:1320px;margin:0 auto;padding:0 max(4vw,16px) 40px;color:var(--mute);font-size:14px}
+.foot p{margin:0;max-width:90ch;border-top:1.5px solid var(--line);padding-top:16px}
+@media (max-width:1000px){.lab{grid-template-columns:minmax(0,1fr)}.stage{position:sticky;top:0;z-index:5;box-shadow:0 10px 18px -16px rgba(0,0,0,.55)}.ctls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:20px;align-items:start}.info{grid-template-columns:minmax(0,1fr);gap:20px}}
+@media (max-width:600px){.band{padding-top:20px}.lede{font-size:15px}.ctls{grid-template-columns:minmax(0,1fr)}.sh{padding:6px 8px 6px 12px}.sh h2{font-size:17px}.sh p{display:none}.sims button{font-size:14px;padding:8px 12px}}
+</style>
+</head>
+<body>
+<header class="band"><div class="in">
+<h1>Phòng thí nghiệm Vật lý 11</h1>
+<p class="lede">14 mô phỏng tương tác cho bốn chương của chương trình Vật lý 11 mới (GDPT 2018), dùng chung cho cả ba bộ sách. Kéo thanh trượt, quan sát hiện tượng, rồi tự kiểm tra bằng các câu hỏi dự đoán bên dưới.</p>
+<nav class="chs" id="chs" role="tablist" aria-label="Các chương"></nav>
+</div></header>
+<main class="wrap">
+<div class="sims" id="sims" aria-label="Các mô phỏng trong chương"></div>
+<div class="lab">
+<section class="stage">
+<div class="sh"><div><h2 id="st"></h2><p id="sp"></p></div>
+<div class="tp"><button class="ib" id="play" aria-label="Tạm dừng"></button><button class="ib" id="rst" aria-label="Chạy lại từ đầu"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg></button></div></div>
+<div class="cvb"><canvas id="cv" role="img"></canvas></div>
+</section>
+<aside class="panel">
+<p class="hint" id="hint" hidden></p>
+<div id="spdw"><span class="lbl">Tốc độ hiển thị</span>
+<div class="seg" id="spd"><button data-s=".25" aria-pressed="false">0,25×</button><button data-s=".5" aria-pressed="false">0,5×</button><button data-s="1" aria-pressed="true">1×</button></div></div>
+<div class="ctls" id="ctls"></div>
+<dl class="reads" id="reads"></dl>
+<button class="lnk" id="def">Khôi phục giá trị mặc định</button>
+</aside>
+</div>
+<section class="info" id="info"></section>
+</main>
+<footer class="foot"><p>Mô phỏng minh họa theo chương trình Vật lý 11 (GDPT 2018). Một số chuyển động được làm chậm hoặc phóng to để dễ quan sát; các số đo trong bảng được tính đúng theo công thức với giá trị bạn chọn.</p></footer>
+<script>
+(function(){function show(m){var b=document.getElementById('jserr');if(!b){b=document.createElement('div');b.id='jserr';b.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:99;background:#d92d20;color:#fff;padding:10px 12px;border-radius:10px;font:14px/1.4 system-ui,sans-serif';document.body.appendChild(b)}b.textContent='Lỗi trình duyệt: '+m}
+window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (dòng '+e.lineno+':'+e.colno+')':''))});})();
+</script>
+<script>
+(() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
+  {
+    let nf = function(v, sig = 3) {
+      if (!isFinite(v)) return "∞";
+      if (v === 0) return "0";
+      const a = Math.abs(v);
+      let e = Math.floor(Math.log10(a));
+      if (e >= -3 && e < 5) return com(v.toFixed(cl(sig - 1 - e, 0, 5)));
+      let ms = (v / 10 ** e).toFixed(sig - 1);
+      if (Math.abs(parseFloat(ms)) >= 10) {
+        e++;
+        ms = (v / 10 ** e).toFixed(sig - 1);
+      }
+      return com(ms) + "·10" + String(e).split("").map((c) => SUPD[c]).join("");
+    }, si = function(v, u, sig = 3) {
+      if (!v) return "0 " + u;
+      const a = Math.abs(v);
+      let p = PRE[0];
+      for (const q of PRE) if (a >= q[0] * 0.9995) p = q;
+      return nf(v / p[0], sig) + " " + p[1] + u;
+    }, tx = function(g2, s, x, y, col, o = {}) {
+      g2.font = (o.it ? "italic " : "") + (o.w || 500) + " " + (o.s || 13) + "px " + (o.it ? FQ : FS);
+      g2.textAlign = o.a || "left";
+      g2.textBaseline = o.b || "middle";
+      if (o.halo !== false) {
+        g2.lineJoin = "round";
+        g2.lineWidth = 4;
+        g2.strokeStyle = o.halo || C.bg;
+        g2.strokeText(s, x, y);
+      }
+      g2.fillStyle = col;
+      g2.fillText(s, x, y);
+    }, paper = function(g2, W2, H2, C2) {
+      g2.fillStyle = C2.bg;
+      g2.fillRect(0, 0, W2, H2);
+      g2.lineWidth = 1;
+      for (const [st, col] of [[10, C2.g1], [50, C2.g2]]) {
+        g2.strokeStyle = col;
+        g2.beginPath();
+        for (let x = 0.5; x < W2; x += st) {
+          g2.moveTo(x, 0);
+          g2.lineTo(x, H2);
+        }
+        for (let y = 0.5; y < H2; y += st) {
+          g2.moveTo(0, y);
+          g2.lineTo(W2, y);
+        }
+        g2.stroke();
+      }
+    }, arrow = function(g2, x1, y1, x2, y2, col, w = 2, h = 9) {
+      const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+      if (L < 1) return;
+      const ux = dx / L, uy = dy / L, hh = Math.min(h, L * 0.7);
+      g2.strokeStyle = col;
+      g2.fillStyle = col;
+      g2.lineWidth = w;
+      g2.lineCap = "round";
+      g2.beginPath();
+      g2.moveTo(x1, y1);
+      g2.lineTo(x2 - ux * hh * 0.8, y2 - uy * hh * 0.8);
+      g2.stroke();
+      g2.beginPath();
+      g2.moveTo(x2, y2);
+      g2.lineTo(x2 - ux * hh - uy * hh * 0.45, y2 - uy * hh + ux * hh * 0.45);
+      g2.lineTo(x2 - ux * hh + uy * hh * 0.45, y2 - uy * hh - ux * hh * 0.45);
+      g2.closePath();
+      g2.fill();
+    }, spring = function(g2, x1, y1, x2, y2, n, amp, col, w = 2) {
+      const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, px = -uy, py = ux, ld = Math.min(10, L * 0.12), sg = (L - 2 * ld) / n;
+      g2.strokeStyle = col;
+      g2.lineWidth = w;
+      g2.lineJoin = "round";
+      g2.lineCap = "round";
+      g2.beginPath();
+      g2.moveTo(x1, y1);
+      g2.lineTo(x1 + ux * ld, y1 + uy * ld);
+      for (let i = 0; i < n; i++) {
+        const s = ld + sg * (i + 0.5), k = i % 2 ? -amp : amp;
+        g2.lineTo(x1 + ux * s + px * k, y1 + uy * s + py * k);
+      }
+      g2.lineTo(x2 - ux * ld, y2 - uy * ld);
+      g2.lineTo(x2, y2);
+      g2.stroke();
+    }, rr = function(g2, x, y, w, h, r) {
+      g2.beginPath();
+      if (g2.roundRect) g2.roundRect(x, y, w, h, r);
+      else g2.rect(x, y, w, h);
+    }, dash = function(g2, x1, y1, x2, y2, col, w = 1, d = [4, 4]) {
+      g2.setLineDash(d);
+      g2.strokeStyle = col;
+      g2.lineWidth = w;
+      g2.beginPath();
+      g2.moveTo(x1, y1);
+      g2.lineTo(x2, y2);
+      g2.stroke();
+      g2.setLineDash([]);
+    }, dot = function(g2, x, y, r, col, ring) {
+      g2.beginPath();
+      g2.arc(x, y, r, 0, TAU);
+      if (ring) {
+        g2.lineWidth = 2;
+        g2.strokeStyle = col;
+        g2.fillStyle = C.bg;
+        g2.fill();
+        g2.stroke();
+      } else {
+        g2.fillStyle = col;
+        g2.fill();
+      }
+    }, badge = function(g2, lines, x, y, al = "left") {
+      g2.font = "600 14px " + FS;
+      const w = Math.max(...lines.map((s) => g2.measureText(s).width)) + 20, h = lines.length * 20 + 10, x0 = al === "right" ? x - w : x;
+      rr(g2, x0, y, w, h, 8);
+      g2.fillStyle = C.panel;
+      g2.fill();
+      g2.lineWidth = 1;
+      g2.strokeStyle = C.g2;
+      g2.stroke();
+      lines.forEach((s, i) => tx(g2, s, x0 + 10, y + 15 + i * 20, C.ink, { w: 600, s: 14, halo: false }));
+    }, axes = function(g2, r, o) {
+      const X = (v) => r.x + (v - o.x0) / (o.x1 - o.x0) * r.w, Y = (v) => r.y + r.h - (v - o.y0) / (o.y1 - o.y0) * r.h;
+      g2.fillStyle = C.panel;
+      g2.fillRect(r.x - 6, r.y - 10, r.w + 18, r.h + (o.xt && o.xt.some((t) => t[1]) ? 30 : 16));
+      g2.lineWidth = 1;
+      g2.strokeStyle = C.g2;
+      g2.beginPath();
+      for (const [v] of o.xt || []) {
+        const x = Math.round(X(v)) + 0.5;
+        g2.moveTo(x, r.y);
+        g2.lineTo(x, r.y + r.h);
+      }
+      for (const [v] of o.yt || []) {
+        const y = Math.round(Y(v)) + 0.5;
+        g2.moveTo(r.x, y);
+        g2.lineTo(r.x + r.w, y);
+      }
+      g2.stroke();
+      const ya = o.ya !== void 0 ? o.ya : o.y0 < 0 && o.y1 > 0 ? 0 : o.y0;
+      arrow(g2, r.x, Y(ya), r.x + r.w + 9, Y(ya), C.mute, 1.2, 7);
+      arrow(g2, r.x, r.y + r.h, r.x, r.y - 9, C.mute, 1.2, 7);
+      for (const [v, l] of o.xt || []) if (l) tx(g2, l, X(v), r.y + r.h + 12, C.mute, { a: "center" });
+      for (const [v, l] of o.yt || []) if (l) tx(g2, l, r.x - 6, Y(v), C.mute, { a: "right" });
+      if (o.xl) tx(g2, o.xl, r.x + r.w + 6, Y(ya) - 11, C.mute, { a: "right" });
+      if (o.yl) tx(g2, o.yl, r.x + 7, r.y - 2, C.mute);
+      return { X, Y, r };
+    }, plot = function(g2, M, f, a, b, col, w = 2, n = 240, d) {
+      const r = M.r;
+      g2.save();
+      g2.beginPath();
+      g2.rect(r.x - 1, r.y - 4, r.w + 3, r.h + 8);
+      g2.clip();
+      if (d) g2.setLineDash(d);
+      g2.strokeStyle = col;
+      g2.lineWidth = w;
+      g2.lineJoin = "round";
+      g2.beginPath();
+      for (let i = 0; i <= n; i++) {
+        const t = a + (b - a) * i / n, y = M.Y(f(t));
+        i ? g2.lineTo(M.X(t), y) : g2.moveTo(M.X(t), y);
+      }
+      g2.stroke();
+      g2.restore();
+    }, poly = function(g2, M, pts, col, w = 2, d) {
+      const r = M.r;
+      g2.save();
+      g2.beginPath();
+      g2.rect(r.x - 1, r.y - 4, r.w + 3, r.h + 8);
+      g2.clip();
+      if (d) g2.setLineDash(d);
+      g2.strokeStyle = col;
+      g2.lineWidth = w;
+      g2.lineJoin = "round";
+      g2.beginPath();
+      pts.forEach(([t, v], i) => i ? g2.lineTo(M.X(t), M.Y(v)) : g2.moveTo(M.X(t), M.Y(v)));
+      g2.stroke();
+      g2.restore();
+    }, bars = function(g2, x, y0, y1, w, items, title) {
+      tx(g2, title, x, y0, C.mute, { w: 600 });
+      const top = y0 + 18, bot = y1 - 18, n = items.length, bw = Math.max(10, Math.min(28, w / n - 12)), gap = (w - bw * n) / n;
+      items.forEach(([l, v, col], i) => {
+        const bx = x + gap / 2 + i * (bw + gap), h = (bot - top) * cl(v, 0, 1);
+        g2.fillStyle = C.soft;
+        g2.fillRect(bx, top, bw, bot - top);
+        g2.fillStyle = col;
+        g2.fillRect(bx, bot - h, bw, h);
+        tx(g2, l, bx + bw / 2, bot + 11, col, { a: "center", it: true, s: 14, w: 600 });
+      });
+    }, wl2rgb = function(l) {
+      let r = 0, gg = 0, b = 0;
+      if (l < 440) {
+        r = (440 - l) / 60;
+        b = 1;
+      } else if (l < 490) {
+        gg = (l - 440) / 50;
+        b = 1;
+      } else if (l < 510) {
+        gg = 1;
+        b = (510 - l) / 20;
+      } else if (l < 580) {
+        r = (l - 510) / 70;
+        gg = 1;
+      } else if (l < 645) {
+        r = 1;
+        gg = (645 - l) / 65;
+      } else r = 1;
+      const f = l < 420 ? 0.3 + 0.7 * (l - 380) / 40 : l > 700 ? 0.3 + 0.7 * (780 - l) / 80 : 1;
+      return [r * f, gg * f, b * f];
+    }, setRun = function(v) {
+      run = v;
+      const b = $("#play");
+      b.innerHTML = v ? ICP : ICR;
+      b.setAttribute("aria-label", v ? "Tạm dừng" : "Chạy tiếp");
+    }, size = function() {
+      const w = cv.parentElement.clientWidth || 600, nar = innerWidth <= 1e3;
+      let h = Math.round(w * ((w < 560 ? cur.rm : cur.r) || 0.62));
+      h = Math.round(cl(h, 260, nar ? Math.max(280, VH * 0.52) : 640));
+      dpr = Math.min(2, devicePixelRatio || 1);
+      cv.width = Math.round(w * dpr);
+      cv.height = Math.round(h * dpr);
+      cv.style.height = h + "px";
+      W = w;
+      H = h;
+      S.W = W;
+      S.H = H;
+    }, outs = function() {
+      cur.ctl.forEach((c) => {
+        if (c.t !== "r") return;
+        const o = $("#o-" + c.id);
+        if (o) o.textContent = c.fmt ? c.fmt(S.p[c.id], S) : num(S.p[c.id], c.d != null ? c.d : 1) + (c.u ? " " + c.u : "");
+      });
+    }, setP = function(id, v) {
+      S.p[id] = v;
+      const el = $("#c-" + id);
+      if (el) el.value = v;
+      outs();
+    }, buildCtls = function() {
+      $("#ctls").innerHTML = cur.ctl.map((c) => {
+        const id = "c-" + c.id;
+        if (c.t === "r") return '<div class="ctl"><label for="'.concat(id, '"><span>').concat(c.l, '</span><output id="o-').concat(c.id, '"></output></label><input type="range" id="').concat(id, '" min="').concat(c.min, '" max="').concat(c.max, '" step="').concat(c.st, '" value="').concat(S.p[c.id], '"></div>');
+        if (c.t === "s") return '<div class="ctl"><label for="'.concat(id, '"><span>').concat(c.l, '</span></label><select id="').concat(id, '">').concat(c.o.map(([v, l]) => '<option value="'.concat(v, '"').concat(String(v) === String(S.p[c.id]) ? " selected" : "", ">").concat(l, "</option>")).join(""), "</select></div>");
+        if (c.t === "c") return '<label class="chk"><input type="checkbox" id="'.concat(id, '"').concat(S.p[c.id] ? " checked" : "", "><span>").concat(c.l, "</span></label>");
+        return '<div><button class="btn" id="'.concat(id, '">').concat(c.l, "</button></div>");
+      }).join("");
+      cur.ctl.forEach((c) => {
+        const el = $("#c-" + c.id);
+        if (c.t === "r") el.addEventListener("input", () => {
+          S.p[c.id] = +el.value;
+          outs();
+          cur.chg && cur.chg(S, c.id);
+        });
+        else if (c.t === "s") el.addEventListener("change", () => {
+          S.p[c.id] = c.num ? +el.value : el.value;
+          outs();
+          cur.chg && cur.chg(S, c.id);
+        });
+        else if (c.t === "c") el.addEventListener("change", () => {
+          S.p[c.id] = el.checked;
+          cur.chg && cur.chg(S, c.id);
+        });
+        else el.addEventListener("click", () => {
+          cur.act && cur.act(S, c.id);
+        });
+      });
+      outs();
+    }, info = function() {
+      const i = cur.info;
+      $("#info").innerHTML = "<div><h3>Hiện tượng</h3>".concat(i.what.map((p) => "<p>".concat(p, "</p>")).join(""), '</div><div><h3>Công thức cần nhớ</h3><ul class="fl">').concat(i.f.map(([f, n]) => '<li><span class="fm">'.concat(f, "</span>").concat(n ? "<small>".concat(n, "</small>") : "", "</li>")).join(""), "</ul></div><div><h3>Dự đoán rồi kiểm tra</h3>").concat(i.q.map(([q, a]) => "<details><summary>".concat(q, "</summary><p>").concat(a, "</p></details>")).join(""), "</div>");
+    }, reads = function(force) {
+      const r = cur.reads ? cur.reads(S) : [];
+      const h = r.map(([a, b, w]) => w ? "<dt>".concat(a, '</dt><dd class="w">').concat(b, "</dd>") : "<dt>".concat(a, "</dt><dd>").concat(b, "</dd>")).join("");
+      if (force || h !== lastHTML) {
+        $("#reads").innerHTML = h;
+        lastHTML = h;
+      }
+    }, open = function(id) {
+      const s = SIMS.find((x) => x.id === id) || SIMS[0];
+      if (cur) saved[cur.id] = __spreadValues({}, S.p);
+      cur = s;
+      lastIn[s.ch] = s.id;
+      S = { p: {} };
+      s.ctl.forEach((c) => {
+        if (c.t !== "b") S.p[c.id] = c.v;
+      });
+      if (saved[s.id]) Object.assign(S.p, saved[s.id]);
+      $("#chs").innerHTML = CH.map((c, i) => '<button role="tab" data-ch="'.concat(i, '" aria-selected="').concat(s.ch === i, '"><small>').concat(c[0], "</small>").concat(c[1], "</button>")).join("");
+      $("#sims").innerHTML = SIMS.filter((x) => x.ch === s.ch).map((x) => '<button data-id="'.concat(x.id, '" aria-pressed="').concat(x === s, '">').concat(x.name, "</button>")).join("");
+      $("#st").textContent = s.name;
+      $("#sp").textContent = s.topic;
+      const hn = $("#hint");
+      hn.textContent = s.hint || "";
+      hn.hidden = !s.hint;
+      $("#spdw").hidden = !s.step;
+      $(".tp").hidden = !s.step;
+      buildCtls();
+      info();
+      cv.style.touchAction = s.ptr ? "none" : "auto";
+      cv.style.cursor = s.ptr ? "crosshair" : "default";
+      cv.setAttribute("aria-label", "Mô phỏng " + s.name);
+      size();
+      s.init(S);
+      reads(true);
+      if (location.hash.slice(1) !== s.id) {
+        try {
+          history.replaceState(null, "", "#" + s.id);
+        } catch (e) {
+          location.hash = s.id;
+        }
+      }
+    }, loop = function(ts) {
+      const dt = Math.min(0.05, Math.max(0, (ts - last) / 1e3));
+      last = ts;
+      try {
+        if (run && cur.step) cur.step(S, dt * speed);
+        g.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cur.draw(g, W, H, S, C);
+      } catch (err) {
+        console.error(err);
+      }
+      if (ts - lastR > 150) {
+        lastR = ts;
+        reads();
+      }
+      requestAnimationFrame(loop);
+    };
+    var nf2 = nf, si2 = si, tx2 = tx, paper2 = paper, arrow2 = arrow, spring2 = spring, rr2 = rr, dash2 = dash, dot2 = dot, badge2 = badge, axes2 = axes, plot2 = plot, poly2 = poly, bars2 = bars, wl2rgb2 = wl2rgb, setRun2 = setRun, size2 = size, outs2 = outs, setP2 = setP, buildCtls2 = buildCtls, info2 = info, reads2 = reads, open2 = open, loop2 = loop;
+    const $ = (s) => document.querySelector(s);
+    const TAU = Math.PI * 2, DEG = Math.PI / 180, cl = (v, a, b) => Math.max(a, Math.min(b, v));
+    const SUPD = { "-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹" };
+    const com = (s) => s.replace(".", ",");
+    const num = (v, d = 2) => isFinite(v) ? com((+v).toFixed(d)) : "∞";
+    const PRE = [[1e-12, "p"], [1e-9, "n"], [1e-6, "µ"], [1e-3, "m"], [1, ""], [1e3, "k"], [1e6, "M"], [1e9, "G"]];
+    const PAL = {
+      l: { dark: 0, bg: "#ffffff", g1: "rgba(35,56,201,.055)", g2: "rgba(35,56,201,.12)", ink: "#121a33", mute: "#5a6480", pen: "#2338c9", onpen: "#ffffff", red: "#d92d20", orange: "#dc7400", teal: "#0a8a78", pos: "#d92d20", neg: "#2338c9", metal: "#a7afc4", metal2: "#5d6680", panel: "rgba(255,255,255,.9)", soft: "rgba(35,56,201,.08)" },
+      d: { dark: 1, bg: "#0d1122", g1: "rgba(139,152,255,.055)", g2: "rgba(139,152,255,.12)", ink: "#e9ecf6", mute: "#a3abc4", pen: "#8b98ff", onpen: "#0d1122", red: "#ff7566", orange: "#ffa94d", teal: "#3fd2bd", pos: "#ff7566", neg: "#7d8fff", metal: "#5a6280", metal2: "#a9b1c9", panel: "rgba(13,17,34,.9)", soft: "rgba(139,152,255,.12)" }
+    };
+    const root = document.documentElement, mqd = matchMedia("(prefers-color-scheme: dark)");
+    let C = PAL.l;
+    const setPal = () => {
+      C = (root.dataset.theme ? root.dataset.theme === "dark" : mqd.matches) ? PAL.d : PAL.l;
+    };
+    setPal();
+    new MutationObserver(setPal).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+    if (mqd.addEventListener) mqd.addEventListener("change", setPal);
+    const FS = '"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif', FQ = '"Noto Serif",Georgia,"Times New Roman",serif';
+    const css = ([r, g_, b], a = 1) => "rgba(".concat(Math.round(r * 255), ",").concat(Math.round(g_ * 255), ",").concat(Math.round(b * 255), ",").concat(a, ")");
+    const SIMS = [];
+    const def = (s) => SIMS.push(s);
+    def({
+      id: "lo-xo",
+      ch: 0,
+      name: "Con lắc lò xo",
+      topic: "Dao động điều hòa, động năng và thế năng",
+      r: 0.78,
+      rm: 1.15,
+      ctl: [
+        { t: "r", id: "m", l: "Khối lượng vật m", min: 0.1, max: 2, st: 0.05, v: 0.5, u: "kg", d: 2 },
+        { t: "r", id: "k", l: "Độ cứng lò xo k", min: 10, max: 200, st: 5, v: 50, u: "N/m", d: 0 },
+        { t: "r", id: "A", l: "Biên độ A", min: 2, max: 10, st: 0.5, v: 6, u: "cm", d: 1 },
+        { t: "c", id: "circ", l: "Hiện chuyển động tròn đều tương ứng", v: true },
+        { t: "c", id: "vec", l: "Hiện vectơ vận tốc và gia tốc", v: true }
+      ],
+      init(S2) {
+        S2.t = 0;
+      },
+      chg(S2, id) {
+        if (id === "m" || id === "k" || id === "A") S2.t = 0;
+      },
+      step(S2, dt) {
+        S2.t += dt;
+      },
+      q(S2) {
+        const { m, k, A } = S2.p, w = Math.sqrt(k / m), ph = w * S2.t;
+        return { w, T: TAU / w, ph, x: A * Math.cos(ph), v: -A * w * Math.sin(ph), a: -w * w * A * Math.cos(ph) };
+      },
+      reads(S2) {
+        const { m, k, A } = S2.p, o = this.q(S2);
+        return [["Chu kì T", num(o.T, 2) + " s"], ["Tần số f", num(1 / o.T, 2) + " Hz"], ["Tần số góc ω", num(o.w, 2) + " rad/s"], ["Li độ x", num(o.x, 2) + " cm"], ["Vận tốc v", num(o.v, 1) + " cm/s"], ["Gia tốc a", num(o.a / 100, 2) + " m/s²"], ["Động năng Wđ", si(0.5 * m * (o.v / 100) ** 2, "J")], ["Thế năng Wt", si(0.5 * k * (o.x / 100) ** 2, "J")], ["Cơ năng W", si(0.5 * k * (A / 100) ** 2, "J")]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { m, k, A, circ, vec } = S2.p, o = this.q(S2), nar = W2 < 560;
+        const Ht = Math.round(H2 * 0.56), fy = Ht - 24, x0 = Math.round(W2 * (nar ? 0.52 : 0.5)), bw = nar ? 30 : 38, bh = nar ? 26 : 32;
+        const sc = circ ? Math.min((W2 - x0 - 30) / 11.5, ((fy - bh - 34) / 2 - 4) / 10) : Math.min((W2 - x0 - 30) / 11.5, 16);
+        const bx = x0 + o.x * sc;
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 2;
+        g2.beginPath();
+        g2.moveTo(14, fy);
+        g2.lineTo(W2 - 14, fy);
+        g2.moveTo(16, fy);
+        g2.lineTo(16, fy - bh - 26);
+        g2.stroke();
+        g2.lineWidth = 1;
+        g2.strokeStyle = C2.mute;
+        g2.beginPath();
+        for (let x = 22; x < W2 - 14; x += 10) {
+          g2.moveTo(x, fy);
+          g2.lineTo(x - 6, fy + 6);
+        }
+        for (let y = fy - bh - 22; y < fy; y += 10) {
+          g2.moveTo(16, y);
+          g2.lineTo(10, y + 6);
+        }
+        g2.stroke();
+        dash(g2, x0 + 0.5, circ ? 8 : fy - bh - 30, x0 + 0.5, fy, C2.mute);
+        for (const s of [-1, 1]) {
+          g2.strokeStyle = C2.mute;
+          g2.beginPath();
+          g2.moveTo(x0 + s * A * sc, fy);
+          g2.lineTo(x0 + s * A * sc, fy + 5);
+          g2.stroke();
+        }
+        tx(g2, "O", x0, fy + 16, C2.ink, { a: "center", w: 700 });
+        tx(g2, "−A", x0 - A * sc, fy + 16, C2.mute, { a: "center" });
+        tx(g2, "+A", x0 + A * sc, fy + 16, C2.mute, { a: "center" });
+        spring(g2, 16, fy - bh / 2, bx - bw / 2, fy - bh / 2, 16, nar ? 7 : 9, C2.metal2, 2);
+        rr(g2, bx - bw / 2, fy - bh, bw, bh, 5);
+        g2.fillStyle = C2.pen;
+        g2.fill();
+        tx(g2, "m", bx, fy - bh / 2, C2.onpen, { a: "center", it: true, s: 16, halo: false });
+        if (circ) {
+          const R = A * sc, cy = Math.round((fy - bh - 26) / 2 + 4), ph = (o.ph % TAU + TAU) % TAU, mx = x0 + R * Math.cos(ph), my = cy - R * Math.sin(ph);
+          g2.setLineDash([3, 4]);
+          g2.strokeStyle = C2.mute;
+          g2.lineWidth = 1.2;
+          g2.beginPath();
+          g2.arc(x0, cy, R, 0, TAU);
+          g2.stroke();
+          g2.setLineDash([]);
+          g2.strokeStyle = C2.ink;
+          g2.lineWidth = 1;
+          g2.beginPath();
+          g2.moveTo(x0 - R - 8, cy);
+          g2.lineTo(x0 + R + 8, cy);
+          g2.stroke();
+          g2.strokeStyle = C2.teal;
+          g2.lineWidth = 1.5;
+          g2.beginPath();
+          g2.arc(x0, cy, Math.min(18, R * 0.45), -ph, 0);
+          g2.stroke();
+          g2.strokeStyle = C2.pen;
+          g2.lineWidth = 2;
+          g2.beginPath();
+          g2.moveTo(x0, cy);
+          g2.lineTo(mx, my);
+          g2.stroke();
+          dash(g2, mx, my, bx, fy - bh, C2.pen, 1.2, [3, 3]);
+          dot(g2, x0, cy, 2.5, C2.ink);
+          dot(g2, mx, my, 6, C2.pen);
+          tx(g2, "M", mx + (Math.cos(ph) >= 0 ? 10 : -10), my - (Math.sin(ph) >= 0 ? 10 : -10), C2.pen, { a: "center", w: 700, it: true, s: 15 });
+          tx(g2, "ωt", x0 + Math.min(18, R * 0.45) + 14, cy - 9, C2.teal, { it: true, s: 14, w: 600 });
+        }
+        if (vec) {
+          const L = nar ? 40 : 56, vl = o.v / (A * o.w) * L, al = o.a / (A * o.w * o.w) * L, ya = fy - bh - 10, yb = fy - bh - 24;
+          arrow(g2, bx, ya, bx + vl, ya, C2.orange, 2.5, 8);
+          if (Math.abs(vl) > 8) tx(g2, "v", bx + vl + (vl > 0 ? 9 : -9), ya, C2.orange, { a: "center", it: true, s: 15, w: 600 });
+          arrow(g2, bx, yb, bx + al, yb, C2.red, 2.5, 8);
+          if (Math.abs(al) > 8) tx(g2, "a", bx + al + (al > 0 ? 9 : -9), yb, C2.red, { a: "center", it: true, s: 15, w: 600 });
+        }
+        const gt = Ht + 16, gb = H2 - 26, gl = nar ? 26 : 34, ex = Math.round(W2 * (nar ? 0.7 : 0.75)), gw = ex - gl - 22, gh = (gb - gt - 16) / 3, T = o.T, tw = 2 * T, tm = S2.t % tw;
+        const tk = [0.5, 1, 1.5, 2].map((v) => v * T), tl = ["T/2", "T", "3T/2", "2T"], w = o.w;
+        const rows = [["x", A, (t) => A * Math.cos(w * t), C2.pen], ["v", A * w, (t) => -A * w * Math.sin(w * t), C2.orange], ["a", A * w * w, (t) => -A * w * w * Math.cos(w * t), C2.red]];
+        let Ms = [];
+        rows.forEach(([n, mx, f, col], i) => {
+          const r = { x: gl, y: gt + i * (gh + 8), w: gw, h: gh };
+          const M = axes(g2, r, { x0: 0, x1: tw, y0: -1.2 * mx, y1: 1.2 * mx, xt: tk.map((v, j) => [v, i === 2 ? tl[j] : ""]) });
+          Ms.push(M);
+          g2.globalAlpha = 0.25;
+          plot(g2, M, f, 0, tw, col, 2);
+          g2.globalAlpha = 1;
+          plot(g2, M, f, 0, tm, col, 2.2, Math.max(2, Math.round(240 * tm / tw)));
+          dot(g2, M.X(tm), M.Y(f(tm)), 4, col);
+          tx(g2, n, gl - 16, r.y + r.h / 2, col, { a: "center", it: true, s: 17, w: 600 });
+        });
+        const cx = Ms[0].X(tm);
+        dash(g2, cx, gt - 6, cx, gb - 2, C2.ink, 1, [2, 3]);
+        const Wt = 0.5 * k * (o.x / 100) ** 2, Wd = 0.5 * m * (o.v / 100) ** 2, Wo = 0.5 * k * (A / 100) ** 2;
+        bars(g2, ex + 6, gt + 2, gb + 10, W2 - ex - 18, [["Wđ", Wd / Wo, C2.orange], ["Wt", Wt / Wo, C2.pen], ["W", 1, C2.ink]], "Năng lượng");
+        badge(g2, ["T = " + num(T, 2) + " s", "f = " + num(1 / T, 2) + " Hz"], W2 - 10, 10, "right");
+      },
+      info: {
+        what: ["Vật nặng gắn vào lò xo, kéo lệch khỏi vị trí cân bằng O rồi thả ra, sẽ dao động qua lại quanh O. Bỏ qua ma sát, li độ biến đổi theo hàm cosin của thời gian: đó là dao động điều hòa.", "Hình chiếu của điểm M chuyển động tròn đều lên một đường kính dao động y hệt vật nặng. Vì vậy tần số góc ω của dao động chính là tốc độ góc của M.", "Trong khi dao động, động năng và thế năng liên tục chuyển hóa cho nhau, còn tổng của chúng, cơ năng, được bảo toàn."],
+        f: [["x = A cos(ωt + φ)", "Li độ của dao động điều hòa"], ["ω = √(k/m) ;  T = 2π√(m/k)", "Chu kì chỉ phụ thuộc m và k, không phụ thuộc A"], ["v = −ωA sin(ωt + φ) ;  a = −ω²x", "v sớm pha π/2 so với x; a ngược pha với x"], ["W = Wđ + Wt = ½kA²", "Cơ năng bảo toàn khi bỏ qua ma sát"]],
+        q: [["Tăng khối lượng m lên 4 lần thì chu kì thay đổi thế nào?", "Chu kì tăng gấp 2 vì T tỉ lệ với √m. Thử chuyển m từ 0,5 kg sang 2 kg rồi xem số đo T."], ["Biên độ A có làm chu kì thay đổi không?", "Không. Kéo thanh trượt A, chu kì T giữ nguyên; chỉ cơ năng W = ½kA² thay đổi."], ["Gia tốc đổi chiều ở đâu? Tốc độ lớn nhất ở đâu?", "Cả hai đều xảy ra khi vật qua vị trí cân bằng O. Tại O thế năng bằng 0, động năng cực đại. Nhìn vạch dọc trên ba đồ thị: khi x = 0 thì |v| lớn nhất và a đổi dấu."]]
+      }
+    });
+    def({
+      id: "con-lac-don",
+      ch: 0,
+      name: "Con lắc đơn",
+      topic: "Dao động của con lắc đơn, chu kì và năng lượng",
+      r: 0.76,
+      rm: 1.12,
+      ctl: [
+        { t: "r", id: "l", l: "Chiều dài dây l", min: 0.2, max: 2, st: 0.05, v: 1, u: "m", d: 2 },
+        { t: "r", id: "a0", l: "Góc lệch ban đầu α₀", min: 2, max: 60, st: 1, v: 10, fmt: (v) => v + "°" },
+        { t: "s", id: "g", l: "Nơi đặt con lắc", o: [[9.81, "Trái Đất (g = 9,81 m/s²)"], [1.62, "Mặt Trăng (g = 1,62 m/s²)"], [3.71, "Sao Hỏa (g = 3,71 m/s²)"], [24.8, "Sao Mộc (g = 24,8 m/s²)"]], v: 9.81, num: 1 },
+        { t: "r", id: "m", l: "Khối lượng vật m", min: 0.05, max: 1, st: 0.05, v: 0.2, u: "kg", d: 2 },
+        { t: "c", id: "vec", l: "Hiện trọng lực và lực kéo về", v: true }
+      ],
+      init(S2) {
+        S2.th = S2.p.a0 * DEG;
+        S2.om = 0;
+        S2.t = 0;
+        S2.h = [[0, S2.th]];
+        S2.lc = void 0;
+        S2.Tm = 0;
+      },
+      chg(S2, id) {
+        if (id === "l" || id === "a0" || id === "g") this.init(S2);
+      },
+      T0(S2) {
+        return TAU * Math.sqrt(S2.p.l / S2.p.g);
+      },
+      step(S2, dt) {
+        const { l, g: g2 } = S2.p, n = Math.ceil(dt / 2e-3), h = dt / n, f = (th) => -(g2 / l) * Math.sin(th);
+        for (let i = 0; i < n; i++) {
+          const th = S2.th, om = S2.om, k1t = om, k1o = f(th), k2t = om + h / 2 * k1o, k2o = f(th + h / 2 * k1t), k3t = om + h / 2 * k2o, k3o = f(th + h / 2 * k2t), k4t = om + h * k3o, k4o = f(th + h * k3t);
+          const nt = th + h / 6 * (k1t + 2 * k2t + 2 * k3t + k4t), no = om + h / 6 * (k1o + 2 * k2o + 2 * k3o + k4o);
+          if (th < 0 && nt >= 0) {
+            const tc = S2.t + h * -th / (nt - th);
+            if (S2.lc !== void 0) S2.Tm = tc - S2.lc;
+            S2.lc = tc;
+          }
+          S2.th = nt;
+          S2.om = no;
+          S2.t += h;
+        }
+        S2.h.push([S2.t, S2.th]);
+        const win = 2.5 * this.T0(S2);
+        while (S2.h.length > 2 && S2.h[0][0] < S2.t - win - 0.1) S2.h.shift();
+      },
+      reads(S2) {
+        const { l, g: g2, m, a0 } = S2.p, v = l * S2.om;
+        return [["Chu kì theo công thức", num(this.T0(S2), 3) + " s"], ["Chu kì đo được", S2.Tm ? num(S2.Tm, 3) + " s" : "đang đo…"], ["Góc lệch α", num(S2.th / DEG, 1) + "°"], ["Tốc độ v", num(Math.abs(v), 2) + " m/s"], ["Động năng Wđ", si(0.5 * m * v * v, "J")], ["Thế năng Wt", si(m * g2 * l * (1 - Math.cos(S2.th)), "J")], ["Cơ năng W", si(m * g2 * l * (1 - Math.cos(a0 * DEG)), "J")]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { l, a0, g: gr, m, vec } = S2.p, nar = W2 < 560, Hp = Math.round(H2 * 0.62), px = Math.round(W2 * 0.5), py = 24;
+        const sc = Math.min((Hp - py - 30) / 2.02, (W2 / 2 - 26) / 1.75), L = l * sc, a0r = a0 * DEG, th = S2.th, bx = px + L * Math.sin(th), by = py + L * Math.cos(th), rb = 7 + 9 * Math.cbrt(m);
+        const cw2 = nar ? 36 : 60;
+        g2.fillStyle = C2.metal;
+        g2.fillRect(px - cw2, py - 10, 2 * cw2, 8);
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1;
+        g2.beginPath();
+        for (let x = px - cw2 + 4; x < px + cw2; x += 9) {
+          g2.moveTo(x, py - 10);
+          g2.lineTo(x - 6, py - 17);
+        }
+        g2.stroke();
+        dash(g2, px, py, px, py + L + rb + 10, C2.mute);
+        g2.setLineDash([3, 4]);
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1.2;
+        g2.beginPath();
+        g2.arc(px, py, L, Math.PI / 2 - a0r, Math.PI / 2 + a0r);
+        g2.stroke();
+        g2.setLineDash([]);
+        const ar = Math.min(34, L * 0.45);
+        g2.strokeStyle = C2.teal;
+        g2.lineWidth = 1.6;
+        g2.beginPath();
+        if (th >= 0) g2.arc(px, py, ar, Math.PI / 2 - th, Math.PI / 2);
+        else g2.arc(px, py, ar, Math.PI / 2, Math.PI / 2 - th);
+        g2.stroke();
+        if (Math.abs(th) > 3 * DEG) tx(g2, "α", px + (ar + 10) * Math.sin(th / 2), py + (ar + 10) * Math.cos(th / 2), C2.teal, { a: "center", it: true, s: 15, w: 600 });
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 1.6;
+        g2.beginPath();
+        g2.moveTo(px, py);
+        g2.lineTo(bx, by);
+        g2.stroke();
+        dot(g2, px, py, 3.5, C2.ink);
+        const gd = g2.createRadialGradient(bx - rb * 0.35, by - rb * 0.35, rb * 0.1, bx, by, rb);
+        gd.addColorStop(0, C2.dark ? "#c9d0ff" : "#7f8ef0");
+        gd.addColorStop(1, C2.pen);
+        g2.fillStyle = gd;
+        g2.beginPath();
+        g2.arc(bx, by, rb, 0, TAU);
+        g2.fill();
+        if (vec) {
+          const P = 64;
+          arrow(g2, bx, by, bx, by + P, C2.mute, 2, 8);
+          tx(g2, "P", bx + 9, by + P - 4, C2.mute, { it: true, s: 15, w: 600 });
+          const s = Math.sin(th), fx = -s * Math.cos(th) * P, fyy = s * Math.sin(th) * P;
+          arrow(g2, bx, by, bx + fx, by + fyy, C2.red, 2.5, 8);
+          if (Math.abs(s) * P > 12) tx(g2, "Pₜ", bx + fx + (fx > 0 ? 12 : -12), by + fyy - 6, C2.red, { a: "center", it: true, s: 15, w: 600 });
+        }
+        tx(g2, "l = " + num(l, 2) + " m", px + 8, py + L * 0.5, C2.ink, { s: 13, w: 600 });
+        const gt = Hp + 18, gb = H2 - 24, gl = nar ? 30 : 38, ex = Math.round(W2 * (nar ? 0.7 : 0.75)), T0 = this.T0(S2), win = 2.5 * T0, t1 = Math.max(win, S2.t), t0 = t1 - win;
+        const r = { x: gl, y: gt, w: ex - gl - 22, h: gb - gt - 14 }, M = axes(g2, r, { x0: t0, x1: t1, y0: -a0 * 1.25, y1: a0 * 1.25, yt: [[a0, ""], [-a0, ""]], xl: "t (s)" });
+        tx(g2, "α₀", gl - 6, M.Y(a0), C2.mute, { a: "right", it: true });
+        tx(g2, "−α₀", gl - 6, M.Y(-a0), C2.mute, { a: "right", it: true });
+        plot(g2, M, (t) => a0 * Math.cos(TAU / T0 * t), t0, t1, C2.mute, 1.5, 200, [5, 4]);
+        poly(g2, M, S2.h.map(([t, v2]) => [t, v2 / DEG]), C2.pen, 2.2);
+        tx(g2, "α(t) thực", r.x + 8, r.y + 8, C2.pen, { w: 600 });
+        tx(g2, "gần đúng điều hòa", r.x + 80, r.y + 8, C2.mute);
+        const v = l * S2.om, Wo = m * gr * l * (1 - Math.cos(a0r));
+        bars(g2, ex + 6, gt - 4, gb + 10, W2 - ex - 18, [["Wđ", 0.5 * m * v * v / Wo, C2.orange], ["Wt", m * gr * l * (1 - Math.cos(th)) / Wo, C2.pen], ["W", 1, C2.ink]], "Năng lượng");
+        if (nar) badge(g2, ["T = " + num(T0, 2) + " s", "đo: " + (S2.Tm ? num(S2.Tm, 2) + " s" : "…")], 8, 8);
+        else badge(g2, ["T = 2π√(l/g) = " + num(T0, 2) + " s", "Đo được: " + (S2.Tm ? num(S2.Tm, 2) + " s" : "…")], W2 - 10, 10, "right");
+      },
+      info: {
+        what: ["Con lắc đơn gồm một vật nhỏ treo vào sợi dây nhẹ, không dãn. Kéo lệch dây một góc rồi thả, vật dao động quanh vị trí cân bằng dưới tác dụng của thành phần trọng lực tiếp tuyến với quỹ đạo, gọi là lực kéo về Pₜ.", "Khi góc lệch nhỏ (khoảng dưới 10°), dao động gần đúng là điều hòa và chu kì chỉ phụ thuộc chiều dài dây và gia tốc trọng trường. Với góc lớn, chu kì thật dài hơn công thức một chút."],
+        f: [["T = 2π√(l/g)", "Đúng với góc lệch nhỏ; không phụ thuộc m"], ["s = l·α", "Li độ cong (α tính bằng rad)"], ["Pₜ = −mg sin α ≈ −mgα", "Lực kéo về"], ["Wt = mgl(1 − cos α)", "Thế năng trọng trường, gốc ở vị trí cân bằng"]],
+        q: [["Đổi khối lượng m, chu kì có đổi không?", "Không. Kéo thanh trượt m: con lắc vẫn dao động y hệt, chỉ năng lượng thay đổi."], ["Mang con lắc lên Mặt Trăng, chu kì tăng bao nhiêu lần?", "g giảm khoảng 6 lần (9,81/1,62 ≈ 6,1) nên T tăng khoảng √6 ≈ 2,5 lần."], ["Đặt α₀ = 50°, so sánh chu kì đo được với công thức.", "Chu kì đo được lớn hơn khoảng 5%. Đường nét đứt (dao động điều hòa lí tưởng) lệch dần khỏi đường thật: công thức chỉ đúng với góc nhỏ."]]
+      }
+    });
+    def({
+      id: "cong-huong",
+      ch: 0,
+      name: "Tắt dần, cưỡng bức, cộng hưởng",
+      topic: "Dao động tắt dần, dao động cưỡng bức và hiện tượng cộng hưởng",
+      r: 0.74,
+      rm: 1.15,
+      ctl: [
+        { t: "s", id: "mode", l: "Chế độ", o: [["f", "Cưỡng bức (có ngoại lực tuần hoàn)"], ["d", "Tắt dần (không có ngoại lực)"]], v: "f" },
+        { t: "r", id: "f", l: "Tần số ngoại lực f", min: 0.2, max: 2.5, st: 0.02, v: 0.7, u: "Hz", d: 2 },
+        { t: "r", id: "f0", l: "Tần số riêng f₀ của hệ", min: 0.6, max: 1.6, st: 0.05, v: 1, u: "Hz", d: 2 },
+        { t: "r", id: "b", l: "Hệ số lực cản b", min: 0.3, max: 3, st: 0.1, v: 0.6, u: "kg/s", d: 1 },
+        { t: "b", id: "go", l: "Thả lại từ đầu" }
+      ],
+      init(S2) {
+        S2.x = S2.p.mode === "d" ? 8 : 0;
+        S2.v = 0;
+        S2.t = 0;
+        S2.ph = 0;
+        S2.h = [[0, S2.x]];
+      },
+      chg(S2, id) {
+        if (id === "mode" || id === "f0" || id === "b" && S2.p.mode === "d") this.init(S2);
+      },
+      act(S2) {
+        this.init(S2);
+      },
+      Ath(S2, f) {
+        const w0 = TAU * S2.p.f0, w = TAU * f;
+        return w0 * w0 * 0.5 / Math.sqrt((w0 * w0 - w * w) ** 2 + (S2.p.b * w) ** 2);
+      },
+      step(S2, dt) {
+        const { f, f0, b, mode } = S2.p, w0 = TAU * f0, Om = mode === "f" ? TAU * f : 0, D = mode === "f" ? 0.5 : 0, n = Math.ceil(dt / 2e-3), h = dt / n, acc = (x, v, ph) => -w0 * w0 * x - b * v + w0 * w0 * D * Math.cos(ph);
+        for (let i = 0; i < n; i++) {
+          const x = S2.x, v = S2.v, p = S2.ph, k1x = v, k1v = acc(x, v, p), k2x = v + h / 2 * k1v, k2v = acc(x + h / 2 * k1x, v + h / 2 * k1v, p + Om * h / 2), k3x = v + h / 2 * k2v, k3v = acc(x + h / 2 * k2x, v + h / 2 * k2v, p + Om * h / 2), k4x = v + h * k3v, k4v = acc(x + h * k3x, v + h * k3v, p + Om * h);
+          S2.x = x + h / 6 * (k1x + 2 * k2x + 2 * k3x + k4x);
+          S2.v = v + h / 6 * (k1v + 2 * k2v + 2 * k3v + k4v);
+          S2.ph = p + Om * h;
+          S2.t += h;
+        }
+        S2.h.push([S2.t, S2.x]);
+        while (S2.h.length > 2 && S2.h[0][0] < S2.t - 12.2) S2.h.shift();
+      },
+      Am(S2) {
+        const span = 1.1 * Math.max(1 / S2.p.f, 1 / S2.p.f0);
+        let a = 0;
+        for (let i = S2.h.length - 1; i >= 0 && S2.h[i][0] > S2.t - span; i--) a = Math.max(a, Math.abs(S2.h[i][1]));
+        return a;
+      },
+      reads(S2) {
+        const { f, f0, b, mode } = S2.p;
+        const r = [["Tần số riêng f₀", num(f0, 2) + " Hz"]];
+        if (mode === "f") r.push(["Tần số ngoại lực f", num(f, 2) + " Hz"], ["Biên độ ổn định (lí thuyết)", num(this.Ath(S2, f), 2) + " cm"], ["Biên độ đo được", num(this.Am(S2), 2) + " cm"], ["Biên độ cực đại (cộng hưởng)", num(this.Ath(S2, Math.sqrt(Math.max(0.01, f0 * f0 - (b / TAU) ** 2 / 2))), 2) + " cm"]);
+        else r.push(["Biên độ ban đầu", "8,00 cm"], ["Biên độ hiện tại", num(8 * Math.exp(-b * S2.t / 2), 2) + " cm"], ["Thời gian giảm còn một nửa", num(2 * Math.log(2) / b, 2) + " s"]);
+        return r;
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { f, f0, b, mode } = S2.p, nar = W2 < 560, forced = mode === "f";
+        const Hd = Math.round(H2 * 0.6), cx = Math.round(W2 * (nar ? 0.17 : 0.15)), mh = nar ? 13 : 15, sc = (Hd - 6 - 88 - 2 * mh) / 24, yEq = 88 + mh + 12 * sc, Dp = 0.5 * sc * (forced ? 1 : 0);
+        const wy = 30, wr = 14, ys = 62 + Dp * Math.cos(S2.ph), py = wy + wr * Math.sin(S2.ph);
+        const tl = yEq - 12 * sc - mh - 8, tb = Hd - 4;
+        g2.fillStyle = C2.dark ? "rgba(63,210,189,".concat(0.06 + 0.2 * (b - 0.3) / 2.7, ")") : "rgba(10,138,120,".concat(0.05 + 0.17 * (b - 0.3) / 2.7, ")");
+        g2.fillRect(cx - 36, tl, 72, tb - tl);
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1.5;
+        g2.beginPath();
+        g2.moveTo(cx - 36, tl);
+        g2.lineTo(cx - 36, tb);
+        g2.lineTo(cx + 36, tb);
+        g2.lineTo(cx + 36, tl);
+        g2.stroke();
+        if (!nar) tx(g2, "chất lỏng", cx, tb - 12, C2.mute, { a: "center" });
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 1.5;
+        g2.beginPath();
+        g2.arc(cx, wy, wr, 0, TAU);
+        g2.stroke();
+        dot(g2, cx, wy, 2, C2.ink);
+        const cpx = cx + wr * Math.cos(S2.ph), cpy = wy + wr * Math.sin(S2.ph);
+        dot(g2, cpx, cpy, 3.5, C2.red);
+        g2.strokeStyle = C2.red;
+        g2.lineWidth = 2;
+        g2.beginPath();
+        g2.moveTo(cpx, cpy);
+        g2.lineTo(cx, ys - 6);
+        g2.stroke();
+        g2.fillStyle = C2.metal;
+        g2.fillRect(cx - 26, ys - 6, 52, 6);
+        if (!nar) tx(g2, forced ? "điểm treo dao động" : "điểm treo đứng yên", cx + 30, ys - 3, C2.mute, { s: 13 });
+        const my = yEq + S2.x * sc;
+        spring(g2, cx, ys, cx, my - mh, 14, 9, C2.metal2, 2);
+        rr(g2, cx - 20, my - mh, 40, 2 * mh, 5);
+        g2.fillStyle = C2.pen;
+        g2.fill();
+        tx(g2, "m", cx, my, C2.onpen, { a: "center", it: true, s: 15, halo: false });
+        dash(g2, cx - 44, yEq, cx + 44, yEq, C2.mute, 1, [3, 3]);
+        const rx = Math.round(W2 * (nar ? 0.44 : 0.37)), rr_ = { x: rx, y: 30, w: W2 - rx - 26, h: Hd - 30 - 34 }, M = axes(g2, rr_, { x0: 0, x1: 2.5, y0: 0, y1: 12, xt: [0.5, 1, 1.5, 2, 2.5].map((v) => [v, num(v, 1)]), yt: [[4, "4"], [8, "8"], [12, "12"]], xl: "f (Hz)", yl: "A (cm)" });
+        g2.globalAlpha = forced ? 1 : 0.3;
+        dash(g2, M.X(f0), rr_.y, M.X(f0), rr_.y + rr_.h, C2.red, 1.2, [4, 4]);
+        tx(g2, "f₀", M.X(f0) + 6, rr_.y + 10, C2.red, { it: true, s: 15, w: 600 });
+        plot(g2, M, (ff) => this.Ath(S2, ff), 1e-3, 2.5, C2.pen, 2.4, 300);
+        if (forced) {
+          const at = this.Ath(S2, f);
+          dash(g2, M.X(f), M.Y(0), M.X(f), M.Y(Math.min(12, at)), C2.mute, 1, [2, 3]);
+          dot(g2, M.X(f), M.Y(Math.min(12, this.Am(S2))), 6, C2.orange, true);
+          dot(g2, M.X(f), M.Y(Math.min(12, at)), 5, C2.pen);
+        }
+        g2.globalAlpha = 1;
+        if (!forced) tx(g2, "Chọn chế độ cưỡng bức để thấy cộng hưởng", rr_.x + rr_.w / 2, rr_.y + rr_.h * 0.45, C2.ink, { a: "center", w: 600 });
+        else if (!nar) {
+          tx(g2, "● lí thuyết", rr_.x + rr_.w - 6, rr_.y + 10, C2.pen, { a: "right", w: 600 });
+          tx(g2, "○ đo được", rr_.x + rr_.w - 6, rr_.y + 28, C2.orange, { a: "right", w: 600 });
+        }
+        const t1 = Math.max(12, S2.t), t0 = t1 - 12, r2 = { x: 34, y: Hd + 22, w: W2 - 34 - 26, h: H2 - Hd - 22 - 28 }, M2 = axes(g2, r2, { x0: t0, x1: t1, y0: -12, y1: 12, yt: [[8, "8"], [-8, "−8"]], xl: "t (s)", yl: "x (cm)" });
+        if (!forced) {
+          plot(g2, M2, (t) => 8 * Math.exp(-b * t / 2), t0, t1, C2.red, 1.4, 120, [5, 4]);
+          plot(g2, M2, (t) => -8 * Math.exp(-b * t / 2), t0, t1, C2.red, 1.4, 120, [5, 4]);
+        }
+        poly(g2, M2, S2.h, C2.pen, 2);
+      },
+      info: {
+        what: ["Trong thực tế luôn có lực cản nên cơ năng bị tiêu hao, biên độ giảm dần theo thời gian: đó là dao động tắt dần. Lực cản càng lớn, dao động tắt càng nhanh.", "Nếu tác dụng một ngoại lực tuần hoàn (ở đây điểm treo lò xo được một bánh lệch tâm kéo lên xuống), sau giai đoạn chuyển tiếp vật dao động với tần số của ngoại lực: dao động cưỡng bức.", "Khi tần số ngoại lực bằng (hoặc rất gần) tần số riêng f₀ của hệ, biên độ dao động cưỡng bức tăng đến cực đại: hiện tượng cộng hưởng."],
+        f: [["f₀ = (1/2π)·√(k/m)", "Tần số riêng của con lắc lò xo"], ["Cộng hưởng: f ≈ f₀ ⇒ A = A_max", "Lực cản càng nhỏ, đỉnh cộng hưởng càng cao và nhọn"], ["Dao động cưỡng bức có tần số bằng f", "Biên độ phụ thuộc biên độ ngoại lực, lực cản và độ chênh |f − f₀|"]],
+        q: [["Đặt f bằng f₀ rồi tăng lực cản b. Đỉnh cộng hưởng thay đổi ra sao?", "Đỉnh thấp và tù đi: lực cản lớn làm hiện tượng cộng hưởng không rõ rệt."], ["Khi f khác xa f₀, sau vài giây vật dao động với tần số nào?", "Với tần số của ngoại lực f chứ không phải tần số riêng, và biên độ nhỏ. Quan sát đồ thị x(t) sau giai đoạn chuyển tiếp."], ["Nêu một ví dụ cộng hưởng có hại và một ví dụ có lợi.", "Có hại: cầu, nhà cao tầng rung mạnh khi gió hoặc bước chân đều có tần số trùng tần số riêng, vì vậy đoàn quân không đi đều bước qua cầu. Có lợi: hộp cộng hưởng của đàn ghi-ta làm âm to hơn."]]
+      }
+    });
+    def({
+      id: "song-ngang-doc",
+      ch: 1,
+      name: "Sóng ngang và sóng dọc",
+      topic: "Mô tả sóng: bước sóng, chu kì, tốc độ truyền sóng",
+      r: 0.66,
+      rm: 1.15,
+      ctl: [
+        { t: "s", id: "kind", l: "Loại sóng", o: [["both", "Cả hai để so sánh"], ["ngang", "Sóng ngang"], ["doc", "Sóng dọc"]], v: "both" },
+        { t: "r", id: "f", l: "Tần số f", min: 0.25, max: 1.5, st: 0.05, v: 0.8, u: "Hz", d: 2 },
+        { t: "r", id: "v", l: "Tốc độ truyền sóng v", min: 0.4, max: 2, st: 0.1, v: 1, u: "m/s", d: 1 },
+        { t: "r", id: "A", l: "Biên độ A", min: 2, max: 7, st: 0.5, v: 5, u: "cm", d: 1 },
+        { t: "c", id: "mark", l: "Đánh dấu một phần tử môi trường", v: true },
+        { t: "b", id: "go", l: "Phát sóng lại" }
+      ],
+      init(S2) {
+        S2.t = 0;
+      },
+      act(S2) {
+        S2.t = 0;
+      },
+      step(S2, dt) {
+        S2.t += dt;
+      },
+      reads(S2) {
+        const { f, v } = S2.p;
+        return [["Bước sóng λ = v/f", num(v / f, 2) + " m"], ["Chu kì T = 1/f", num(1 / f, 2) + " s"], ["Tần số f", num(f, 2) + " Hz"], ["Tốc độ v", num(v, 1) + " m/s"], ["Sóng đã truyền được", num(Math.min(4, v * S2.t), 2) + " m"]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { kind, f, v, A, mark } = S2.p, nar = W2 < 560, lam = v / f, w = TAU * f, Am = A / 100, t = S2.t, front = Math.min(4.05, v * t);
+        const xs = nar ? 40 : 62, xe = W2 - 20, s = (xe - xs) / 4, X = (x) => xs + x * s, u = (x) => t > x / v ? Am * Math.sin(w * (t - x / v)) : 0;
+        const kinds = kind === "both" ? ["ngang", "doc"] : [kind], lh = (H2 - 8) / kinds.length, mi = 12;
+        kinds.forEach((kd, li) => {
+          const y0 = 4 + li * lh, yc = y0 + lh * 0.56;
+          if (li) dash(g2, 10, y0, W2 - 10, y0, C2.g2, 1.5, []);
+          tx(g2, kd === "ngang" ? "Sóng ngang" : "Sóng dọc", 12, y0 + 16, C2.ink, { w: 700, s: 15 });
+          tx(g2, kd === "ngang" ? "dao động ⟂ phương truyền" : "dao động dọc theo phương truyền", nar ? 12 : 110, y0 + (nar ? 34 : 16), C2.mute);
+          arrow(g2, W2 - 120, y0 + 16, W2 - 24, y0 + 16, C2.mute, 1.5, 8);
+          if (!nar) tx(g2, "phương truyền", W2 - 126, y0 + 16, C2.mute, { a: "right" });
+          if (kd === "ngang") {
+            const ex = Math.min(4, lh * 0.3 / (Am * s * 1)), sy = Math.max(1, Math.min(4, lh * 0.28 / (0.07 * s)));
+            const Y = (x) => yc - u(x) * s * sy;
+            g2.fillStyle = C2.mute;
+            g2.fillRect(xs - 22, Y(0) - 14, 8, 28);
+            g2.strokeStyle = C2.metal2;
+            g2.lineWidth = 1.5;
+            g2.beginPath();
+            for (let i = 0; i <= 40; i++) {
+              const x = i * 0.1;
+              i ? g2.lineTo(X(x), Y(x)) : g2.moveTo(X(x), Y(x));
+            }
+            g2.stroke();
+            for (let i = 0; i <= 40; i++) {
+              const x = i * 0.1;
+              dot(g2, X(x), Y(x), i === mi && mark ? 6 : 4, i === mi && mark ? C2.red : C2.pen);
+            }
+            if (mark) {
+              const mx = X(mi * 0.1);
+              dash(g2, mx, yc - Am * s * sy - 8, mx, yc + Am * s * sy + 8, C2.red, 1, [2, 3]);
+              arrow(g2, mx + 12, yc, mx + 12, yc - Am * s * sy, C2.red, 1.5, 6);
+              arrow(g2, mx + 12, yc, mx + 12, yc + Am * s * sy, C2.red, 1.5, 6);
+            }
+            const base = v * t - lam / 4, cr = [];
+            for (let n = 0; n < 40; n++) {
+              const x = base - n * lam;
+              if (x < 0) break;
+              if (x <= Math.min(front, 4) && t > x / v) cr.push(x);
+            }
+            cr.sort((a, b) => a - b);
+            if (cr.length >= 2) {
+              const a = X(cr[0]), b = X(cr[1]), yb = yc - Am * s * sy - 18;
+              g2.strokeStyle = C2.teal;
+              g2.lineWidth = 1.5;
+              g2.beginPath();
+              g2.moveTo(a, yb + 5);
+              g2.lineTo(a, yb);
+              g2.lineTo(b, yb);
+              g2.lineTo(b, yb + 5);
+              g2.stroke();
+              tx(g2, "λ = " + num(lam, 2) + " m", (a + b) / 2, yb - 10, C2.teal, { a: "center", w: 600 });
+            }
+          } else {
+            const rows = nar ? 4 : 5, rs = Math.min(14, lh * 0.5 / rows), top = yc - rs * (rows - 1) / 2;
+            const pxp = xs - 16 + u(0) * s;
+            g2.fillStyle = C2.mute;
+            g2.fillRect(pxp - 4, top - rs, 8, rs * (rows + 1));
+            for (let n = 0; n < 40; n++) {
+              const xc = v * t - n * lam;
+              if (xc < 0) break;
+              if (xc <= Math.min(front, 4)) {
+                const px = X(xc);
+                g2.fillStyle = C2.soft;
+                g2.fillRect(px - s * lam * 0.12, top - rs * 0.8, s * lam * 0.24, rs * (rows - 1) + rs * 1.6);
+                tx(g2, "nén", px, top - rs - 6, C2.teal, { a: "center", w: 600 });
+              }
+              const xr = xc - lam / 2;
+              if (xr >= 0 && xr <= Math.min(front, 4)) tx(g2, "dãn", X(xr), top - rs - 6, C2.mute, { a: "center" });
+            }
+            for (let i = 0; i <= 40; i++) {
+              const x = i * 0.1, px = X(x + u(x));
+              for (let r = 0; r < rows; r++) dot(g2, px, top + r * rs, i === mi && mark ? 4.5 : 3, i === mi && mark ? C2.red : C2.pen);
+            }
+            if (mark) {
+              const mx = X(mi * 0.1), yb = top + rs * (rows - 1) + 12;
+              arrow(g2, mx, yb, mx - Am * s, yb, C2.red, 1.5, 6);
+              arrow(g2, mx, yb, mx + Am * s, yb, C2.red, 1.5, 6);
+            }
+          }
+        });
+        badge(g2, ["λ = v/f = " + num(lam, 2) + " m"], W2 - 10, H2 - 40, "right");
+      },
+      info: {
+        what: ["Sóng cơ là dao động lan truyền trong một môi trường. Các phần tử môi trường chỉ dao động tại chỗ quanh vị trí cân bằng của chúng, không bị sóng cuốn đi; thứ truyền đi là trạng thái dao động và năng lượng.", "Sóng ngang có phương dao động vuông góc với phương truyền (sóng trên sợi dây, gần đúng với sóng trên mặt nước). Sóng dọc có phương dao động trùng với phương truyền, tạo ra các vùng nén và dãn xen kẽ (sóng âm trong không khí)."],
+        f: [["λ = v·T = v/f", "Bước sóng: quãng đường sóng truyền trong một chu kì"], ["f = 1/T", "Tần số sóng bằng tần số dao động của nguồn"], ["Cách nhau λ: cùng pha", "Cách nhau λ/2: ngược pha"]],
+        q: [["Theo dõi chấm đỏ: nó có đi về bên phải cùng sóng không?", "Không. Chấm đỏ chỉ dao động quanh vị trí cũ (lên xuống với sóng ngang, qua lại với sóng dọc)."], ["Giữ nguyên v, tăng f lên gấp đôi. Bước sóng thay đổi thế nào?", "Giảm một nửa, vì λ = v/f."], ["Sóng âm truyền trong không khí là sóng ngang hay sóng dọc?", "Sóng dọc: không khí bị nén và dãn liên tiếp, giống hàng chấm ở hình dưới."]]
+      }
+    });
+    def({
+      id: "giao-thoa-nuoc",
+      ch: 1,
+      name: "Giao thoa sóng mặt nước",
+      topic: "Giao thoa của hai sóng kết hợp, vân cực đại và cực tiểu",
+      r: 0.68,
+      rm: 1,
+      hint: "Chạm hoặc kéo trên mặt nước để đặt điểm M và đo hiệu đường đi.",
+      ctl: [
+        { t: "r", id: "d", l: "Khoảng cách hai nguồn S₁S₂", min: 2, max: 12, st: 0.5, v: 6, u: "cm", d: 1 },
+        { t: "r", id: "lam", l: "Bước sóng λ", min: 0.8, max: 3, st: 0.1, v: 1.5, u: "cm", d: 1 },
+        { t: "s", id: "ph", l: "Hai nguồn", o: [["0", "Dao động cùng pha"], ["1", "Dao động ngược pha"]], v: "0" },
+        { t: "c", id: "hyp", l: "Hiện các vân cực đại và cực tiểu", v: true }
+      ],
+      init(S2) {
+        if (!S2.M) S2.M = { x: -3.2, y: -4.5 };
+        S2.t = 0;
+      },
+      step(S2, dt) {
+        S2.t += dt;
+      },
+      ptr(tp, x, y, S2) {
+        if (tp === "up") return;
+        const s = S2.W / 24;
+        S2.M = { x: cl((x - S2.W / 2) / s, -12, 12), y: cl((y - S2.H / 2) / s, -S2.H / 2 / s, S2.H / 2 / s) };
+      },
+      mdat(S2) {
+        const { d, lam, ph } = S2.p, M = S2.M, d1 = Math.hypot(M.x + d / 2, M.y), d2 = Math.hypot(M.x - d / 2, M.y), n = (d2 - d1) / lam, anti = ph === "1";
+        const fr = n - Math.round(n), fh = n - Math.floor(n) - 0.5, tol = 0.07;
+        let vd = "biên độ trung gian";
+        if (Math.abs(fr) < tol) vd = anti ? "cực tiểu (đứng yên)" : "cực đại (k = " + Math.round(n) + ")";
+        else if (Math.abs(fh) < tol) vd = anti ? "cực đại" : "cực tiểu (đứng yên)";
+        return { d1, d2, n, vd };
+      },
+      cnt(S2) {
+        const { d, lam, ph } = S2.p, q = d / lam;
+        let a = 0, b = 0;
+        for (let k = -40; k <= 40; k++) {
+          if (Math.abs(k) < q - 1e-9) a++;
+          if (Math.abs(k + 0.5) < q - 1e-9) b++;
+        }
+        return ph === "1" ? [b, a] : [a, b];
+      },
+      reads(S2) {
+        const { d, lam } = S2.p, m = this.mdat(S2), [mx, mn] = this.cnt(S2);
+        return [["Tỉ số d/λ", num(d / lam, 2)], ["Số cực đại trên S₁S₂", String(mx)], ["Số cực tiểu trên S₁S₂", String(mn)], ["Điểm M: d₁", num(m.d1, 2) + " cm"], ["Điểm M: d₂", num(m.d2, 2) + " cm"], ["d₂ − d₁", num(m.d2 - m.d1, 2) + " cm = " + num(m.n, 2) + "λ"], ["M nằm trên", m.vd, 1]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        const { d, lam, ph, hyp } = S2.p, s = W2 / 24, cx = W2 / 2, cy = H2 / 2, cell = 3, cw = Math.ceil(W2 / cell), ch = Math.ceil(H2 / cell), key = [W2, H2, d, lam].join();
+        if (S2.key !== key) {
+          S2.key = key;
+          const n2 = cw * ch, K12 = new Float32Array(n2), K22 = new Float32Array(n2), A12 = new Float32Array(n2), A22 = new Float32Array(n2), k = TAU / lam;
+          for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) {
+            const x = ((i + 0.5) * cell - cx) / s, y = ((j + 0.5) * cell - cy) / s, r1 = Math.hypot(x + d / 2, y), r2 = Math.hypot(x - d / 2, y), p = j * cw + i;
+            K12[p] = k * r1;
+            K22[p] = k * r2;
+            A12[p] = 1 / Math.sqrt(1 + r1 / 3);
+            A22[p] = 1 / Math.sqrt(1 + r2 / 3);
+          }
+          S2.arr = { K1: K12, K2: K22, A1: A12, A2: A22 };
+          S2.off = document.createElement("canvas");
+          S2.off.width = cw;
+          S2.off.height = ch;
+          S2.oc = S2.off.getContext("2d");
+          S2.img = S2.oc.createImageData(cw, ch);
+          S2.u32 = new Uint32Array(S2.img.data.buffer);
+          if (!S2.lut) {
+            S2.lut = new Uint32Array(256);
+            const st = [[0, [6, 46, 92]], [0.5, [24, 104, 170]], [1, [214, 242, 255]]];
+            for (let i = 0; i < 256; i++) {
+              const t = i / 255, a = t < 0.5 ? st[0] : st[1], b = t < 0.5 ? st[1] : st[2], q = (t - a[0]) / (b[0] - a[0]), c = a[1].map((v, j) => Math.round(v + (b[1][j] - v) * q));
+              S2.lut[i] = 255 << 24 | c[2] << 16 | c[1] << 8 | c[0];
+            }
+          }
+        }
+        const { K1, K2, A1, A2 } = S2.arr, wt = TAU * 0.8 * S2.t, phi = ph === "1" ? Math.PI : 0, u32 = S2.u32, lut = S2.lut, n = cw * ch;
+        for (let p = 0; p < n; p++) {
+          const val = A1[p] * Math.cos(wt - K1[p]) + A2[p] * Math.cos(wt - K2[p] + phi);
+          u32[p] = lut[Math.max(0, Math.min(255, (val * 0.5 + 1) * 127.5 | 0))];
+        }
+        S2.oc.putImageData(S2.img, 0, 0);
+        g2.imageSmoothingEnabled = true;
+        g2.drawImage(S2.off, 0, 0, cw, ch, 0, 0, cw * cell, ch * cell);
+        const X = (x) => cx + x * s, Y = (y) => cy + y * s, ymax = H2 / 2 / s + 0.5;
+        if (hyp) {
+          const c = d / 2, lines = [];
+          for (let k = -30; k <= 30; k++) {
+            for (const half of [0, 0.5]) {
+              const D = (k + half) * lam;
+              if (Math.abs(D) < d - 1e-6) lines.push([D, half === 0 ? ph !== "1" : ph === "1", k + half]);
+            }
+          }
+          let lastX = -99;
+          for (const [D, isMax, kk] of lines.sort((a, b) => b[0] - a[0])) {
+            g2.beginPath();
+            if (Math.abs(D) < 1e-9) {
+              g2.moveTo(X(0), 0);
+              g2.lineTo(X(0), H2);
+            } else {
+              const a = Math.abs(D) / 2, b = Math.sqrt(c * c - a * a), sg = -Math.sign(D);
+              for (let i = 0; i <= 90; i++) {
+                const y = -ymax + 2 * ymax * i / 90, x = sg * a * Math.sqrt(1 + y * y / (b * b));
+                i ? g2.lineTo(X(x), Y(y)) : g2.moveTo(X(x), Y(y));
+              }
+            }
+            if (isMax) {
+              g2.setLineDash([]);
+              g2.strokeStyle = "rgba(255,92,72,.95)";
+              g2.lineWidth = 1.7;
+            } else {
+              g2.setLineDash([5, 4]);
+              g2.strokeStyle = "rgba(255,255,255,.8)";
+              g2.lineWidth = 1.3;
+            }
+            g2.stroke();
+            g2.setLineDash([]);
+            if (isMax) {
+              const a = Math.abs(D) / 2, b = Math.sqrt(c * c - a * a), yy = -ymax + 1.1, xx = Math.abs(D) < 1e-9 ? 0 : -Math.sign(D) * a * Math.sqrt(1 + yy * yy / (b * b)), px = X(xx);
+              if (px > 12 && px < W2 - 12 && Math.abs(px - lastX) > 26) {
+                lastX = px;
+                tx(g2, (ph === "1" ? "" : "k = ") + (ph === "1" ? num(kk, 1) : Math.round(kk)), px, 14, "#fff", { a: "center", w: 700, halo: "rgba(6,46,92,.85)" });
+              }
+            }
+          }
+        }
+        const M = S2.M, mx = X(M.x), my = Y(M.y);
+        g2.strokeStyle = "rgba(255,255,255,.9)";
+        g2.lineWidth = 1.2;
+        for (const sx of [-d / 2, d / 2]) {
+          g2.beginPath();
+          g2.moveTo(X(sx), cy);
+          g2.lineTo(mx, my);
+          g2.stroke();
+        }
+        for (const [sx, l] of [[-d / 2, "S₁"], [d / 2, "S₂"]]) {
+          dot(g2, X(sx), cy, 6, "#fff");
+          g2.lineWidth = 2;
+          g2.strokeStyle = "#0b2a52";
+          g2.beginPath();
+          g2.arc(X(sx), cy, 6, 0, TAU);
+          g2.stroke();
+          tx(g2, l, X(sx), cy + 18, "#fff", { a: "center", w: 700, s: 14, halo: "rgba(6,46,92,.85)" });
+        }
+        dot(g2, mx, my, 7, "#ffd84d");
+        g2.lineWidth = 2;
+        g2.strokeStyle = "#0b2a52";
+        g2.beginPath();
+        g2.arc(mx, my, 7, 0, TAU);
+        g2.stroke();
+        tx(g2, "M", mx + 12, my - 10, "#ffd84d", { w: 800, s: 15, halo: "rgba(6,46,92,.9)" });
+        g2.fillStyle = "rgba(6,30,60,.78)";
+        rr(g2, 10, H2 - 50, W2 < 560 ? 150 : 176, 40, 8);
+        g2.fill();
+        g2.strokeStyle = "rgba(255,92,72,.95)";
+        g2.lineWidth = 2;
+        g2.beginPath();
+        g2.moveTo(20, H2 - 38);
+        g2.lineTo(44, H2 - 38);
+        g2.stroke();
+        tx(g2, "vân cực đại", 52, H2 - 38, "#fff", { halo: false });
+        g2.setLineDash([5, 4]);
+        g2.strokeStyle = "#fff";
+        g2.beginPath();
+        g2.moveTo(20, H2 - 20);
+        g2.lineTo(44, H2 - 20);
+        g2.stroke();
+        g2.setLineDash([]);
+        tx(g2, "vân cực tiểu", 52, H2 - 20, "#fff", { halo: false });
+      },
+      info: {
+        what: ["Hai nguồn kết hợp S₁ và S₂ (cùng tần số, hiệu số pha không đổi) tạo trên mặt nước hai hệ sóng tròn. Tại mỗi điểm, hai sóng chồng lên nhau: chỗ chúng luôn cùng pha thì tăng cường nhau (cực đại), chỗ luôn ngược pha thì triệt tiêu nhau (cực tiểu, nước gần như đứng yên).", "Các điểm cực đại và cực tiểu nằm trên những đường hypebol xen kẽ, nhận S₁, S₂ làm tiêu điểm. Hình ảnh ổn định đó là hình ảnh giao thoa, dấu hiệu đặc trưng của sóng."],
+        f: [["Cực đại: d₂ − d₁ = kλ", "Hai nguồn cùng pha; k = 0, ±1, ±2…"], ["Cực tiểu: d₂ − d₁ = (k + ½)λ", "Hai nguồn ngược pha thì hai điều kiện đổi chỗ cho nhau"], ["Hai cực đại liền kề trên S₁S₂ cách nhau λ/2", "Cực đại và cực tiểu liền kề cách nhau λ/4"]],
+        q: [["Điểm M nằm trên đường trung trực của S₁S₂ là cực đại hay cực tiểu?", "Cực đại (k = 0) khi hai nguồn cùng pha, vì d₁ = d₂. Kéo M lên đường thẳng đứng chính giữa để kiểm tra."], ["Giảm bước sóng λ, số vân cực đại trên đoạn S₁S₂ thay đổi thế nào?", "Tăng lên. Số cực đại là số giá trị nguyên k thỏa −d/λ < k < d/λ."], ["Chuyển sang hai nguồn ngược pha. Đường trung trực bây giờ là gì?", "Một vân cực tiểu: tại đó hai sóng tới luôn ngược pha."]]
+      }
+    });
+    def({
+      id: "young",
+      ch: 1,
+      name: "Giao thoa ánh sáng (Young)",
+      topic: "Thí nghiệm Young về giao thoa ánh sáng, khoảng vân",
+      r: 0.74,
+      rm: 1.15,
+      hint: "Kéo trên dải vân hoặc đồ thị để di chuyển điểm M trên màn.",
+      ctl: [
+        { t: "r", id: "lam", l: "Bước sóng λ", min: 380, max: 760, st: 5, v: 600, fmt: (v) => v + " nm" },
+        { t: "r", id: "a", l: "Khoảng cách hai khe a", min: 0.2, max: 2, st: 0.05, v: 0.5, u: "mm", d: 2 },
+        { t: "r", id: "D", l: "Khoảng cách từ hai khe tới màn D", min: 0.5, max: 3, st: 0.1, v: 1.5, u: "m", d: 1 },
+        { t: "c", id: "white", l: "Dùng ánh sáng trắng", v: false }
+      ],
+      init(S2) {
+        if (S2.xm === void 0) S2.xm = 3.6;
+        S2.t = 0;
+      },
+      step(S2, dt) {
+        S2.t += dt;
+      },
+      i(S2) {
+        return S2.p.lam * 1e-6 * S2.p.D * 1e3 / S2.p.a;
+      },
+      col(S2, x) {
+        const { a, D, lam, white } = S2.p, dl = a * x / (D * 1e3);
+        if (!white) {
+          const I = Math.cos(Math.PI * dl / (lam * 1e-6)) ** 2, c = wl2rgb(lam);
+          return [c[0] * I, c[1] * I, c[2] * I, I];
+        }
+        if (!S2.wsum) {
+          S2.wsum = [0, 0, 0];
+          for (let l = 380; l <= 760; l += 10) {
+            const c = wl2rgb(l);
+            S2.wsum[0] += c[0];
+            S2.wsum[1] += c[1];
+            S2.wsum[2] += c[2];
+          }
+        }
+        let r = 0, gg = 0, b = 0;
+        for (let l = 380; l <= 760; l += 10) {
+          const I = Math.cos(Math.PI * dl / (l * 1e-6)) ** 2, c = wl2rgb(l);
+          r += c[0] * I;
+          gg += c[1] * I;
+          b += c[2] * I;
+        }
+        r /= S2.wsum[0];
+        gg /= S2.wsum[1];
+        b /= S2.wsum[2];
+        return [r, gg, b, 0.3 * r + 0.59 * gg + 0.11 * b];
+      },
+      ptr(tp, x, y, S2) {
+        if (tp === "up" || !S2.L) return;
+        const L = S2.L;
+        if (tp === "down" && y < L.gy0 - 10) return false;
+        S2.xm = cl((x - L.bl) / L.bw * 2 * 12 - 12, -12, 12);
+      },
+      reads(S2) {
+        const { a, D, lam, white } = S2.p, i = this.i(S2), dl = a * S2.xm / (D * 1e3) * 1e3, n = S2.xm / i;
+        let vd = "giữa vân sáng và vân tối";
+        if (white) vd = "ánh sáng trắng: vân trung tâm trắng, hai bên là dải màu";
+        else {
+          const fr = n - Math.round(n), fh = n - Math.floor(n) - 0.5;
+          if (Math.abs(fr) < 0.06) vd = Math.round(n) === 0 ? "vân sáng trung tâm" : "vân sáng bậc " + Math.abs(Math.round(n));
+          else if (Math.abs(fh) < 0.06) vd = "vân tối thứ " + (Math.floor(Math.abs(n)) + 1);
+        }
+        return [["Khoảng vân i = λD/a", num(i, 3) + " mm"], ["Tọa độ điểm M", num(S2.xm, 2) + " mm"], ["Hiệu đường đi δ = ax/D", num(dl, 3) + " µm"], white ? ["δ/λ", "—"] : ["δ/λ", num(n, 2)], ["Tại M", vd, 1]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { a, D, lam, white } = S2.p, nar = W2 < 560, X = 12, i = this.i(S2), lc = white ? [1, 1, 1] : wl2rgb(lam), lcol = white ? C2.dark ? "#ffffff" : "#8a8f9e" : css(lc);
+        const Hs = Math.round(H2 * 0.4), sx = W2 * 0.06, px = W2 * 0.3, qx = W2 * (nar ? 0.86 : 0.88), yc = Hs / 2 + 8, gap = 14 + a * 22, sh = Hs * 0.42, ys = (x) => yc - x / X * sh;
+        const gl = g2.createRadialGradient(sx, yc, 2, sx, yc, 24);
+        gl.addColorStop(0, css(lc, 0.95));
+        gl.addColorStop(1, css(lc, 0));
+        g2.fillStyle = gl;
+        g2.beginPath();
+        g2.arc(sx, yc, 24, 0, TAU);
+        g2.fill();
+        dot(g2, sx, yc, 6, white ? "#fff" : css(lc));
+        g2.lineWidth = 1;
+        g2.strokeStyle = C2.ink;
+        g2.beginPath();
+        g2.arc(sx, yc, 6, 0, TAU);
+        g2.stroke();
+        const ph = S2.t * 30 % 18;
+        g2.strokeStyle = css(lc, 0.35);
+        g2.lineWidth = 1.2;
+        for (let x = sx + 16 + ph; x < px - 4; x += 18) {
+          g2.beginPath();
+          g2.moveTo(x, yc - gap * 0.9);
+          g2.lineTo(x, yc + gap * 0.9);
+          g2.stroke();
+        }
+        g2.save();
+        g2.beginPath();
+        g2.rect(px, yc - sh - 6, qx - px, 2 * sh + 12);
+        g2.clip();
+        for (const ssy of [yc - gap / 2, yc + gap / 2]) for (let r = ph; r < qx - px; r += 18) {
+          g2.strokeStyle = css(lc, 0.22 * (1 - r / (qx - px)));
+          g2.beginPath();
+          g2.arc(px, ssy, r + 2, -1.2, 1.2);
+          g2.stroke();
+        }
+        g2.restore();
+        g2.fillStyle = C2.ink;
+        g2.fillRect(px - 3, yc - sh - 4, 6, sh - gap / 2 + 4 - 3);
+        g2.fillRect(px - 3, yc - gap / 2 + 3, 6, gap - 6);
+        g2.fillRect(px - 3, yc + gap / 2 + 3, 6, sh - gap / 2 + 1);
+        tx(g2, "S₁", px - 10, yc - gap / 2, C2.ink, { a: "right", w: 600 });
+        tx(g2, "S₂", px - 10, yc + gap / 2, C2.ink, { a: "right", w: 600 });
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 3;
+        g2.beginPath();
+        g2.moveTo(qx, yc - sh - 4);
+        g2.lineTo(qx, yc + sh + 4);
+        g2.stroke();
+        for (let yy = -sh; yy < sh; yy += 2) {
+          const c = this.col(S2, -yy / sh * X);
+          g2.fillStyle = css(c);
+          g2.fillRect(qx + 3, yc + yy, 7, 2);
+        }
+        tx(g2, "màn", qx, yc - sh - 14, C2.mute, { a: "center" });
+        const my = ys(S2.xm);
+        g2.strokeStyle = lcol;
+        g2.lineWidth = 1.4;
+        for (const ssy of [yc - gap / 2, yc + gap / 2]) {
+          g2.beginPath();
+          g2.moveTo(px, ssy);
+          g2.lineTo(qx, my);
+          g2.stroke();
+        }
+        dot(g2, qx, my, 5, C2.red);
+        tx(g2, "M", qx - 10, my - 12, C2.red, { a: "right", w: 700, it: true, s: 15 });
+        dash(g2, px, yc, qx, yc, C2.mute, 1, [3, 4]);
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1;
+        const dy = yc + sh + 12;
+        g2.beginPath();
+        g2.moveTo(px, dy - 4);
+        g2.lineTo(px, dy + 4);
+        g2.moveTo(px, dy);
+        g2.lineTo(qx, dy);
+        g2.moveTo(qx, dy - 4);
+        g2.lineTo(qx, dy + 4);
+        g2.stroke();
+        tx(g2, "D = " + num(D, 1) + " m", (px + qx) / 2, dy, C2.ink, { a: "center", w: 600 });
+        tx(g2, "a", px + 12, yc, C2.ink, { it: true, s: 15, w: 600 });
+        if (!nar) tx(g2, "hình không theo tỉ lệ", W2 - 14, 14, C2.mute, { a: "right" });
+        const bl = 24, bw = W2 - 48, gy0 = Hs + 30, by0 = Math.round(H2 * 0.66), by1 = H2 - 40, gy1 = by0 - 16, XB = (x) => bl + (x + X) / (2 * X) * bw;
+        S2.L = { bl, bw, gy0 };
+        const M = axes(g2, { x: bl, y: gy0, w: bw, h: gy1 - gy0 }, { x0: -X, x1: X, y0: 0, y1: 1.15, yl: "I" });
+        g2.strokeStyle = lcol;
+        g2.lineWidth = 2;
+        g2.beginPath();
+        for (let k = 0; k <= bw; k++) {
+          const x = -X + 2 * X * k / bw, I = this.col(S2, x)[3];
+          k ? g2.lineTo(bl + k, M.Y(I)) : g2.moveTo(bl + k, M.Y(I));
+        }
+        g2.stroke();
+        const key = [bw, lam, a, D, white].join();
+        if (S2.bk !== key) {
+          S2.bk = key;
+          const oc = S2.boff || (S2.boff = document.createElement("canvas"));
+          oc.width = bw;
+          oc.height = 1;
+          const cx = oc.getContext("2d"), im = cx.createImageData(bw, 1);
+          for (let k = 0; k < bw; k++) {
+            const c = this.col(S2, -X + 2 * X * (k + 0.5) / bw);
+            im.data[k * 4] = Math.min(255, 255 * c[0] ** 0.8);
+            im.data[k * 4 + 1] = Math.min(255, 255 * c[1] ** 0.8);
+            im.data[k * 4 + 2] = Math.min(255, 255 * c[2] ** 0.8);
+            im.data[k * 4 + 3] = 255;
+          }
+          cx.putImageData(im, 0, 0);
+        }
+        g2.fillStyle = "#000";
+        g2.fillRect(bl, by0, bw, by1 - by0);
+        g2.imageSmoothingEnabled = true;
+        g2.drawImage(S2.boff, bl, by0, bw, by1 - by0);
+        const ipx = i / (2 * X) * bw;
+        if (!white) {
+          let last2 = -99;
+          const K = Math.floor(X / i);
+          for (let k = -K; k <= K; k++) {
+            const px2 = XB(k * i);
+            if (ipx >= 22 || k === 0) {
+              if (Math.abs(px2 - last2) >= 20) {
+                tx(g2, String(Math.abs(k)), px2, by0 - 8, C2.ink, { a: "center", w: 700 });
+                last2 = px2;
+              }
+            }
+          }
+          if (ipx < 6) tx(g2, "vân rất sít, hãy tăng D hoặc giảm a", W2 / 2, (by0 + by1) / 2, "#fff", { a: "center", w: 600, halo: "#000" });
+        }
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1;
+        g2.beginPath();
+        for (let x = -X; x <= X; x++) {
+          const xx = Math.round(XB(x)) + 0.5;
+          g2.moveTo(xx, by1);
+          g2.lineTo(xx, by1 + (x % 2 ? 4 : 7));
+        }
+        g2.stroke();
+        const stp = nar ? 6 : 2;
+        for (let x = -X; x <= X; x += stp) tx(g2, String(x).replace("-", "−"), XB(x), by1 + 17, C2.mute, { a: "center" });
+        tx(g2, "x (mm)", W2 - 24, by1 + 30, C2.mute, { a: "right" });
+        const xm = XB(S2.xm);
+        dash(g2, xm, gy0 - 6, xm, by1 + 2, C2.red, 1.6, [4, 3]);
+        tx(g2, "M", xm + 6, gy0, C2.red, { w: 700, it: true, s: 15 });
+        badge(g2, ["i = λD/a = " + num(i, 2) + " mm"], 8, 8);
+      },
+      info: {
+        what: ["Chiếu ánh sáng đơn sắc qua hai khe hẹp S₁, S₂ rất gần nhau, trên màn xuất hiện các vạch sáng và tối xen kẽ, cách đều nhau. Hai sóng ánh sáng từ hai khe gặp nhau và giao thoa giống hệt sóng nước: đây là bằng chứng ánh sáng có tính chất sóng.", "Với ánh sáng trắng, mỗi màu cho một hệ vân với khoảng vân riêng. Tại tâm mọi màu đều sáng nên vân trung tâm màu trắng; ra hai bên các hệ vân lệch nhau thành những dải màu, tím ở trong, đỏ ở ngoài."],
+        f: [["i = λD/a", "Khoảng vân: khoảng cách giữa hai vân sáng (hoặc tối) liên tiếp"], ["Vân sáng: x = k·i", "δ = kλ; k = 0 là vân trung tâm"], ["Vân tối: x = (k + ½)·i", "δ = (k + ½)λ"], ["δ = d₂ − d₁ = a·x/D", "Hiệu đường đi từ hai khe tới điểm M"]],
+        q: [["Chuyển từ ánh sáng đỏ (700 nm) sang tím (400 nm), khoảng vân thay đổi thế nào?", "Giảm, vì i tỉ lệ thuận với λ. Ánh sáng tím cho vân sít hơn."], ["Muốn vân thưa hơn, nên tăng hay giảm a? Tăng hay giảm D?", "Giảm a hoặc tăng D, vì i = λD/a."], ["Với λ = 600 nm, a = 0,5 mm, D = 1,5 m: vân sáng bậc 3 cách vân trung tâm bao xa?", "i = 1,8 mm nên x = 3i = 5,4 mm. Kéo điểm M tới đó để kiểm tra."]]
+      }
+    });
+    def({
+      id: "song-dung",
+      ch: 1,
+      name: "Sóng dừng trên dây",
+      topic: "Sóng dừng, nút sóng, bụng sóng và điều kiện có sóng dừng",
+      r: 0.58,
+      rm: 0.95,
+      ctl: [
+        { t: "s", id: "end", l: "Đầu dây bên phải", o: [["ff", "Cố định (hai đầu cố định)"], ["fr", "Tự do (một đầu cố định, một đầu tự do)"]], v: "ff" },
+        { t: "r", id: "n", l: "Số bụng sóng", min: 1, max: 8, st: 1, v: 3, d: 0 },
+        { t: "r", id: "L", l: "Chiều dài dây l", min: 0.5, max: 2, st: 0.05, v: 1.2, u: "m", d: 2 },
+        { t: "r", id: "v", l: "Tốc độ truyền sóng trên dây v", min: 2, max: 20, st: 0.5, v: 8, u: "m/s", d: 1 },
+        { t: "c", id: "parts", l: "Hiện sóng tới và sóng phản xạ", v: false }
+      ],
+      init(S2) {
+        S2.t = 0;
+      },
+      step(S2, dt) {
+        S2.t += dt;
+      },
+      lam(S2) {
+        const { end, n, L } = S2.p;
+        return end === "ff" ? 2 * L / n : 4 * L / (2 * n - 1);
+      },
+      reads(S2) {
+        const { end, n, v } = S2.p, l = this.lam(S2);
+        return [["Bước sóng λ", num(l, 3) + " m"], ["Tần số cần có f = v/λ", num(v / l, 2) + " Hz"], ["Số nút sóng", String(end === "ff" ? n + 1 : n)], ["Số bụng sóng", String(n)], ["Hai nút liên tiếp cách nhau λ/2", num(l / 2, 3) + " m"], ["Nút và bụng gần nhất cách λ/4", num(l / 4, 3) + " m"]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { end, n, L, parts } = S2.p, nar = W2 < 560, lam = this.lam(S2), x0 = nar ? 54 : 84, x1 = W2 - (nar ? 28 : 46), Lp = x1 - x0, sc = Lp / L, lp = lam * sc, k = TAU / lp, yc = Math.round(H2 * 0.48), A2 = Math.min(H2 * 0.17, 60), Am = A2 / 2, ct = Math.cos(TAU * 0.7 * S2.t), st = Math.sin(TAU * 0.7 * S2.t);
+        g2.fillStyle = C2.metal;
+        g2.fillRect(x0 - (nar ? 44 : 68), yc - 18, nar ? 34 : 52, 36);
+        tx(g2, nar ? "rung" : "máy rung", x0 - (nar ? 27 : 42), yc, C2.ink, { a: "center", w: 600, s: 13, halo: false });
+        g2.fillStyle = C2.metal2;
+        g2.fillRect(x0 - 10, yc - 2, 10, 4);
+        if (end === "ff") {
+          g2.fillStyle = C2.metal2;
+          g2.fillRect(x1, yc - 34, 8, 68);
+        } else {
+          g2.fillStyle = C2.metal;
+          g2.fillRect(x1 + 6, yc - A2 - 24, 5, 2 * A2 + 48);
+          const ye = yc + 2 * Am * ct * Math.sin(k * Lp) * -1;
+          g2.strokeStyle = C2.ink;
+          g2.lineWidth = 2;
+          g2.beginPath();
+          g2.ellipse(x1 + 8.5, ye, 8, 4, 0, 0, TAU);
+          g2.stroke();
+        }
+        g2.setLineDash([5, 4]);
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1.2;
+        for (const sg of [1, -1]) {
+          g2.beginPath();
+          for (let i = 0; i <= 200; i++) {
+            const x = Lp * i / 200, y = yc + sg * A2 * Math.abs(Math.sin(k * x));
+            i ? g2.lineTo(x0 + x, y) : g2.moveTo(x0 + x, y);
+          }
+          g2.stroke();
+        }
+        g2.setLineDash([]);
+        if (parts) {
+          for (const [f, col] of [[(x) => Am * Math.sin(TAU * 0.7 * S2.t - k * x), C2.orange], [(x) => -Am * Math.sin(TAU * 0.7 * S2.t + k * x), C2.teal]]) {
+            g2.strokeStyle = col;
+            g2.lineWidth = 1.5;
+            g2.beginPath();
+            for (let i = 0; i <= 240; i++) {
+              const x = Lp * i / 240, y = yc - f(x);
+              i ? g2.lineTo(x0 + x, y) : g2.moveTo(x0 + x, y);
+            }
+            g2.stroke();
+          }
+          tx(g2, "sóng tới →", x0 + 6, yc - A2 - 30, C2.orange, { w: 600 });
+          tx(g2, "← sóng phản xạ", x1 - 6, yc - A2 - 30, C2.teal, { a: "right", w: 600 });
+        }
+        g2.strokeStyle = C2.pen;
+        g2.lineWidth = 3;
+        g2.beginPath();
+        for (let i = 0; i <= 300; i++) {
+          const x = Lp * i / 300, y = yc + 2 * Am * ct * Math.sin(k * x);
+          i ? g2.lineTo(x0 + x, y) : g2.moveTo(x0 + x, y);
+        }
+        g2.stroke();
+        const nodes = [], anti = [];
+        for (let m = 0; m <= 20; m++) {
+          const xn = m * lp / 2;
+          if (xn <= Lp + 0.5) nodes.push(xn);
+          const xa = (m + 0.5) * lp / 2;
+          if (xa <= Lp + 0.5) anti.push(xa);
+        }
+        nodes.forEach((x) => {
+          dot(g2, x0 + x, yc, 5, C2.red, true);
+          tx(g2, "N", x0 + x, yc + A2 + 18, C2.red, { a: "center", w: 700 });
+        });
+        anti.forEach((x) => tx(g2, "B", x0 + x, yc - A2 - 12, C2.teal, { a: "center", w: 700 }));
+        if (nodes.length >= 2) {
+          const a = x0 + nodes[0], b = x0 + nodes[1], yb = yc + A2 + 36;
+          g2.strokeStyle = C2.ink;
+          g2.lineWidth = 1.2;
+          g2.beginPath();
+          g2.moveTo(a, yb - 5);
+          g2.lineTo(a, yb);
+          g2.lineTo(b, yb);
+          g2.lineTo(b, yb - 5);
+          g2.stroke();
+          tx(g2, "λ/2 = " + num(lam / 2, 2) + " m", (a + b) / 2, yb + 13, C2.ink, { a: "center", w: 600 });
+        }
+        tx(g2, "N: nút sóng", 14, H2 - 30, C2.red, { w: 600 });
+        tx(g2, "B: bụng sóng", 14, H2 - 12, C2.teal, { w: 600 });
+        badge(g2, [end === "ff" ? "l = n·λ/2" : "l = (2n − 1)·λ/4", "f = " + num(S2.p.v / lam, 2) + " Hz"], W2 - 10, 10, "right");
+      },
+      info: {
+        what: ["Sóng truyền trên dây gặp đầu dây sẽ bị phản xạ. Sóng tới và sóng phản xạ cùng tần số nên giao thoa với nhau, tạo ra những điểm luôn đứng yên (nút) và những điểm dao động mạnh nhất (bụng) ở các vị trí cố định. Hình dạng sợi dây không còn chạy đi: đó là sóng dừng.", "Sóng dừng chỉ xuất hiện khi chiều dài dây thỏa mãn điều kiện về bước sóng. Đầu cố định luôn là nút, đầu tự do luôn là bụng."],
+        f: [["Hai đầu cố định: l = n·λ/2", "n là số bụng sóng (n = 1, 2, 3…); số nút là n + 1"], ["Một đầu cố định, một đầu tự do: l = (2n − 1)·λ/4", "Số nút bằng số bụng bằng n"], ["Hai nút (hoặc hai bụng) liên tiếp: λ/2", "Nút và bụng gần nhau nhất: λ/4"]],
+        q: [["Dây dài 1,2 m, hai đầu cố định, có 3 bụng sóng. Bước sóng là bao nhiêu?", "λ = 2l/n = 2·1,2/3 = 0,8 m. Đặt các thanh trượt như vậy để kiểm tra."], ['Bật "sóng tới và sóng phản xạ". Tại một nút, hai sóng ấy như thế nào?', "Luôn ngược pha nhau nên triệt tiêu, nút đứng yên. Tại bụng, chúng luôn cùng pha nên tăng cường."], ["Đầu tự do của dây là nút hay bụng?", "Bụng: vòng nhỏ ở đầu tự do trượt lên xuống mạnh nhất."]]
+      }
+    });
+    def({
+      id: "song-dien-tu",
+      ch: 1,
+      name: "Sóng điện từ",
+      topic: "Sóng điện từ và thang sóng điện từ",
+      r: 0.62,
+      rm: 1.15,
+      ctl: [
+        { t: "r", id: "lg", l: "Bước sóng λ", min: -12, max: 3, st: 0.05, v: -6.3, fmt: (v) => si(10 ** v, "m") },
+        { t: "c", id: "vec", l: "Hiện vectơ E và B dọc phương truyền", v: true }
+      ],
+      init(S2) {
+        S2.t = 0;
+      },
+      step(S2, dt) {
+        S2.t += dt;
+      },
+      RG: [[-99, -11, "Tia gamma", "γ", "Phát ra từ hạt nhân phóng xạ; dùng trong xạ trị ung thư, khử trùng dụng cụ y tế.", "#7a4ab8"], [-11, -8, "Tia X", "X", "Chụp X-quang, chiếu chụp hành lí ở sân bay.", "#9566d1"], [-8, Math.log10(38e-8), "Tia tử ngoại", "UV", "Có trong ánh nắng, gây rám da; dùng để khử trùng nước, soi tiền giả.", "#b48ae8"], [Math.log10(38e-8), Math.log10(76e-8), "Ánh sáng nhìn thấy", "", " Mắt người cảm nhận được, từ tím (≈ 380 nm) đến đỏ (≈ 760 nm).", ""], [Math.log10(76e-8), -3, "Tia hồng ngoại", "Hồng ngoại", "Điều khiển từ xa, camera nhiệt, máy sưởi.", "#d9544a"], [-3, 0, "Vi ba (sóng vô tuyến cực ngắn)", "Vi ba", "Lò vi sóng, Wi-Fi, điện thoại di động, ra-đa.", "#e08a2a"], [0, 99, "Sóng vô tuyến", "Vô tuyến", "Phát thanh, truyền hình.", "#c9a227"]],
+      rg(S2) {
+        return this.RG.find((r) => S2.p.lg >= r[0] && S2.p.lg < r[1]) || this.RG[6];
+      },
+      reads(S2) {
+        const l = 10 ** S2.p.lg, r = this.rg(S2);
+        return [["Bước sóng λ", si(l, "m")], ["Tần số f = c/λ", nf(3e8 / l, 3) + " Hz"], ["Thuộc vùng", r[2]], ["Ứng dụng", r[4].trim(), 1]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { lg, vec } = S2.p, nar = W2 < 560, Hs = Math.round(H2 * 0.55), x0 = nar ? 30 : 50, x1 = W2 - (nar ? 30 : 50), y0 = Math.round(Hs * 0.52), Ae = Hs * 0.33, Lv = Math.max(120, (x1 - x0) / 2.6), kk = TAU / Lv, ph = TAU * 0.5 * S2.t, zx = -0.34, zy = 0.5, Ab = Ae * 0.72;
+        dash(g2, x0, y0, x1, y0, C2.mute, 1, []);
+        arrow(g2, x1 - 30, y0, x1 + 18, y0, C2.ink, 2, 9);
+        tx(g2, "c", x1 + 8, y0 - 14, C2.ink, { it: true, s: 16, w: 600 });
+        arrow(g2, x0, y0, x0, y0 - Ae - 16, C2.mute, 1.2, 7);
+        arrow(g2, x0, y0, x0 + zx * (Ab + 20), y0 + zy * (Ab + 20), C2.mute, 1.2, 7);
+        const E = (x) => Ae * Math.cos(kk * (x - x0) - ph), B = (x) => Ab * Math.cos(kk * (x - x0) - ph);
+        if (vec) {
+          for (let x = x0 + 6; x < x1 - 20; x += nar ? 10 : 12) {
+            const e = E(x), b = B(x);
+            g2.strokeStyle = css(C2.dark ? [1, 0.46, 0.4] : [0.85, 0.18, 0.13], 0.55);
+            g2.lineWidth = 1.2;
+            g2.beginPath();
+            g2.moveTo(x, y0);
+            g2.lineTo(x, y0 - e);
+            g2.stroke();
+            g2.strokeStyle = css(C2.dark ? [0.55, 0.6, 1] : [0.14, 0.22, 0.79], 0.5);
+            g2.beginPath();
+            g2.moveTo(x, y0);
+            g2.lineTo(x + zx * b, y0 + zy * b);
+            g2.stroke();
+          }
+        }
+        g2.lineWidth = 2.6;
+        g2.strokeStyle = C2.red;
+        g2.beginPath();
+        for (let x = x0; x <= x1 - 20; x += 2) {
+          const y = y0 - E(x);
+          x === x0 ? g2.moveTo(x, y) : g2.lineTo(x, y);
+        }
+        g2.stroke();
+        g2.strokeStyle = C2.pen;
+        g2.beginPath();
+        for (let x = x0; x <= x1 - 20; x += 2) {
+          const b = B(x);
+          x === x0 ? g2.moveTo(x + zx * b, y0 + zy * b) : g2.lineTo(x + zx * b, y0 + zy * b);
+        }
+        g2.stroke();
+        tx(g2, "E", x0 + 10, y0 - Ae - 12, C2.red, { it: true, s: 17, w: 600 });
+        tx(g2, "B", Math.max(8, x0 + zx * (Ab + 20)) + 12, y0 + zy * (Ab + 20) + 4, C2.pen, { it: true, s: 17, w: 600 });
+        if (!nar) tx(g2, "hình vẽ không theo tỉ lệ bước sóng", W2 - 14, 14, C2.mute, { a: "right" });
+        const r = this.rg(S2), by = Hs + 40, bh = 24, bl = 24, bw = W2 - 48, LX = (v) => bl + (v + 13) / 17 * bw;
+        for (const q of this.RG) {
+          const a = LX(Math.max(-13, q[0])), b = LX(Math.min(4, q[1]));
+          if (q[5]) {
+            g2.fillStyle = q[5];
+            g2.fillRect(a, by, b - a, bh);
+          } else {
+            const gr2 = g2.createLinearGradient(a, 0, b, 0);
+            for (let l = 380; l <= 760; l += 40) gr2.addColorStop((l - 380) / 380, css(wl2rgb(l)));
+            g2.fillStyle = gr2;
+            g2.fillRect(a, by, Math.max(2, b - a), bh);
+          }
+        }
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 1;
+        g2.strokeRect(bl + 0.5, by + 0.5, bw - 1, bh - 1);
+        for (const q of this.RG) {
+          if (!q[3]) continue;
+          const a = LX(Math.max(-13, q[0])), b = LX(Math.min(4, q[1])), lab = nar && q[3].length > 4 ? q[3].slice(0, 4) + "." : q[3];
+          if (b - a > 28) tx(g2, lab, (a + b) / 2, by + bh / 2, "#fff", { a: "center", w: 700, halo: "rgba(0,0,0,.35)" });
+        }
+        const va = LX(Math.log10(38e-8)), vb = LX(Math.log10(76e-8));
+        g2.strokeStyle = C2.mute;
+        g2.beginPath();
+        g2.moveTo((va + vb) / 2, by);
+        g2.lineTo((va + vb) / 2, by - 16);
+        g2.stroke();
+        tx(g2, "nhìn thấy", (va + vb) / 2, by - 25, C2.mute, { a: "center" });
+        for (let e = -12; e <= 3; e += nar ? 5 : 3) {
+          const x = LX(e);
+          g2.strokeStyle = C2.mute;
+          g2.beginPath();
+          g2.moveTo(x, by + bh);
+          g2.lineTo(x, by + bh + 5);
+          g2.stroke();
+          tx(g2, "10" + String(e).split("").map((c) => SUPD[c]).join("") + " m", x, by + bh + 16, C2.mute, { a: "center" });
+        }
+        const mx = LX(lg);
+        g2.fillStyle = C2.ink;
+        g2.beginPath();
+        g2.moveTo(mx, by - 2);
+        g2.lineTo(mx - 7, by - 14);
+        g2.lineTo(mx + 7, by - 14);
+        g2.fill();
+        dash(g2, mx, by, mx, by + bh, C2.ink, 2, []);
+        const iy = by + bh + 44, il = W2 * (nar ? 0.2 : 0.25), iw2 = W2 * (nar ? 0.6 : 0.5);
+        tx(g2, "vùng nhìn thấy, phóng to", il + iw2 / 2, iy + 28, C2.mute, { a: "center" });
+        const gr = g2.createLinearGradient(il, 0, il + iw2, 0);
+        for (let l = 380; l <= 760; l += 20) gr.addColorStop((l - 380) / 380, css(wl2rgb(l)));
+        g2.fillStyle = gr;
+        g2.fillRect(il, iy, iw2, 14);
+        tx(g2, "380 nm", il - 6, iy + 7, C2.mute, { a: "right" });
+        tx(g2, "760 nm", il + iw2 + 6, iy + 7, C2.mute);
+        const ln = 10 ** lg * 1e9;
+        if (ln >= 380 && ln <= 760) {
+          const ix = il + (ln - 380) / 380 * iw2;
+          g2.fillStyle = C2.ink;
+          g2.beginPath();
+          g2.moveTo(ix, iy - 1);
+          g2.lineTo(ix - 6, iy - 11);
+          g2.lineTo(ix + 6, iy - 11);
+          g2.fill();
+        }
+        badge(g2, [r[2], "f = " + nf(3e8 / 10 ** lg, 3) + " Hz"], W2 - 10, nar ? 8 : Hs - 30, "right");
+      },
+      info: {
+        what: ["Sóng điện từ là điện trường và từ trường biến thiên lan truyền trong không gian. Tại mỗi điểm, vectơ E và vectơ B luôn vuông góc với nhau và vuông góc với phương truyền, nên sóng điện từ là sóng ngang; E và B dao động cùng pha.", "Sóng điện từ truyền được cả trong chân không với tốc độ c ≈ 3·10⁸ m/s. Sóng vô tuyến, tia hồng ngoại, ánh sáng, tia tử ngoại, tia X và tia gamma có cùng bản chất, chỉ khác nhau bước sóng. Ranh giới giữa các vùng chỉ là gần đúng."],
+        f: [["c = λ·f ≈ 3·10⁸ m/s", "Tốc độ của sóng điện từ trong chân không"], ["E ⊥ B ⊥ phương truyền", "Sóng điện từ là sóng ngang"], ["380 nm ≤ λ ≤ 760 nm", "Vùng ánh sáng nhìn thấy (gần đúng)"]],
+        q: [["Wi-Fi dùng sóng tần số 2,4 GHz. Bước sóng bao nhiêu, thuộc vùng nào?", "λ = c/f = 3·10⁸/(2,4·10⁹) ≈ 0,125 m = 12,5 cm, thuộc vùng vi ba. Kéo thanh trượt tới khoảng 12,6 cm để xem."], ["Ánh sáng nhìn thấy chiếm bao nhiêu trên thang sóng điện từ?", "Chỉ một dải rất hẹp, từ khoảng 380 nm đến 760 nm, trong khi cả thang trải hơn 15 bậc độ lớn."], ["Tia X khác ánh sáng nhìn thấy ở điểm nào?", "Cùng là sóng điện từ, nhưng bước sóng ngắn hơn hàng nghìn lần nên có khả năng đâm xuyên mạnh."]]
+      }
+    });
+    const qfmt = (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + num(Math.abs(v), 1) + " µC";
+    def({
+      id: "coulomb",
+      ch: 2,
+      name: "Định luật Coulomb",
+      topic: "Lực tương tác giữa hai điện tích điểm",
+      r: 0.74,
+      rm: 1.1,
+      hint: "Kéo quả cầu q₂ sang trái hoặc phải để thay đổi khoảng cách r.",
+      ctl: [
+        { t: "r", id: "q1", l: "Điện tích q₁", min: -10, max: 10, st: 0.5, v: 4, fmt: qfmt },
+        { t: "r", id: "q2", l: "Điện tích q₂", min: -10, max: 10, st: 0.5, v: -3, fmt: qfmt },
+        { t: "r", id: "r", l: "Khoảng cách r", min: 2, max: 30, st: 0.5, v: 10, u: "cm", d: 1 },
+        { t: "s", id: "eps", l: "Môi trường", o: [[1, "Chân không, không khí (ε ≈ 1)"], [2.1, "Dầu hỏa (ε ≈ 2,1)"], [6, "Thủy tinh (ε ≈ 6)"], [81, "Nước nguyên chất (ε ≈ 81)"]], v: 1, num: 1 }
+      ],
+      init(S2) {
+      },
+      F(S2, r) {
+        const { q1, q2, eps } = S2.p;
+        return 9e9 * Math.abs(q1 * q2) * 1e-12 / (eps * (r / 100) ** 2);
+      },
+      lay(S2) {
+        const nar = S2.W < 560, X1 = Math.round(S2.W * (nar ? 0.18 : 0.2)), s = (S2.W - X1 - (nar ? 70 : 110)) / 30;
+        return { X1, s, X2: X1 + S2.p.r * s };
+      },
+      ptr(tp, x, y, S2) {
+        if (tp === "up") {
+          S2.dg = 0;
+          return;
+        }
+        const L = this.lay(S2);
+        if (tp === "down") {
+          if (Math.abs(x - L.X2) > 32 || Math.abs(y - S2.yc) > 40) return false;
+          S2.dg = 1;
+        }
+        if (S2.dg) setP("r", Math.round(cl((x - L.X1) / L.s, 2, 30) * 2) / 2);
+      },
+      reads(S2) {
+        const { q1, q2, r } = S2.p, F = this.F(S2, r), t = q1 * q2;
+        return [["Độ lớn lực F", nf(F, 3) + " N"], ["Loại tương tác", t > 0 ? "đẩy nhau (cùng dấu)" : t < 0 ? "hút nhau (trái dấu)" : "không có lực (một điện tích bằng 0)"], ["F₁₂ (q₁ tác dụng lên q₂)", nf(F, 3) + " N"], ["F₂₁ (q₂ tác dụng lên q₁)", nf(F, 3) + " N"], ["Nếu r giảm một nửa", nf(4 * F, 3) + " N"]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { q1, q2, r, eps } = S2.p, nar = W2 < 560, L = this.lay(S2), Ht = Math.round(H2 * 0.54), yc = Math.round(Ht * 0.56);
+        S2.yc = yc;
+        const F = this.F(S2, r), t = q1 * q2;
+        if (eps > 1) {
+          const md = { 2.1: ["Dầu hỏa", "rgba(232,180,60,.16)"], 6: ["Thủy tinh", "rgba(80,180,200,.14)"], 81: ["Nước", "rgba(60,140,220,.16)"] }[eps];
+          g2.fillStyle = md[1];
+          g2.fillRect(8, 8, W2 - 16, Ht - 16);
+          tx(g2, "Môi trường: " + md[0].toLowerCase(), 16, 22, C2.mute, { w: 600 });
+        }
+        const R = (q) => q === 0 ? 7 : (nar ? 9 : 11) + (nar ? 9 : 14) * Math.cbrt(Math.abs(q) / 10), gap = L.X2 - L.X1, R1 = Math.min(R(q1), gap / 2 - 2), R2 = Math.min(R(q2), gap / 2 - 2);
+        const Lf = F > 0 ? cl(16 + 22 * (Math.log10(F) + 4), 12, nar ? 90 : 150) : 0;
+        if (Lf > 0) {
+          let a1, a2;
+          if (t > 0) {
+            a1 = Math.min(Lf, L.X1 - R1 - 10);
+            a2 = Math.min(Lf, W2 - L.X2 - R2 - 14);
+            arrow(g2, L.X1 - R1, yc, L.X1 - R1 - a1, yc, C2.orange, 3, 10);
+            arrow(g2, L.X2 + R2, yc, L.X2 + R2 + a2, yc, C2.orange, 3, 10);
+            tx(g2, "F₂₁", L.X1 - R1 - a1 / 2, yc - 16, C2.orange, { a: "center", it: true, s: 15, w: 600 });
+            tx(g2, "F₁₂", L.X2 + R2 + a2 / 2, yc - 16, C2.orange, { a: "center", it: true, s: 15, w: 600 });
+          } else {
+            const cap = Math.max(6, gap / 2 - 4);
+            a1 = Math.min(Lf, cap);
+            a2 = a1;
+            arrow(g2, L.X1, yc, L.X1 + a1, yc, C2.orange, 3, 10);
+            arrow(g2, L.X2, yc, L.X2 - a2, yc, C2.orange, 3, 10);
+            tx(g2, "F₂₁", L.X1 + Math.max(a1, R1) / 2 + 4, yc - Math.max(R1, R2) - 14, C2.orange, { a: "center", it: true, s: 15, w: 600 });
+            tx(g2, "F₁₂", L.X2 - Math.max(a2, R2) / 2 - 4, yc - Math.max(R1, R2) - 14, C2.orange, { a: "center", it: true, s: 15, w: 600 });
+          }
+        }
+        for (const [x, q, Rq, lab] of [[L.X1, q1, R1, "q₁"], [L.X2, q2, R2, "q₂"]]) {
+          const col = q > 0 ? C2.pos : q < 0 ? C2.neg : C2.metal2, gd = g2.createRadialGradient(x - Rq * 0.35, yc - Rq * 0.35, 1, x, yc, Rq);
+          gd.addColorStop(0, "rgba(255,255,255,.75)");
+          gd.addColorStop(0.35, col);
+          gd.addColorStop(1, col);
+          g2.globalAlpha = t < 0 && Lf > 0 && lab === "q₂" ? 0.92 : 1;
+          g2.fillStyle = gd;
+          g2.beginPath();
+          g2.arc(x, yc, Rq, 0, TAU);
+          g2.fill();
+          g2.globalAlpha = 1;
+          if (Rq > 7) tx(g2, q > 0 ? "+" : q < 0 ? "−" : "0", x, yc + 1, "#fff", { a: "center", w: 800, s: Math.min(18, Rq + 4), halo: false });
+          tx(g2, gap < 130 ? lab : lab + " = " + qfmt(q), x, yc - Math.max(R1, R2) - (t < 0 && Lf > 0 ? 34 : 16), C2.ink, { a: "center", w: 600, it: gap < 130, s: gap < 130 ? 16 : 13 });
+        }
+        const yb = yc + Math.max(R1, R2) + 20;
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 1.2;
+        g2.beginPath();
+        g2.moveTo(L.X1, yb - 5);
+        g2.lineTo(L.X1, yb);
+        g2.lineTo(L.X2, yb);
+        g2.lineTo(L.X2, yb - 5);
+        g2.stroke();
+        tx(g2, "r = " + num(r, 1) + " cm", (L.X1 + L.X2) / 2, yb + 13, C2.ink, { a: "center", w: 600 });
+        tx(g2, "F = " + nf(F, 3) + " N", W2 - 14, Ht - 34, C2.ink, { a: "right", w: 800, s: nar ? 18 : 22 });
+        tx(g2, t > 0 ? "lực đẩy" : t < 0 ? "lực hút" : "không tương tác", W2 - 14, Ht - 12, C2.orange, { a: "right", w: 600 });
+        if (!nar) tx(g2, "độ dài mũi tên theo thang logarit", 16, Ht - 12, C2.mute);
+        const r0 = Math.max(2, r / 2), ym = this.F(S2, r0) * 1.18 || 1, gr = { x: nar ? 44 : 60, y: Ht + 24, w: W2 - (nar ? 44 : 60) - 28, h: H2 - Ht - 24 - 34 }, M = axes(g2, gr, { x0: 0, x1: 30, y0: 0, y1: ym, xt: [5, 10, 15, 20, 25, 30].map((v) => [v, String(v)]), yt: [[ym / 2, nf(ym / 2, 2)], [ym, ""]], xl: "r (cm)", yl: "F (N)" });
+        plot(g2, M, (x) => this.F(S2, x), 2, 30, C2.pen, 2.2, 300);
+        const pts = [[r / 2, "4F"], [r, "F"], [2 * r, "F/4"]];
+        for (const [x, l] of pts) {
+          if (x < 2 || x > 30) continue;
+          const y = M.Y(Math.min(ym, this.F(S2, x)));
+          dot(g2, M.X(x), y, l === "F" ? 6 : 4.5, l === "F" ? C2.red : C2.pen, l !== "F");
+          tx(g2, l, M.X(x) + 9, y - 11, l === "F" ? C2.red : C2.pen, { w: 700, it: true });
+        }
+      },
+      info: {
+        what: ["Hai điện tích điểm đặt gần nhau sẽ hút nhau nếu trái dấu và đẩy nhau nếu cùng dấu. Lực tương tác có phương nằm trên đường thẳng nối hai điện tích.", "Độ lớn lực tỉ lệ thuận với tích độ lớn hai điện tích và tỉ lệ nghịch với bình phương khoảng cách giữa chúng. Trong điện môi đồng chất, lực giảm đi ε lần so với trong chân không. Hai lực F₁₂ và F₂₁ luôn cùng độ lớn, ngược chiều (định luật III Newton)."],
+        f: [["F = k·|q₁q₂| / (ε·r²)", "Định luật Coulomb"], ["k = 9·10⁹ N·m²/C²", "Hằng số điện"], ["1 µC = 10⁻⁶ C", "Nhớ đổi r sang mét khi tính"]],
+        q: [["Giảm khoảng cách r đi một nửa, lực thay đổi thế nào?", "Tăng 4 lần, vì F tỉ lệ nghịch với r². Trên đồ thị, điểm 4F ứng với r/2."], ["q₁ = 8 µC, q₂ = −2 µC: lực q₁ tác dụng lên q₂ có lớn hơn lực q₂ tác dụng lên q₁ không?", "Không. Hai lực luôn bằng nhau về độ lớn dù hai điện tích khác nhau."], ["Đặt hai điện tích trong nước nguyên chất, lực thay đổi ra sao?", "Giảm khoảng 81 lần so với trong không khí."]]
+      }
+    });
+    const PRESET = { "one+": [[0, 0, 1]], "one-": [[0, 0, -1]], dip: [[-4, 0, 1], [4, 0, -1]], same: [[-4, 0, 1], [4, 0, 1]], uneq: [[-4, 0, 2], [4, 0, -1]] };
+    def({
+      id: "duong-suc",
+      ch: 2,
+      name: "Điện trường và đường sức",
+      topic: "Cường độ điện trường, đường sức điện, điện thế",
+      r: 0.66,
+      rm: 1,
+      hint: "Kéo các điện tích hoặc điểm thử P. Thêm điện tích bằng các nút trong bảng.",
+      ctl: [
+        { t: "s", id: "pre", l: "Cấu hình", o: [["one+", "Một điện tích dương"], ["one-", "Một điện tích âm"], ["dip", "Hai điện tích trái dấu"], ["same", "Hai điện tích cùng dấu"], ["uneq", "Điện tích +2q và −q"]], v: "dip" },
+        { t: "c", id: "lines", l: "Đường sức điện", v: true },
+        { t: "c", id: "vec", l: "Vectơ cường độ điện trường", v: false },
+        { t: "c", id: "pot", l: "Tô màu điện thế", v: false },
+        { t: "b", id: "addp", l: "Thêm điện tích +" },
+        { t: "b", id: "addn", l: "Thêm điện tích −" },
+        { t: "b", id: "clr", l: "Xóa hết" }
+      ],
+      init(S2) {
+        S2.Q = PRESET[S2.p.pre].map(([x, y, q]) => ({ x, y, q }));
+        S2.P = { x: 0, y: -4 };
+        S2.key = null;
+        S2.pk = null;
+      },
+      chg(S2, id) {
+        if (id === "pre") this.init(S2);
+      },
+      act(S2, id) {
+        if (id === "clr") {
+          S2.Q = [];
+        } else if (S2.Q.length < 6) {
+          const sp = [[0, 4], [-6, -4], [6, 4], [0, -6], [-7, 5], [7, -5]];
+          const p = sp.find(([x, y]) => !S2.Q.some((c) => Math.hypot(c.x - x, c.y - y) < 2)) || [0, 0];
+          S2.Q.push({ x: p[0], y: p[1], q: id === "addp" ? 1 : -1 });
+        }
+        S2.key = null;
+        S2.pk = null;
+      },
+      sc(S2) {
+        return S2.W / 20;
+      },
+      ptr(tp, x, y, S2) {
+        const s = this.sc(S2), cx = S2.W / 2, cy = S2.H / 2, X = (x - cx) / s, Y = (y - cy) / s;
+        if (tp === "up") {
+          S2.dg = null;
+          return;
+        }
+        if (tp === "down") {
+          S2.dg = null;
+          for (const c of S2.Q) if (Math.hypot(c.x - X, c.y - Y) * s < 20) {
+            S2.dg = c;
+            break;
+          }
+          if (!S2.dg) S2.dg = S2.P;
+        }
+        if (S2.dg) {
+          S2.dg.x = cl(X, -cx / s + 0.6, cx / s - 0.6);
+          S2.dg.y = cl(Y, -cy / s + 0.6, cy / s - 0.6);
+          if (S2.dg !== S2.P) {
+            S2.key = null;
+            S2.pk = null;
+          }
+        }
+      },
+      Ei(S2, x, y) {
+        let ex = 0, ey = 0, V = 0;
+        for (const c of S2.Q) {
+          const dx = (x - c.x) / 100, dy = (y - c.y) / 100, r2 = dx * dx + dy * dy, r = Math.sqrt(r2);
+          if (r < 1e-4) continue;
+          const k = 9e9 * c.q * 1e-9 / (r2 * r);
+          ex += k * dx;
+          ey += k * dy;
+          V += 9e9 * c.q * 1e-9 / r;
+        }
+        return [ex, ey, V];
+      },
+      reads(S2) {
+        const [ex, ey, V] = this.Ei(S2, S2.P.x, S2.P.y), E = Math.hypot(ex, ey);
+        return [["Số điện tích", String(S2.Q.length)], ["Độ lớn mỗi điện tích", "q = 1 nC (+2q = 2 nC)"], ["Tại P: cường độ E", nf(E, 3) + " V/m"], ["Tại P: điện thế V", nf(V, 3) + " V"], ["Hướng của E tại P", E ? num(Math.atan2(-ey, ex) / DEG, 0) + "° so với trục ngang" : "—"]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { lines, vec, pot } = S2.p, s = this.sc(S2), cx = W2 / 2, cy = H2 / 2, PX = (c) => [cx + c.x * s, cy + c.y * s], Qp = S2.Q.map((c) => {
+          const [x, y] = PX(c);
+          return { x, y, q: c.q };
+        });
+        const Ep = (x, y) => {
+          let ex2 = 0, ey2 = 0;
+          for (const c of Qp) {
+            const dx = x - c.x, dy = y - c.y, r2 = dx * dx + dy * dy;
+            if (r2 < 1) continue;
+            const k = c.q / (r2 * Math.sqrt(r2));
+            ex2 += k * dx;
+            ey2 += k * dy;
+          }
+          return [ex2, ey2];
+        };
+        if (pot && Qp.length) {
+          const pk = [W2, H2, C2.dark, JSON.stringify(S2.Q)].join();
+          if (S2.pk !== pk) {
+            S2.pk = pk;
+            const cs = 4, cw = Math.ceil(W2 / cs), ch = Math.ceil(H2 / cs), oc = S2.po || (S2.po = document.createElement("canvas"));
+            oc.width = cw;
+            oc.height = ch;
+            const x2 = oc.getContext("2d"), im = x2.createImageData(cw, ch), pr = C2.dark ? [255, 117, 102] : [217, 45, 32], nr = C2.dark ? [125, 143, 255] : [35, 56, 201];
+            for (let j = 0; j < ch; j++) for (let i = 0; i < cw; i++) {
+              let V = 0;
+              const X = (i + 0.5) * cs, Y = (j + 0.5) * cs;
+              for (const c2 of Qp) {
+                V += c2.q / Math.max(4, Math.hypot(X - c2.x, Y - c2.y));
+              }
+              V *= s * 1.2;
+              const lv = Math.floor(Math.asinh(V) * 3), al = Math.min(0.55, 0.08 + 0.5 * Math.abs(Math.tanh(V / 3))) * (lv % 2 ? 0.72 : 1), c = V >= 0 ? pr : nr, p = (j * cw + i) * 4;
+              im.data[p] = c[0];
+              im.data[p + 1] = c[1];
+              im.data[p + 2] = c[2];
+              im.data[p + 3] = Math.round(al * 255);
+            }
+            x2.putImageData(im, 0, 0);
+          }
+          g2.imageSmoothingEnabled = true;
+          g2.drawImage(S2.po, 0, 0, S2.po.width * 4, S2.po.height * 4);
+        }
+        if (lines && Qp.length) {
+          const key = [W2, H2, JSON.stringify(S2.Q)].join();
+          if (S2.key !== key) {
+            S2.key = key;
+            S2.L = [];
+            const trace = (x, y, dir) => {
+              const pts = [[x, y]];
+              for (let i = 0; i < 1500; i++) {
+                let [ex2, ey2] = Ep(x, y), m = Math.hypot(ex2, ey2);
+                if (m < 1e-12) return { pts, end: "stall" };
+                const hx = x + dir * ex2 / m * 1.5, hy = y + dir * ey2 / m * 1.5;
+                [ex2, ey2] = Ep(hx, hy);
+                m = Math.hypot(ex2, ey2);
+                if (m < 1e-12) return { pts, end: "stall" };
+                x += dir * ex2 / m * 3;
+                y += dir * ey2 / m * 3;
+                pts.push([x, y]);
+                for (const c of Qp) {
+                  if (Math.hypot(x - c.x, y - c.y) < 11 && i > 3) {
+                    if (dir * c.q < 0) {
+                      pts.push([c.x, c.y]);
+                      return { pts, end: "q" };
+                    }
+                  }
+                }
+                if (x < -90 || x > W2 + 90 || y < -90 || y > H2 + 90) return { pts, end: "out" };
+              }
+              return { pts, end: "max" };
+            };
+            for (const c of Qp) {
+              const n = 10 * Math.abs(c.q);
+              for (let k = 0; k < n; k++) {
+                const a = (k + 0.5) / n * TAU + 0.13, x = c.x + 13 * Math.cos(a), y = c.y + 13 * Math.sin(a);
+                if (c.q > 0) S2.L.push(trace(x, y, 1).pts);
+                else {
+                  const t = trace(x, y, -1);
+                  if (t.end !== "q") S2.L.push(t.pts.reverse());
+                }
+              }
+            }
+          }
+          g2.strokeStyle = C2.dark ? "rgba(233,236,246,.7)" : "rgba(18,26,51,.7)";
+          g2.lineWidth = 1.3;
+          for (const p of S2.L) {
+            g2.beginPath();
+            p.forEach(([x, y], i) => i ? g2.lineTo(x, y) : g2.moveTo(x, y));
+            g2.stroke();
+          }
+          for (const p of S2.L) {
+            if (p.length < 30) continue;
+            for (const at of [0.3, 0.75]) {
+              const i = Math.floor(p.length * at);
+              if (i < 2 || i > p.length - 3) continue;
+              const [x1, y1] = p[i - 2], [x2, y2] = p[i + 2];
+              if (x2 < 0 || x2 > W2 || y2 < 0 || y2 > H2) continue;
+              arrow(g2, x1, y1, x2, y2, C2.dark ? "rgba(233,236,246,.85)" : "rgba(18,26,51,.8)", 1.3, 8);
+            }
+          }
+        }
+        if (vec && Qp.length) {
+          for (let y = 18; y < H2; y += 36) for (let x = 18; x < W2; x += 36) {
+            if (Qp.some((c) => Math.hypot(x - c.x, y - c.y) < 22)) continue;
+            const [ex2, ey2] = this.Ei(S2, (x - cx) / s, (y - cy) / s), E2 = Math.hypot(ex2, ey2);
+            if (E2 < 1e-9) continue;
+            const L = cl(5 + 6 * Math.log10(E2 / 50), 4, 17);
+            arrow(g2, x - ex2 / E2 * L / 2, y - ey2 / E2 * L / 2, x + ex2 / E2 * L / 2, y + ey2 / E2 * L / 2, C2.dark ? "rgba(139,152,255,.8)" : "rgba(35,56,201,.65)", 1.4, 6);
+          }
+        }
+        for (const c of Qp) {
+          const Rq = Math.abs(c.q) > 1 ? 16 : 13, col = c.q > 0 ? C2.pos : C2.neg, gd = g2.createRadialGradient(c.x - Rq * 0.35, c.y - Rq * 0.35, 1, c.x, c.y, Rq);
+          gd.addColorStop(0, "rgba(255,255,255,.7)");
+          gd.addColorStop(0.35, col);
+          gd.addColorStop(1, col);
+          g2.fillStyle = gd;
+          g2.beginPath();
+          g2.arc(c.x, c.y, Rq, 0, TAU);
+          g2.fill();
+          tx(g2, (c.q > 0 ? "+" : "−") + (Math.abs(c.q) > 1 ? "2" : ""), c.x, c.y + 1, "#fff", { a: "center", w: 800, s: Math.abs(c.q) > 1 ? 14 : 18, halo: false });
+        }
+        const [px, py] = [cx + S2.P.x * s, cy + S2.P.y * s], [ex, ey] = this.Ei(S2, S2.P.x, S2.P.y), E = Math.hypot(ex, ey);
+        if (E > 1e-9) {
+          const L = cl(14 + 14 * Math.log10(E / 50), 10, 70);
+          arrow(g2, px, py, px + ex / E * L, py + ey / E * L, C2.orange, 3, 10);
+          tx(g2, "E", px + ex / E * (L + 12), py + ey / E * (L + 12), C2.orange, { a: "center", it: true, s: 16, w: 600 });
+        }
+        dot(g2, px, py, 6, C2.orange, true);
+        tx(g2, "P", px - 10, py - 12, C2.orange, { a: "center", w: 800 });
+        if (!Qp.length) tx(g2, "Thêm điện tích để thấy điện trường", W2 / 2, H2 / 2, C2.mute, { a: "center", w: 600, s: 15 });
+        badge(g2, ["Tại P: E = " + nf(E, 3) + " V/m"], 10, 10);
+      },
+      info: {
+        what: ["Xung quanh mỗi điện tích có điện trường, tác dụng lực điện lên điện tích khác đặt trong nó. Cường độ điện trường E đặc trưng cho tác dụng lực đó tại từng điểm.", "Đường sức điện là đường mà tiếp tuyến tại mỗi điểm trùng với phương của vectơ E. Đường sức đi ra từ điện tích dương và kết thúc ở điện tích âm (hoặc ở vô cực), không bao giờ cắt nhau; nơi đường sức dày thì điện trường mạnh.", "Khi bật tô màu, vùng đỏ có điện thế cao, vùng xanh có điện thế thấp; ranh giới giữa các dải màu là các đường đẳng thế."],
+        f: [["E = F/q", "Định nghĩa cường độ điện trường (V/m)"], ["E = k·|Q| / (ε·r²)", "Điện trường của điện tích điểm Q"], ["E = E₁ + E₂ + …", "Nguyên lí chồng chất (cộng vectơ)"]],
+        q: [["Kéo hai điện tích lại gần nhau. Các đường sức có lúc nào cắt nhau không?", "Không bao giờ, vì tại mỗi điểm vectơ E chỉ có một hướng duy nhất."], ["Với hai điện tích cùng dấu, bằng nhau, điểm nào có E = 0?", "Trung điểm của đoạn nối hai điện tích: hai vectơ cường độ cùng độ lớn, ngược chiều. Kéo P tới đó để kiểm tra."], ["Bật tô màu điện thế: đường sức và đường đẳng thế cắt nhau theo góc nào?", "Vuông góc. Đường sức luôn hướng từ nơi điện thế cao về nơi điện thế thấp."]]
+      }
+    });
+    const PAR = { e: { q: -16e-20, m: 911e-33, l: "e", u: 4e6, n: "Electron" }, p: { q: 16e-20, m: 167e-29, l: "p", u: 1e5, n: "Proton" }, a: { q: 32e-20, m: 664e-29, l: "α", u: 1e5, n: "Hạt alpha" } };
+    def({
+      id: "dien-truong-deu",
+      ch: 2,
+      name: "Điện trường đều",
+      topic: "Điện trường giữa hai bản phẳng và chuyển động của hạt mang điện",
+      r: 0.52,
+      rm: 1.05,
+      ctl: [
+        { t: "s", id: "mode", l: "Thí nghiệm", o: [["ngang", "Hạt bay vào song song với hai bản"], ["nghi", "Hạt được thả không vận tốc đầu"]], v: "ngang" },
+        { t: "s", id: "par", l: "Hạt mang điện", o: [["e", "Electron (−e)"], ["p", "Proton (+e)"], ["a", "Hạt alpha (+2e)"]], v: "e" },
+        { t: "r", id: "U", l: "Hiệu điện thế U", min: 0, max: 200, st: 5, v: 100, u: "V", d: 0 },
+        { t: "r", id: "d", l: "Khoảng cách hai bản d", min: 1, max: 5, st: 0.5, v: 2, u: "cm", d: 1 },
+        { t: "r", id: "v", l: "Vận tốc ban đầu v₀", min: 1, max: 10, st: 0.1, v: 6, fmt: (v, S2) => nf(v * PAR[S2.p.par].u, 2) + " m/s" },
+        { t: "b", id: "go", l: "Bắn lại" }
+      ],
+      init(S2) {
+        S2.tau = 0;
+      },
+      chg(S2, id) {
+        if (id !== "v" || S2.p.mode === "ngang") S2.tau = 0;
+      },
+      act(S2) {
+        S2.tau = 0;
+      },
+      ph(S2) {
+        const { mode, par, U, d, v } = S2.p, P = PAR[par], E = U / (d / 100), a = -P.q * E / P.m, v0 = v * P.u, L = 0.08, Ls = 0.06;
+        if (mode === "ngang") {
+          const tin = L / v0, ye = 0.5 * a * tin * tin, hit = Math.abs(ye) > d / 200;
+          const th = hit ? Math.sqrt(d / 100 / Math.abs(a)) : tin;
+          const T2 = hit ? th : (L + Ls) / v0, vy = a * tin, ys = ye + vy * Ls / v0;
+          return { E, a, v0, tin, ye, hit, th, T: T2, ys, vy, Tv: cl(2.4 * T2 / ((L + Ls) / (6 * P.u)), 0.8, 6) };
+        }
+        const T = U > 0 ? Math.sqrt(2 * (d / 100) / Math.abs(a)) : 0;
+        return { E, a, T, vend: Math.sqrt(2 * Math.abs(P.q) * U / P.m), Tv: 2 };
+      },
+      step(S2, dt) {
+        const o = this.ph(S2);
+        S2.tau += dt;
+        if (S2.tau > o.Tv + 1.2) S2.tau = 0;
+      },
+      pos(S2, o, t) {
+        const { mode, d } = S2.p;
+        if (mode === "ngang") {
+          const L = 0.08;
+          if (t <= o.tin || o.hit) {
+            const tt2 = Math.min(t, o.hit ? o.th : o.tin);
+            return [o.v0 * tt2, 0.5 * o.a * tt2 * tt2];
+          }
+          return [L + o.v0 * (t - o.tin), o.ye + o.vy * (t - o.tin)];
+        }
+        const P = PAR[S2.p.par], y0 = P.q > 0 ? d / 200 : -d / 200, tt = Math.min(t, o.T);
+        return [0.04, y0 + 0.5 * o.a * tt * tt];
+      },
+      reads(S2) {
+        const { mode, par, U } = S2.p, P = PAR[par], o = this.ph(S2);
+        const r = [["Cường độ điện trường E = U/d", nf(o.E, 3) + " V/m"], ["Lực điện F = |q|E", nf(Math.abs(P.q) * o.E, 3) + " N"], ["Gia tốc a = |q|E/m", nf(Math.abs(o.a), 3) + " m/s²"]];
+        if (mode === "ngang") {
+          if (o.hit) r.push(["Kết quả", "chạm vào bản " + (o.a > 0 ? "dương" : "âm") + " sau " + nf(o.th, 3) + " s", 1]);
+          else r.push(["Thời gian bay giữa hai bản", nf(o.tin, 3) + " s"], ["Độ lệch khi ra khỏi hai bản", num(Math.abs(o.ye) * 100, 2) + " cm"], ["Độ lệch trên màn", num(Math.abs(o.ys) * 100, 2) + " cm"]);
+        } else {
+          if (U > 0) r.push(["Vận tốc khi tới bản kia", nf(o.vend, 3) + " m/s"], ["Công của lực điện A = |q|U", nf(Math.abs(P.q) * U, 3) + " J"], ["Thời gian chuyển động", nf(o.T, 3) + " s"]);
+          else r.push(["Kết quả", "U = 0 nên không có lực điện, hạt đứng yên", 1]);
+        }
+        return r;
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { mode, par, U, d } = S2.p, P = PAR[par], o = this.ph(S2), nar = W2 < 560, s = Math.min((W2 - 50) / 16.5, (H2 - 120) / 6) * 100, xL = 24 + 0.015 * s, yc = Math.round(H2 * 0.46), Lp = 0.08 * s, ys = xL + 0.14 * s;
+        const X = (x) => xL + x * s, Y = (y) => yc - y * s, gp = d / 100 * s, pt2 = 7;
+        g2.fillStyle = C2.pos;
+        g2.fillRect(X(0), yc - gp / 2 - pt2, Lp, pt2);
+        g2.fillStyle = C2.neg;
+        g2.fillRect(X(0), yc + gp / 2, Lp, pt2);
+        for (let i = 0; i < 9; i++) {
+          const x = X(0) + Lp * (i + 0.5) / 9;
+          tx(g2, "+", x, yc - gp / 2 - pt2 - 9, C2.pos, { a: "center", w: 800, s: 14 });
+          tx(g2, "−", x, yc + gp / 2 + pt2 + 9, C2.neg, { a: "center", w: 800, s: 14 });
+        }
+        if (U > 0) {
+          g2.globalAlpha = 0.25 + 0.55 * U / 200;
+          for (let i = 0; i < 10; i++) {
+            const x = X(0) + Lp * (i + 0.5) / 10;
+            arrow(g2, x, yc - gp / 2 + 3, x, yc + gp / 2 - 3, C2.red, 1.2, 6);
+          }
+          g2.globalAlpha = 1;
+          tx(g2, "E", X(0) + Lp + 12, yc, C2.red, { it: true, s: 17, w: 600 });
+        }
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1.2;
+        const bx = X(0) - 10;
+        g2.beginPath();
+        g2.moveTo(bx + 4, yc - gp / 2);
+        g2.lineTo(bx, yc - gp / 2);
+        g2.lineTo(bx, yc + gp / 2);
+        g2.lineTo(bx + 4, yc + gp / 2);
+        g2.stroke();
+        tx(g2, "d", bx - 8, yc, C2.ink, { a: "center", it: true, s: 15, w: 600 });
+        tx(g2, "U = " + U + " V", X(0) + Lp / 2, yc - gp / 2 - pt2 - 28, C2.ink, { a: "center", w: 700 });
+        if (mode === "ngang") {
+          g2.strokeStyle = C2.ink;
+          g2.lineWidth = 3;
+          g2.beginPath();
+          g2.moveTo(ys, yc - gp / 2 - 50);
+          g2.lineTo(ys, yc + gp / 2 + 50);
+          g2.stroke();
+          tx(g2, "màn", ys, yc - gp / 2 - 62, C2.mute, { a: "center" });
+          dash(g2, X(-0.012), yc, ys, yc, C2.mute, 1, [3, 4]);
+        }
+        const n = 80, tEnd = o.T, pts = [];
+        for (let i = 0; i <= n; i++) pts.push(this.pos(S2, o, tEnd * i / n));
+        g2.setLineDash([4, 4]);
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1.4;
+        g2.beginPath();
+        pts.forEach(([x, y], i) => {
+          const a = X(x), b = Y(y);
+          i ? g2.lineTo(a, b) : g2.moveTo(a, b);
+        });
+        g2.stroke();
+        g2.setLineDash([]);
+        const tv = Math.min(1, S2.tau / o.Tv), tr = tv * tEnd, cp = this.pos(S2, o, tr), col = P.q > 0 ? C2.pos : C2.neg;
+        g2.strokeStyle = col;
+        g2.lineWidth = 2.4;
+        g2.beginPath();
+        for (let i = 0; i <= 60; i++) {
+          const [x, y] = this.pos(S2, o, tr * i / 60);
+          i ? g2.lineTo(X(x), Y(y)) : g2.moveTo(X(x), Y(y));
+        }
+        g2.stroke();
+        const [cx, cy] = [X(cp[0]), Y(cp[1])], inside = cp[0] <= 0.0801 && Math.abs(cp[1]) < d / 200 + 1e-6;
+        if (U > 0 && inside && tv < 1) {
+          const up2 = o.a > 0;
+          arrow(g2, cx, cy, cx, cy + (up2 ? -30 : 30), C2.red, 2.5, 8);
+          tx(g2, "F", cx + 12, cy + (up2 ? -24 : 24), C2.red, { it: true, s: 15, w: 600 });
+        }
+        if (mode === "ngang" && tv < 1) {
+          const vy = cp[0] <= 0.08 ? o.a * tr : o.vy, ang = Math.atan2(vy, o.v0);
+          arrow(g2, cx, cy, cx + 34 * Math.cos(ang), cy - 34 * Math.sin(ang), C2.orange, 2.5, 8);
+        }
+        dot(g2, cx, cy, 8, col);
+        tx(g2, P.l, cx, cy + 1, "#fff", { a: "center", w: 800, s: 12, halo: false });
+        if (mode === "ngang" && !o.hit && tv >= 1) {
+          const sy = Y(o.ys);
+          if (sy > 8 && sy < H2 - 8) {
+            dot(g2, ys, sy, 6, C2.orange);
+            tx(g2, "lệch " + num(Math.abs(o.ys) * 100, 2) + " cm", ys - 10, sy + (o.ys > 0 ? -16 : 16), C2.orange, { a: "right", w: 700 });
+          }
+        }
+        if (mode === "ngang" && o.hit && tv >= 1) tx(g2, "Hạt chạm bản!", X(cp[0]), Y(cp[1]) + (o.a > 0 ? 26 : -26), C2.red, { a: "center", w: 800, s: 15 });
+        if (mode === "nghi" && U === 0) tx(g2, "U = 0: không có lực điện", X(0.04), yc + gp / 2 + 40, C2.mute, { a: "center", w: 600 });
+        badge(g2, [P.n + ": " + (P.q > 0 ? "lệch về bản âm" : "lệch về bản dương"), "E = U/d = " + nf(o.E, 3) + " V/m"], W2 - 10, H2 - 58, "right");
+      },
+      info: {
+        what: ["Giữa hai bản kim loại phẳng song song, đặt gần nhau và tích điện trái dấu, điện trường là đều: tại mọi điểm vectơ E có cùng hướng (từ bản dương sang bản âm) và cùng độ lớn. Đường sức là những đường thẳng song song, cách đều.", "Hạt mang điện trong điện trường đều chịu lực điện không đổi F = qE nên chuyển động với gia tốc không đổi (bỏ qua trọng lực vì rất nhỏ). Nếu bay vào song song với hai bản, hạt chuyển động giống vật bị ném ngang: quỹ đạo giữa hai bản là một đoạn parabol."],
+        f: [["E = U/d", "Điện trường đều giữa hai bản (V/m)"], ["F = |q|·E ;  a = |q|·E/m", "Lực điện và gia tốc của hạt"], ["y = a·x² / (2v₀²)", "Phương trình quỹ đạo khi bay vào song song với hai bản"], ["A = q·U", "Công của lực điện; thả từ nghỉ: ½mv² = |q|U"]],
+        q: [["Vì sao electron lệch lên còn proton lệch xuống?", "Electron mang điện âm nên chịu lực ngược chiều điện trường, hướng về bản dương; proton mang điện dương nên bị đẩy về bản âm."], ["Proton cần vận tốc nhỏ hơn electron rất nhiều mới lệch rõ. Vì sao?", "Khối lượng proton lớn hơn electron khoảng 1836 lần nên với cùng lực điện, gia tốc nhỏ hơn bấy nhiêu lần."], ["Giữ U, tăng d lên gấp đôi. Độ lệch khi ra khỏi hai bản thay đổi ra sao?", "E = U/d giảm một nửa nên gia tốc và độ lệch đều giảm một nửa (nếu hạt vẫn ra khỏi hai bản)."]]
+      }
+    });
+    def({
+      id: "tu-dien",
+      ch: 2,
+      name: "Tụ điện",
+      topic: "Tụ điện, điện dung và năng lượng điện trường",
+      r: 0.56,
+      rm: 1,
+      ctl: [
+        { t: "s", id: "mode", l: "Cách thí nghiệm", o: [["noi", "Luôn nối với nguồn (U không đổi)"], ["ngat", "Tích điện rồi ngắt khỏi nguồn (Q không đổi)"]], v: "noi" },
+        { t: "r", id: "U0", l: "Hiệu điện thế nguồn", min: 1, max: 24, st: 0.5, v: 12, u: "V", d: 1 },
+        { t: "r", id: "S", l: "Diện tích mỗi bản S", min: 50, max: 400, st: 10, v: 200, u: "cm²", d: 0 },
+        { t: "r", id: "d", l: "Khoảng cách hai bản d", min: 1, max: 10, st: 0.5, v: 3, u: "mm", d: 1 },
+        { t: "r", id: "eps", l: "Hằng số điện môi ε", min: 1, max: 10, st: 0.1, v: 1, fmt: (v) => num(v, 1) + (v === 1 ? " (không khí)" : "") }
+      ],
+      Cap(S2) {
+        return S2.p.eps * 8854e-15 * (S2.p.S / 1e4) / (S2.p.d / 1e3);
+      },
+      init(S2) {
+        S2.Q0 = this.Cap(S2) * S2.p.U0;
+      },
+      chg(S2, id) {
+        if (id === "mode" || id === "U0" || S2.p.mode === "noi") S2.Q0 = this.Cap(S2) * S2.p.U0;
+      },
+      st(S2) {
+        const C_ = this.Cap(S2), Q = S2.p.mode === "noi" ? C_ * S2.p.U0 : S2.Q0, U = Q / C_;
+        return { C: C_, Q, U, E: U / (S2.p.d / 1e3), W: 0.5 * Q * U };
+      },
+      reads(S2) {
+        const o = this.st(S2);
+        return [["Điện dung C", si(o.C, "F")], ["Điện tích Q", si(o.Q, "C")], ["Hiệu điện thế U", num(o.U, 2) + " V"], ["Cường độ điện trường E", si(o.E, "V/m")], ["Năng lượng W = ½QU", si(o.W, "J")]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { mode, S: Sa, d, eps } = S2.p, o = this.st(S2), nar = W2 < 560, k = nar ? 0.62 : 1, pw = (80 + 190 * Math.sqrt(Sa / 400)) * k, dp = pw * 0.32, gp = (10 + d * 14) * k, cx = Math.round(W2 * (nar ? 0.5 : 0.52)), yc = Math.round(H2 * 0.5), x0 = cx - pw / 2 - dp / 2;
+        const plate = (y, col, th) => {
+          g2.fillStyle = col;
+          g2.beginPath();
+          g2.moveTo(x0, y);
+          g2.lineTo(x0 + pw, y);
+          g2.lineTo(x0 + pw + dp, y - dp * 0.55);
+          g2.lineTo(x0 + dp, y - dp * 0.55);
+          g2.closePath();
+          g2.fill();
+          g2.fillStyle = C2.dark ? "rgba(0,0,0,.35)" : "rgba(0,0,0,.18)";
+          g2.fillRect(x0, y, pw, th);
+          g2.fillStyle = col;
+          g2.globalAlpha = 0.85;
+          g2.fillRect(x0, y, pw, th);
+          g2.globalAlpha = 1;
+          g2.strokeStyle = C2.ink;
+          g2.lineWidth = 1;
+          g2.strokeRect(x0 + 0.5, y + 0.5, pw, th);
+        };
+        const yT = yc - gp / 2 - 8, yB = yc + gp / 2;
+        plate(yB, C2.neg, 8);
+        if (eps > 1) {
+          g2.fillStyle = "rgba(120,190,140,".concat(0.12 + 0.05 * eps, ")");
+          g2.beginPath();
+          g2.moveTo(x0 + 2, yB);
+          g2.lineTo(x0 + pw - 2, yB);
+          g2.lineTo(x0 + pw + dp - 2, yB - dp * 0.55);
+          g2.lineTo(x0 + pw + dp - 2, yT + 8 - dp * 0.55);
+          g2.lineTo(x0 + pw - 2, yT + 8);
+          g2.lineTo(x0 + 2, yT + 8);
+          g2.closePath();
+          g2.fill();
+          tx(g2, "điện môi ε = " + num(eps, 1), x0 + pw + dp + 10, yc - dp * 0.25, C2.teal, { w: 600 });
+        }
+        const nl = cl(Math.round(o.E / 4e3 * 6), 1, 26);
+        g2.globalAlpha = 0.8;
+        for (let i = 0; i < nl; i++) {
+          const x = x0 + pw * (i + 0.5) / nl + dp * 0.25;
+          arrow(g2, x, yT + 12, x, yB - 3, C2.red, 1.2, 6);
+        }
+        g2.globalAlpha = 1;
+        plate(yT, C2.pos, 8);
+        const Qr = 708e-12, nq = cl(Math.round(o.Q / Qr * 12), 0, 48);
+        for (let i = 0; i < nq; i++) {
+          const x = x0 + 6 + (pw - 12) * (i + 0.5) / nq;
+          tx(g2, "+", x, yT + 14, C2.pos, { a: "center", w: 800, s: 11 });
+          tx(g2, "−", x + dp * 0.5, yB - dp * 0.27, "#fff", { a: "center", w: 800, s: 12, halo: false });
+        }
+        const bx = Math.round(W2 * (nar ? 0.1 : 0.14)), wy1 = yT - dp * 0.28, wy2 = yB + 4, ccx = x0 + pw * 0.5;
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 1.8;
+        g2.beginPath();
+        g2.moveTo(ccx, yT - dp * 0.28);
+        g2.lineTo(ccx, yT - 30 - dp * 0.3);
+        g2.lineTo(bx, yT - 30 - dp * 0.3);
+        g2.lineTo(bx, yc - 10);
+        g2.moveTo(bx, yc + 10);
+        g2.lineTo(bx, yB + 40);
+        g2.lineTo(ccx, yB + 40);
+        g2.lineTo(ccx, yB + 8);
+        g2.stroke();
+        g2.lineWidth = 3;
+        g2.beginPath();
+        g2.moveTo(bx - 16, yc - 10);
+        g2.lineTo(bx + 16, yc - 10);
+        g2.stroke();
+        g2.lineWidth = 6;
+        g2.beginPath();
+        g2.moveTo(bx - 8, yc + 10);
+        g2.lineTo(bx + 8, yc + 10);
+        g2.stroke();
+        tx(g2, "+", bx + 22, yc - 14, C2.pos, { w: 800, s: 15 });
+        tx(g2, num(S2.p.U0, 1) + " V", nar ? bx + 8 : bx - 22, nar ? yc + 28 : yc, C2.ink, { a: nar ? "left" : "right", w: 600 });
+        const swx = (bx + ccx) / 2, swy = yT - 30 - dp * 0.3;
+        g2.fillStyle = C2.bg;
+        g2.fillRect(swx - 18, swy - 3, 36, 6);
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 2;
+        g2.beginPath();
+        g2.moveTo(swx - 18, swy);
+        if (mode === "noi") g2.lineTo(swx + 18, swy);
+        else g2.lineTo(swx + 14, swy - 14);
+        g2.stroke();
+        dot(g2, swx - 18, swy, 3, C2.ink);
+        dot(g2, swx + 18, swy, 3, C2.ink);
+        tx(g2, mode === "noi" ? "khóa đóng" : "khóa mở", swx, swy - (mode === "noi" ? 14 : 24), C2.mute, { a: "center" });
+        const vx = Math.min(W2 - 40, x0 + pw + dp + (nar ? 24 : 70));
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1.2;
+        g2.beginPath();
+        g2.moveTo(x0 + pw, yT + 4);
+        g2.lineTo(vx, yT + 4);
+        g2.lineTo(vx, yc - 17);
+        g2.moveTo(vx, yc + 17);
+        g2.lineTo(vx, yB + 4);
+        g2.lineTo(x0 + pw, yB + 4);
+        g2.stroke();
+        dot(g2, vx, yc, 17, C2.ink, true);
+        tx(g2, "V", vx, yc + 1, C2.ink, { a: "center", w: 800, s: 15, halo: false });
+        tx(g2, num(o.U, 2) + " V", vx, yc + 32, C2.ink, { a: nar ? "right" : "center", w: 700 });
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1;
+        const dxp = x0 - 10;
+        g2.beginPath();
+        g2.moveTo(dxp + 4, yT + 8);
+        g2.lineTo(dxp, yT + 8);
+        g2.lineTo(dxp, yB);
+        g2.lineTo(dxp + 4, yB);
+        g2.stroke();
+        tx(g2, "d", dxp - 8, yc, C2.ink, { a: "center", it: true, s: 15, w: 600 });
+        badge(g2, ["C = " + si(o.C, "F"), "Q = " + si(o.Q, "C"), "W = " + si(o.W, "J")], W2 - 10, 10, "right");
+      },
+      info: {
+        what: ["Tụ điện gồm hai vật dẫn đặt gần nhau, ngăn cách bằng một lớp cách điện (điện môi). Khi nối hai bản với nguồn, hai bản tích điện trái dấu và có độ lớn bằng nhau, gọi là điện tích Q của tụ.", "Điện dung C đặc trưng cho khả năng tích điện của tụ: cùng một hiệu điện thế, tụ có C lớn hơn tích được nhiều điện tích hơn. Tụ đã tích điện dự trữ năng lượng dưới dạng năng lượng điện trường giữa hai bản.", "Nếu tụ luôn nối với nguồn thì U không đổi; nếu tích điện xong rồi ngắt khỏi nguồn thì Q không đổi. Hai trường hợp này cho kết quả khác nhau khi ta thay đổi tụ."],
+        f: [["C = Q/U", "Đơn vị fara (F); 1 pF = 10⁻¹² F"], ["W = ½QU = ½CU² = Q²/(2C)", "Năng lượng của tụ điện"], ["C = εS/(4πkd)", "Tụ điện phẳng (tham khảo): C tăng khi S, ε tăng hoặc d giảm"], ["E = U/d", "Điện trường đều giữa hai bản"]],
+        q: [["Tụ luôn nối với nguồn, kéo hai bản ra xa gấp đôi. Q và E thay đổi thế nào?", "C giảm một nửa nên Q = CU giảm một nửa; E = U/d cũng giảm một nửa."], ["Ngắt tụ khỏi nguồn rồi kéo hai bản ra xa. Vôn kế chỉ thế nào?", "Q không đổi, C giảm nên U = Q/C tăng. Năng lượng của tụ cũng tăng, nhờ công của lực bạn kéo hai bản."], ["Vẫn nối nguồn, lồng tấm điện môi ε = 5 vào giữa hai bản. Điều gì xảy ra?", "C và Q tăng 5 lần, U giữ nguyên bằng hiệu điện thế nguồn."]]
+      }
+    });
+    def({
+      id: "dong-dien",
+      ch: 3,
+      name: "Dòng điện trong dây kim loại",
+      topic: "Cường độ dòng điện và chuyển động có hướng của electron",
+      r: 0.54,
+      rm: 1.05,
+      ctl: [
+        { t: "r", id: "I", l: "Cường độ dòng điện I", min: 0, max: 5, st: 0.1, v: 2, u: "A", d: 1 },
+        { t: "r", id: "Sx", l: "Tiết diện dây S", min: 0.5, max: 4, st: 0.1, v: 1, u: "mm²", d: 1 },
+        { t: "c", id: "th", l: "Hiện chuyển động nhiệt hỗn loạn", v: true },
+        { t: "c", id: "ion", l: "Hiện các ion dương của kim loại", v: true }
+      ],
+      init(S2) {
+        S2.key = null;
+        S2.ev = [];
+        S2.t = 0;
+        S2.tr = [];
+      },
+      geo(S2) {
+        const nar = S2.W < 560, f = nar ? 0.8 : 1, th = Math.round((40 + 70 * Math.sqrt(S2.p.Sx / 4)) * f);
+        return { x0: 24, x1: S2.W - 24, yc: Math.round(S2.H * 0.57), th, tr: 75 * f };
+      },
+      setup(S2) {
+        const G = this.geo(S2), key = [S2.W, S2.H, G.th].join();
+        if (S2.key === key) return G;
+        S2.key = key;
+        S2.E = [];
+        const n = Math.round((G.x1 - G.x0) * G.th / 150);
+        for (let i = 0; i < n; i++) {
+          const a = Math.random() * TAU;
+          S2.E.push({ x: G.x0 + Math.random() * (G.x1 - G.x0), y: G.yc - G.th / 2 + 4 + Math.random() * (G.th - 8), a, c: Math.random() * 0.3 });
+        }
+        S2.tr = [];
+        return G;
+      },
+      step(S2, dt) {
+        if (!S2.W) return;
+        const G = this.setup(S2), L = G.x1 - G.x0, xc = (G.x0 + G.x1) / 2, vd = -16 * S2.p.I * G.tr / G.th, sp = S2.p.th ? 110 : 0, top = G.yc - G.th / 2 + 4, bot = G.yc + G.th / 2 - 4;
+        S2.t += dt;
+        for (const e of S2.E) {
+          e.c -= dt;
+          if (e.c <= 0) {
+            e.a = Math.random() * TAU;
+            e.c = 0.08 + Math.random() * 0.3;
+          }
+          let vx = sp * Math.cos(e.a) + vd, vy = sp * Math.sin(e.a), nx = e.x + vx * dt, ny = e.y + vy * dt;
+          if (ny < top) {
+            ny = 2 * top - ny;
+            e.a = -e.a;
+          }
+          if (ny > bot) {
+            ny = 2 * bot - ny;
+            e.a = -e.a;
+          }
+          let wrap = false;
+          if (nx < G.x0) {
+            nx += L;
+            wrap = true;
+          } else if (nx > G.x1) {
+            nx -= L;
+            wrap = true;
+          }
+          if (!wrap) {
+            if (e.x >= xc && nx < xc) S2.ev.push([S2.t, 1]);
+            else if (e.x < xc && nx >= xc) S2.ev.push([S2.t, -1]);
+          }
+          e.x = nx;
+          e.y = ny;
+        }
+        while (S2.ev.length && S2.ev[0][0] < S2.t - 3) S2.ev.shift();
+        const e0 = S2.E[0];
+        if (e0) {
+          const l = S2.tr[S2.tr.length - 1];
+          if (l && Math.abs(l[0] - e0.x) > L / 2) S2.tr = [];
+          S2.tr.push([e0.x, e0.y]);
+          if (S2.tr.length > 150) S2.tr.shift();
+        }
+      },
+      vd(S2) {
+        return S2.p.I / (85e27 * 16e-20 * S2.p.Sx * 1e-6);
+      },
+      reads(S2) {
+        const v = this.vd(S2), t1 = 1 / v;
+        return [["Cường độ dòng điện I", num(S2.p.I, 1) + " A"], ["Mật độ electron tự do (đồng)", "n ≈ 8,5·10²⁸ m⁻³"], ["Tốc độ trôi v = I/(nSe)", S2.p.I ? num(v * 1e3, 3) + " mm/s" : "0"], ["Số electron qua tiết diện mỗi giây", S2.p.I ? nf(S2.p.I / 16e-20, 3) : "0"], ["Thời gian electron trôi được 1 m", S2.p.I ? t1 > 3600 ? num(t1 / 3600, 1) + " giờ" : num(t1 / 60, 1) + " phút" : "không trôi"]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const G = this.setup(S2), nar = W2 < 560, { x0, x1, yc, th } = G, xc = (x0 + x1) / 2, top = yc - th / 2, bot = yc + th / 2, I = S2.p.I;
+        const by = Math.max(34, top - 74);
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 1.8;
+        g2.beginPath();
+        g2.moveTo(xc - 8, by);
+        g2.lineTo(x0 + 14, by);
+        g2.lineTo(x0 + 14, top);
+        g2.moveTo(xc + 8, by);
+        g2.lineTo(x1 - 14, by);
+        g2.lineTo(x1 - 14, top);
+        g2.stroke();
+        g2.lineWidth = 2.5;
+        g2.beginPath();
+        g2.moveTo(xc - 8, by - 16);
+        g2.lineTo(xc - 8, by + 16);
+        g2.stroke();
+        g2.lineWidth = 6;
+        g2.beginPath();
+        g2.moveTo(xc + 8, by - 8);
+        g2.lineTo(xc + 8, by + 8);
+        g2.stroke();
+        tx(g2, "+", xc - 20, by - 16, C2.pos, { a: "center", w: 800, s: 15 });
+        tx(g2, "−", xc + 20, by - 16, C2.neg, { a: "center", w: 800, s: 15 });
+        if (!nar) tx(g2, "nguồn điện", xc, by + 28, C2.mute, { a: "center" });
+        if (I > 0) {
+          arrow(g2, x0 + 60, by, x0 + 120, by, C2.red, 2, 8);
+          arrow(g2, x1 - 120, by, x1 - 60, by, C2.red, 2, 8);
+        }
+        g2.fillStyle = C2.dark ? "rgba(231,164,107,.16)" : "rgba(214,140,80,.16)";
+        rr(g2, x0, top, x1 - x0, th, th / 2.6);
+        g2.fill();
+        g2.strokeStyle = C2.dark ? "#c98a55" : "#b8733e";
+        g2.lineWidth = 2;
+        g2.stroke();
+        if (S2.p.ion) {
+          g2.save();
+          rr(g2, x0, top, x1 - x0, th, th / 2.6);
+          g2.clip();
+          for (let y = top + 12; y < bot - 6; y += 24) for (let x = x0 + 14 + (y - top) / 24 % 2 * 12; x < x1 - 6; x += 24) {
+            const jx = S2.p.th ? Math.sin(S2.t * 20 + x * 0.7 + y) * 1.2 : 0, jy = S2.p.th ? Math.cos(S2.t * 17 + x + y * 0.3) * 1.2 : 0;
+            dot(g2, x + jx, y + jy, 6.5, C2.dark ? "rgba(169,177,201,.45)" : "rgba(93,102,128,.32)");
+            tx(g2, "+", x + jx, y + jy + 0.5, C2.dark ? "#d7dbea" : "#fff", { a: "center", w: 800, s: 11, halo: false });
+          }
+          g2.restore();
+        }
+        g2.setLineDash([4, 3]);
+        g2.strokeStyle = C2.teal;
+        g2.lineWidth = 1.6;
+        g2.beginPath();
+        g2.ellipse(xc, yc, 9, th / 2, 0, 0, TAU);
+        g2.stroke();
+        g2.setLineDash([]);
+        tx(g2, "tiết diện S", xc + 14, top - 12, C2.teal, { w: 600 });
+        for (const e of S2.E) dot(g2, e.x, e.y, 3, C2.neg);
+        if (S2.tr.length > 1) {
+          g2.strokeStyle = C2.orange;
+          g2.lineWidth = 1.5;
+          g2.beginPath();
+          S2.tr.forEach(([x, y], i) => i ? g2.lineTo(x, y) : g2.moveTo(x, y));
+          g2.stroke();
+          const e = S2.E[0];
+          dot(g2, e.x, e.y, 5, C2.orange);
+        }
+        const ay = bot + 26;
+        if (I > 0) {
+          arrow(g2, xc - 40, ay, xc + 40, ay, C2.red, 2.5, 9);
+          tx(g2, nar ? "dòng điện I" : "chiều dòng điện I", xc + 50, ay, C2.red, { w: 600 });
+          arrow(g2, xc + 40, ay + 24, xc - 40, ay + 24, C2.neg, 2.5, 9);
+          tx(g2, "electron trôi", xc - 50, ay + 24, C2.neg, { a: "right", w: 600 });
+        } else tx(g2, "I = 0: electron chỉ chuyển động nhiệt, không có dòng điện", W2 / 2, ay, C2.mute, { a: "center", w: 600 });
+        const net = S2.ev.reduce((a, b) => a + b[1], 0) / Math.min(3, Math.max(0.5, S2.t));
+        tx(g2, "Số chấm qua tiết diện: " + num(Math.max(0, net), 1) + " chấm/s", 14, H2 - (nar ? 32 : 14), C2.mute, { w: 500 });
+        tx(g2, nar ? "chấm cam: một electron" : "chấm cam: một electron và quãng đường gần đây của nó", nar ? 14 : W2 - 14, H2 - 14, C2.orange, { a: nar ? "left" : "right", w: 500, s: 13 });
+        badge(g2, ["v trôi ≈ " + (I ? num(this.vd(S2) * 1e3, 3) : "0") + " mm/s"], W2 - 10, 10, "right");
+      },
+      info: {
+        what: ["Dòng điện là dòng chuyển dời có hướng của các hạt mang điện. Trong kim loại, hạt mang điện là các electron tự do; chúng luôn chuyển động nhiệt hỗn loạn rất nhanh và va chạm liên tục với các ion dương.", "Khi nối dây với nguồn, điện trường trong dây làm các electron trôi chậm ngược chiều điện trường. Quy ước chiều dòng điện là chiều chuyển động của điện tích dương, nên ngược chiều chuyển động của electron.", "Cường độ dòng điện cho biết lượng điện tích đi qua tiết diện dây trong một đơn vị thời gian. Đáng ngạc nhiên là electron trôi rất chậm, chỉ cỡ phần mười milimét mỗi giây."],
+        f: [["I = Δq/Δt", "Đơn vị ampe (A); 1 A = 1 C/s"], ["I = S·n·e·v", "n: mật độ electron tự do; v: tốc độ trôi"], ["e = 1,6·10⁻¹⁹ C", "Độ lớn điện tích của electron"]],
+        q: [["Với I = 2 A trong dây đồng tiết diện 1 mm², electron trôi nhanh cỡ nào?", "Chỉ khoảng 0,15 mm/s. Đèn sáng gần như ngay khi bật công tắc vì điện trường lan truyền rất nhanh, làm mọi electron trong dây cùng bắt đầu trôi, chứ không phải electron chạy từ công tắc tới đèn."], ["Giữ nguyên I, tăng tiết diện dây gấp đôi. Tốc độ trôi thay đổi thế nào?", "Giảm một nửa: có gấp đôi số electron cùng mang dòng điện đó."], ["Khi I = 0, các electron có đứng yên không?", "Không. Chúng vẫn chuyển động nhiệt hỗn loạn, nhưng số electron đi qua tiết diện theo hai chiều như nhau nên không có dòng điện."]]
+      }
+    });
+    def({
+      id: "mach-dien",
+      ch: 3,
+      name: "Nguồn điện và mạch kín",
+      topic: "Suất điện động, điện trở trong, năng lượng và công suất điện",
+      r: 0.8,
+      rm: 1.25,
+      ctl: [
+        { t: "r", id: "E", l: "Suất điện động E", min: 1.5, max: 12, st: 0.5, v: 6, u: "V", d: 1 },
+        { t: "r", id: "r", l: "Điện trở trong r", min: 0.2, max: 5, st: 0.1, v: 1, u: "Ω", d: 1 },
+        { t: "r", id: "R", l: "Điện trở mạch ngoài R", min: 0, max: 20, st: 0.1, v: 4, u: "Ω", d: 1 }
+      ],
+      init(S2) {
+        S2.s = 0;
+      },
+      q(S2) {
+        const { E, r, R } = S2.p, I = E / (R + r), U = I * R;
+        return { I, U, P: U * I, Pn: E * I, H: R / (R + r), Pm: E * E / (4 * r) };
+      },
+      step(S2, dt) {
+        S2.s += dt * Math.min(this.q(S2).I, 10) * 20;
+      },
+      reads(S2) {
+        const o = this.q(S2);
+        return [["Cường độ dòng điện I = E/(R + r)", num(o.I, 2) + " A"], ["Hiệu điện thế mạch ngoài U", num(o.U, 2) + " V"], ["Độ giảm thế trong nguồn I·r", num(o.I * S2.p.r, 2) + " V"], ["Công suất mạch ngoài P = UI", num(o.P, 2) + " W"], ["Công suất của nguồn EI", num(o.Pn, 2) + " W"], ["Hiệu suất H = U/E", num(o.H * 100, 1) + " %"], ["P lớn nhất (khi R = r)", num(o.Pm, 2) + " W"]];
+      },
+      draw(g2, W2, H2, S2, C2) {
+        paper(g2, W2, H2, C2);
+        const { E, r, R } = S2.p, o = this.q(S2), nar = W2 < 560, Ht = Math.round(H2 * 0.5), L = Math.round(W2 * 0.1), Rx = Math.round(W2 * (nar ? 0.68 : 0.66)), T = 34, B = Ht - 14, my = (T + B) / 2, ax = (L + Rx) / 2;
+        if (o.P > 0) {
+          const gl = g2.createRadialGradient(Rx, my, 4, Rx, my, 70);
+          gl.addColorStop(0, "rgba(255,150,40,".concat(0.6 * o.P / o.Pm, ")"));
+          gl.addColorStop(1, "rgba(255,150,40,0)");
+          g2.fillStyle = gl;
+          g2.fillRect(Rx - 70, my - 70, 140, 140);
+        }
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 2;
+        g2.strokeRect(L, T, Rx - L, B - T);
+        const vx = Rx + (nar ? 40 : 70);
+        g2.lineWidth = 1.4;
+        g2.strokeStyle = C2.mute;
+        g2.beginPath();
+        g2.moveTo(Rx, T);
+        g2.lineTo(vx, T);
+        g2.lineTo(vx, my - 17);
+        g2.moveTo(vx, my + 17);
+        g2.lineTo(vx, B);
+        g2.lineTo(Rx, B);
+        g2.stroke();
+        const per = 2 * (Rx - L) + 2 * (B - T), posAt = (s) => {
+          s = (s % per + per) % per;
+          const w = Rx - L, h = B - T;
+          if (s < w) return [L + s, T];
+          s -= w;
+          if (s < h) return [Rx, T + s];
+          s -= h;
+          if (s < w) return [Rx - s, B];
+          s -= w;
+          return [L, B - s];
+        };
+        const avoid = (x, y) => Math.hypot(x - ax, y - T) < 20 || Math.abs(x - L) < 16 && Math.abs(y - my) < 40 || Math.abs(x - Rx) < 16 && Math.abs(y - my) < 36;
+        for (let s = 0; s < per; s += 24) {
+          const [x, y] = posAt(s + S2.s);
+          if (!avoid(x, y)) dot(g2, x, y, 3, C2.orange);
+        }
+        g2.fillStyle = C2.bg;
+        g2.fillRect(L - 14, my - 36, 28, 72);
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 2;
+        g2.beginPath();
+        g2.moveTo(L, my - 36);
+        g2.lineTo(L, my - 14);
+        g2.moveTo(L, my + 34);
+        g2.lineTo(L, my + 36);
+        g2.stroke();
+        g2.lineWidth = 2.5;
+        g2.beginPath();
+        g2.moveTo(L - 16, my - 14);
+        g2.lineTo(L + 16, my - 14);
+        g2.stroke();
+        g2.lineWidth = 6;
+        g2.beginPath();
+        g2.moveTo(L - 8, my - 4);
+        g2.lineTo(L + 8, my - 4);
+        g2.stroke();
+        g2.lineWidth = 2;
+        g2.beginPath();
+        g2.moveTo(L, my - 1);
+        g2.lineTo(L, my + 10);
+        g2.stroke();
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 1.6;
+        g2.fillStyle = C2.bg;
+        g2.fillRect(L - 5, my + 10, 10, 24);
+        g2.strokeRect(L - 5, my + 10, 10, 24);
+        tx(g2, "+", L + 22, my - 20, C2.pos, { w: 800, s: 15 });
+        tx(g2, "r", L + 12, my + 22, C2.ink, { it: true, s: 14, w: 600 });
+        g2.setLineDash([3, 3]);
+        g2.strokeStyle = C2.mute;
+        g2.lineWidth = 1;
+        g2.strokeRect(L - 22, my - 26, 44, 66);
+        g2.setLineDash([]);
+        tx(g2, "E = " + num(E, 1) + " V", L + 30, my - 2, C2.ink, { w: 700 });
+        tx(g2, "r = " + num(r, 1) + " Ω", L + 30, my + 18, C2.ink, { w: 600 });
+        dot(g2, ax, T, 16, C2.ink, true);
+        tx(g2, "A", ax, T + 1, C2.ink, { a: "center", w: 800, s: 15, halo: false });
+        tx(g2, num(o.I, 2) + " A", ax, T + 30, C2.ink, { a: "center", w: 800, s: 16 });
+        g2.fillStyle = C2.bg;
+        g2.fillRect(Rx - 11, my - 30, 22, 60);
+        g2.strokeStyle = C2.ink;
+        g2.lineWidth = 1.8;
+        g2.strokeRect(Rx - 11, my - 30, 22, 60);
+        arrow(g2, Rx - 22, my + 24, Rx + 22, my - 26, C2.pen, 1.8, 8);
+        tx(g2, "R = " + num(R, 1) + " Ω", Rx - 18, my + 46, C2.ink, { a: "right", w: 700 });
+        dot(g2, vx, my, 17, C2.ink, true);
+        tx(g2, "V", vx, my + 1, C2.ink, { a: "center", w: 800, s: 15, halo: false });
+        tx(g2, num(o.U, 2) + " V", vx + (nar ? 0 : 24), my + (nar ? 32 : 0), C2.ink, { a: nar ? "center" : "left", w: 800, s: 16 });
+        if (R < 0.3) tx(g2, "Đoản mạch! I = E/r rất lớn, nguồn nhanh hỏng", (L + Rx) / 2, B - 22, C2.red, { a: "center", w: 800, s: nar ? 13 : 15 });
+        else if (!nar) tx(g2, "chấm cam: chiều dòng điện (tốc độ tỉ lệ với I)", (L + Rx) / 2, B - 14, C2.mute, { a: "center" });
+        const gt = Ht + 34, gb = H2 - 30, half = nar ? W2 / 2 - 4 : W2 / 2 - 10, Isc = E / r;
+        const r1 = { x: nar ? 36 : 52, y: gt, w: half - (nar ? 36 : 52) - 20, h: gb - gt - 14 }, M1 = axes(g2, r1, { x0: 0, x1: Isc * 1.1, y0: 0, y1: E * 1.2, xt: [[Isc, "E/r"]], yt: [[E, "E"]], xl: "I (A)", yl: "U (V)" });
+        plot(g2, M1, (i) => E - i * r, 0, Isc, C2.pen, 2.4, 2);
+        dash(g2, M1.X(o.I), M1.Y(0), M1.X(o.I), M1.Y(o.U), C2.mute, 1, [2, 3]);
+        dot(g2, M1.X(o.I), M1.Y(o.U), 6, C2.red);
+        if (!nar) tx(g2, "U = E − I·r", r1.x + r1.w, r1.y - 2, C2.pen, { a: "right", w: 600 });
+        const r2 = { x: half + (nar ? 36 : 52), y: gt, w: W2 - half - (nar ? 36 : 52) - 28, h: gb - gt - 14 }, M2 = axes(g2, r2, { x0: 0, x1: 20, y0: 0, y1: o.Pm * 1.25, xt: [[r, "r"]], yt: [[o.Pm, ""]], xl: "R (Ω)", yl: "P (W)" });
+        plot(g2, M2, (x) => E * E * x / (x + r) ** 2, 0, 20, C2.orange, 2.4, 300);
+        dash(g2, M2.X(r), M2.Y(0), M2.X(r), M2.Y(o.Pm), C2.red, 1.2, [4, 3]);
+        dot(g2, M2.X(Math.min(20, R)), M2.Y(o.P), 6, C2.red);
+        tx(g2, "P max", M2.X(r) + 6, M2.Y(o.Pm) - 10, C2.red, { w: 600 });
+        if (!nar) tx(g2, "P mạch ngoài", r2.x + r2.w, r2.y - 2, C2.orange, { a: "right", w: 600 });
+      },
+      info: {
+        what: ["Nguồn điện duy trì hiệu điện thế giữa hai cực nhờ lực lạ bên trong nguồn. Nguồn được đặc trưng bởi suất điện động E và điện trở trong r.", "Khi mắc nguồn với mạch ngoài có điện trở R, dòng điện chạy qua cả mạch ngoài lẫn bên trong nguồn. Một phần năng lượng bị tiêu hao bên trong nguồn, nên hiệu điện thế mạch ngoài U luôn nhỏ hơn E khi có dòng điện.", "Công suất tỏa ra ở mạch ngoài lớn nhất khi R = r, nhưng lúc đó hiệu suất chỉ 50%."],
+        f: [["I = E / (R + r)", "Cường độ dòng điện trong mạch kín"], ["U = E − I·r = I·R", "Hiệu điện thế giữa hai cực nguồn (mạch ngoài)"], ["P = U·I = I²R ;  P_nguồn = E·I", "Công suất mạch ngoài và công suất của nguồn"], ["H = U/E = R/(R + r)", "Hiệu suất của nguồn"]],
+        q: [["Giảm R về 0 (đoản mạch). Cường độ dòng điện bằng bao nhiêu?", "I = E/r, rất lớn khi r nhỏ, còn U gần bằng 0. Vì thế không được nối tắt hai cực của pin hay acquy."], ["Chỉnh R sao cho công suất mạch ngoài lớn nhất.", "R = r. Khi đó P = E²/(4r) và hiệu suất H = 50%."], ["Khi R rất lớn (gần như mạch hở), vôn kế chỉ bao nhiêu?", "Gần bằng E: suất điện động bằng hiệu điện thế giữa hai cực khi nguồn không phát dòng điện."]]
+      }
+    });
+    const CH = [["Chương 1", "Dao động"], ["Chương 2", "Sóng"], ["Chương 3", "Trường điện"], ["Chương 4", "Dòng điện, mạch điện"]];
+    const cv = $("#cv"), g = cv.getContext("2d");
+    let VH = innerHeight, cur = null, S = { p: {} }, W = 600, H = 400, dpr = 1, run = true, speed = 1, drag = false, lastR = 0, lastHTML = "", last = performance.now();
+    const saved = {}, lastIn = {};
+    const ICP = '<svg viewBox="0 0 24 24"><path d="M8.5 5v14M15.5 5v14"/></svg>', ICR = '<svg viewBox="0 0 24 24"><path d="M8 5.5l11 6.5-11 6.5z" fill="currentColor"/></svg>';
+    $("#chs").addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (b) {
+        const ch = +b.dataset.ch;
+        open(lastIn[ch] || SIMS.find((x) => x.ch === ch).id);
+      }
+    });
+    $("#sims").addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (b) open(b.dataset.id);
+    });
+    $("#play").addEventListener("click", () => setRun(!run));
+    $("#rst").addEventListener("click", () => {
+      cur.init(S);
+      setRun(true);
+    });
+    $("#def").addEventListener("click", () => {
+      delete saved[cur.id];
+      S.p = {};
+      cur.ctl.forEach((c) => {
+        if (c.t !== "b") S.p[c.id] = c.v;
+      });
+      buildCtls();
+      cur.init(S);
+    });
+    $("#spd").addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      speed = +b.dataset.s;
+      $("#spd").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+    });
+    const pt = (e) => {
+      const r = cv.getBoundingClientRect();
+      return [e.clientX - r.left, e.clientY - r.top];
+    };
+    cv.addEventListener("pointerdown", (e) => {
+      if (!cur.ptr) return;
+      const [x, y] = pt(e);
+      if (cur.ptr("down", x, y, S) !== false) {
+        drag = true;
+        try {
+          cv.setPointerCapture(e.pointerId);
+        } catch (_) {
+        }
+      }
+    });
+    cv.addEventListener("pointermove", (e) => {
+      if (cur.ptr && drag) {
+        const [x, y] = pt(e);
+        cur.ptr("drag", x, y, S);
+      }
+    });
+    const up = () => {
+      if (drag && cur.ptr) cur.ptr("up", 0, 0, S);
+      drag = false;
+    };
+    cv.addEventListener("pointerup", up);
+    cv.addEventListener("pointercancel", up);
+    let rw = 0;
+    new ResizeObserver(() => {
+      const w = cv.parentElement.clientWidth;
+      if (w && w !== rw) {
+        rw = w;
+        VH = innerHeight;
+        size();
+      }
+    }).observe(cv.parentElement);
+    let iw = innerWidth;
+    addEventListener("resize", () => {
+      if (innerWidth !== iw) {
+        iw = innerWidth;
+        VH = innerHeight;
+        size();
+      }
+    });
+    addEventListener("hashchange", () => {
+      const id = location.hash.slice(1);
+      if (id && cur && id !== cur.id && SIMS.some((x) => x.id === id)) open(id);
+    });
+    setRun(!matchMedia("(prefers-reduced-motion: reduce)").matches);
+    open(location.hash.slice(1));
+    requestAnimationFrame(loop);
+  }
+})();
+</script>
+</body>
+</html>
