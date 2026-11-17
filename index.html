@@ -1869,7 +1869,8 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       return Array.from({ length: n }, (_, i) => ({ x: (i - (n - 1) / 2) * sp, y: 0 }));
     };
     const WLUT = lut3([[0, [8, 48, 96]], [0.45, [26, 104, 170]], [0.75, [90, 170, 220]], [1, [225, 246, 255]]], 24, 12, 0.5);
-    const SKYF = "uniform vec3 uSun,uZen,uHor,uSunCol;vec3 sky(vec3 d){float t=clamp(d.z,0.0,1.0);vec3 c=mix(uHor,uZen,pow(t,0.55));float s=max(dot(d,uSun),0.0);return c+uSunCol*(pow(s,600.0)*2.5+pow(s,10.0)*0.22);}";
+    const NZ = "float hsh(vec2 p){vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hsh(i),hsh(i+vec2(1.0,0.0)),f.x),mix(hsh(i+vec2(0.0,1.0)),hsh(i+vec2(1.0,1.0)),f.x),f.y);}float fbm(vec2 p){float s=0.0,a=0.5;for(int i=0;i<3;i++){s+=a*vn(p);p=p*2.07+vec2(5.3,1.7);a*=0.5;}return s/0.875;}";
+    const SKYF = "uniform vec3 uSun,uZen,uHor,uSunCol;uniform float uT,uNight;float rdg1(float a){return 0.045+0.022*sin(a*3.0+1.0)+0.013*sin(a*7.0+2.1)+0.006*sin(a*19.0+3.3);}float rdg2(float a){return 0.024+0.015*sin(a*2.0+4.0)+0.01*sin(a*5.0+0.4)+0.006*sin(a*11.0+1.9)+0.003*sin(a*23.0);}vec3 sky(vec3 d){if(d.z<0.0)return uHor;float a=atan(d.y,d.x);float t=clamp(d.z,0.0,1.0);vec3 c=mix(uHor,uZen,pow(t,0.5));float s=max(dot(d,uSun),0.0);c+=uSunCol*(pow(s,8.0)*0.16+pow(s,90.0)*0.3);c+=uSunCol*smoothstep(0.99955,0.9998,s)*2.2;if(uNight>0.0){vec2 g=d.xy/(d.z+0.35)*160.0;float st=hsh(floor(g));c+=vec3(0.9,0.92,1.0)*uNight*step(0.994,st)*smoothstep(0.4,0.1,length(fract(g)-0.5))*smoothstep(0.12,0.45,d.z);}vec2 q=d.xy/(d.z+0.08)*1.3+vec2(uT*0.015,uT*0.006);float cl=smoothstep(0.46,0.8,fbm(q))*smoothstep(0.02,0.2,d.z);vec3 cc=mix(uHor,vec3(1.0),0.65-0.45*uNight)*(0.85+0.3*pow(s,3.0))+uSunCol*pow(s,12.0)*0.35;c=mix(c,cc,cl*0.9);float r1=rdg1(a),r2=rdg2(a);c=mix(c,mix(uHor,uZen,0.13),smoothstep(r1+0.002,r1-0.002,d.z)*0.85);c=mix(c,mix(uHor,uZen,0.24)*0.97,smoothstep(r2+0.002,r2-0.002,d.z)*0.9);return c;}";
     const LAKE = {
       ok: null,
       LA: 15,
@@ -1894,26 +1895,26 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           const t = q - 1, f = this.sm(0.12, 0.9, t);
           h = 6 * t * (1 - f) + f * (1.2 + Math.max(0, hills) * 1.3);
         }
-        return h + this.sm(46, 92, r) * (15 + 7 * Math.sin(a * 5 + 0.7) + 4 * Math.sin(a * 13 + 2) + 3 * Math.cos(a * 7));
+        return h + this.sm(46, 92, r) * (9 + 5 * Math.sin(a * 5 + 0.7) + 3 * Math.sin(a * 13 + 2) + 2.5 * Math.cos(a * 7));
       },
       tc(x, y, h, nz) {
         const q = this.qn(x, y);
         let c;
-        if (q < 1) c = [0.6, 0.55, 0.4];
+        if (q < 1) c = [0.56, 0.52, 0.38];
         else if (h < 0.6) c = [0.9, 0.82, 0.6];
         else {
           const n = 0.5 + 0.5 * Math.sin(x * 0.7 + Math.cos(y * 0.5) * 2);
-          c = [0.36 - 0.1 * n, 0.62 - 0.12 * n, 0.2 - 0.05 * n];
+          c = [0.34 - 0.1 * n, 0.6 - 0.12 * n, 0.19 - 0.05 * n];
         }
-        if (h > 8) {
-          const k = this.sm(8, 12, h);
-          c = c.map((v, i) => v * (1 - k) + [0.5, 0.49, 0.52][i] * k);
+        if (h > 7) {
+          const k = this.sm(7, 10.5, h);
+          c = c.map((v, i) => v * (1 - k) + [0.52, 0.5, 0.5][i] * k);
         }
-        if (h > 18) {
-          const k = this.sm(18, 21, h);
+        if (h > 14) {
+          const k = this.sm(14, 16.5, h);
           c = c.map((v) => v * (1 - k) + 0.97 * k);
         }
-        if (nz < 0.8 && h > 0.6 && h < 8) c = c.map((v) => v * 0.82);
+        if (nz < 0.8 && h > 0.6 && h < 7) c = c.map((v, i) => v * (1 - 0.35 * (1 - nz / 0.8)) + [0.45, 0.42, 0.38][i] * 0.35 * (1 - nz / 0.8));
         return c;
       },
       setup(cv2) {
@@ -1937,15 +1938,20 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
             const U = {}, A = {};
             return { p, u: (n) => n in U ? U[n] : U[n] = gl.getUniformLocation(p, n), a: (n) => n in A ? A[n] : A[n] = gl.getAttribLocation(p, n) };
           };
-          this.pSky = mk("attribute vec2 aQ;varying vec2 vQ;void main(){vQ=aQ;gl_Position=vec4(aQ,0.9999,1.0);}", FP + SKYF + "varying vec2 vQ;uniform mat4 uInv;uniform vec3 uEye;void main(){vec4 p=uInv*vec4(vQ,1.0,1.0);vec3 d=normalize(p.xyz/p.w-uEye);gl_FragColor=vec4(d.z<0.0?uHor:sky(d),1.0);}");
+          this.pSky = mk("attribute vec2 aQ;varying vec2 vQ;void main(){vQ=aQ;gl_Position=vec4(aQ,0.9999,1.0);}", FP + NZ + SKYF + "varying vec2 vQ;uniform mat4 uInv;uniform vec3 uEye;void main(){vec4 p=uInv*vec4(vQ,1.0,1.0);vec3 d=normalize(p.xyz/p.w-uEye);gl_FragColor=vec4(sky(d),1.0);}");
           this.pTer = mk(
-            "attribute vec3 aPos,aNor,aCol;uniform mat4 uMVP;varying vec3 vPos,vNor,vCol;void main(){vPos=aPos;vNor=aNor;vCol=aCol;gl_Position=uMVP*vec4(aPos,1.0);}",
-            FP + "varying vec3 vPos,vNor,vCol;uniform vec3 uEye,uSun,uHor,uSunCol;uniform float uFog,uAmb;void main(){vec3 N=normalize(vNor);float d=max(dot(N,uSun),0.0);vec3 c=vCol*(uAmb+(1.0-uAmb)*d)*mix(vec3(1.0),uSunCol,0.35);float f=1.0-exp(-pow(length(uEye-vPos)/uFog,2.0));gl_FragColor=vec4(mix(c,uHor,f),1.0);}"
+            "attribute vec3 aPos,aNor,aCol;uniform mat4 uMVP;uniform vec3 uOff;varying vec3 vPos,vNor,vCol;void main(){vPos=aPos+uOff;vNor=aNor;vCol=aCol;gl_Position=uMVP*vec4(vPos,1.0);}",
+            FP + NZ + "varying vec3 vPos,vNor,vCol;uniform vec3 uEye,uSun,uHor,uSunCol,uTint,uDeep;uniform float uFog,uAmb,uKind,uN,uCau;uniform vec4 uSrc[6];uniform vec2 uL;void main(){vec3 N=normalize(vNor);vec3 col=vCol*uTint;vec3 E=uEye-vPos;float dist=length(E);vec3 V=E/dist;if(uKind<0.5){float n1=vn(vPos.xy*0.35),n2=vn(vPos.xy*1.7+3.1),n3=vn(vPos.xy*6.5+9.7);float gw=smoothstep(0.1,0.22,vCol.g-vCol.r);col*=mix(1.0,0.78+0.44*n2,gw*0.8)*(0.93+0.14*n3);col=mix(col,col*vec3(1.2,1.08,0.62),gw*smoothstep(0.6,0.85,n1)*0.65);col=mix(col,col*vec3(0.78,0.95,0.82),gw*smoothstep(0.45,0.2,n1)*0.5);col*=1.0-(1.0-gw)*0.32*(1.0-smoothstep(0.0,0.45,vPos.z))*step(-0.02,vPos.z);if(vPos.z<0.0)col*=0.9+0.2*vn(vPos.xy*3.0);}float lit=1.0;if(vPos.z<0.0){float lap=0.0;for(int i=0;i<6;i++){if(float(i)>=uN)break;vec2 d=vPos.xy-uSrc[i].xy;float r=max(length(d),0.05);float k=uSrc[i].w;lap-=k*k*inversesqrt(1.0+r/3.0)*cos(uSrc[i].z-k*r);}float fd=1.0-smoothstep(0.82,0.97,length(vPos.xy/uL));float x=-uCau*lap*fd*min(-vPos.z,1.6);lit=1.0+0.92*x/(1.0+abs(x));}vec3 c=col*(uAmb*(0.78+0.22*N.z)+(1.0-uAmb)*max(dot(N,uSun),0.0)*lit)*mix(vec3(1.0),uSunCol,0.35);if(vPos.z<0.0){float dp=-vPos.z;float ct=sqrt(max(1.0-(1.0-V.z*V.z)/1.769,0.04));vec3 T=exp(-(dp+dp/ct)*vec3(0.85,0.3,0.19));c=c*T+uDeep*(1.0-T);}float f=1.0-exp(-pow(dist/uFog,2.0));if(uKind<0.5)f=max(f,smoothstep(76.0,93.0,length(vPos.xy)));vec3 fc=uHor+uSunCol*pow(max(dot(-V,uSun),0.0),6.0)*0.12;gl_FragColor=vec4(mix(c,fc,f),1.0);}"
           );
           this.pWat = mk(
-            "attribute vec2 aXY;uniform mat4 uMVP;uniform vec4 uSrc[6];uniform float uN,uZs,uZm;uniform vec2 uL;varying vec3 vPos,vNor;varying float vH;void main(){float u=0.0;vec2 gr=vec2(0.0);for(int i=0;i<6;i++){if(float(i)>=uN)break;vec2 d=aXY-uSrc[i].xy;float r=max(length(d),0.02);float s=1.0+r/3.0;float A=inversesqrt(s);float Ap=-A/(6.0*s);float th=uSrc[i].z-uSrc[i].w*r;float c=cos(th);float sn=sin(th);u+=A*c;gr+=(Ap*c+A*uSrc[i].w*sn)*d/r;}float fd=1.0-smoothstep(0.82,0.97,length(aXY/uL));float h=clamp(uZs*u,-uZm,uZm)*fd;gr*=uZs*fd;vNor=normalize(vec3(-gr.x,-gr.y,1.0));vPos=vec3(aXY,h);vH=h/uZm;gl_Position=uMVP*vec4(vPos,1.0);}",
-            FP + SKYF + "varying vec3 vPos,vNor;varying float vH;uniform vec3 uEye;uniform float uFog;void main(){vec3 N=normalize(vNor);vec3 V=normalize(uEye-vPos);vec3 base=mix(vec3(0.02,0.15,0.28),vec3(0.22,0.55,0.68),clamp(vH*0.5+0.5,0.0,1.0));vec3 col=base*(0.45+0.55*max(dot(N,uSun),0.0));vec3 R=reflect(-V,N);R.z=abs(R.z);float F=0.04+0.96*pow(1.0-max(dot(N,V),0.0),5.0);col=mix(col,sky(R),F*0.8);col+=uSunCol*pow(max(dot(R,uSun),0.0),160.0)*1.3;float f=1.0-exp(-pow(length(uEye-vPos)/uFog,2.0));gl_FragColor=vec4(mix(col,uHor,f),1.0);}"
+            "attribute vec2 aXY;uniform mat4 uMVP;uniform vec4 uSrc[6];uniform float uN,uZs,uZm;uniform vec2 uL;varying vec3 vPos;varying float vH,vFd;void main(){float u=0.0;for(int i=0;i<6;i++){if(float(i)>=uN)break;vec2 d=aXY-uSrc[i].xy;float r=max(length(d),0.02);u+=inversesqrt(1.0+r/3.0)*cos(uSrc[i].z-uSrc[i].w*r);}float fd=1.0-smoothstep(0.82,0.97,length(aXY/uL));float h=clamp(uZs*u,-uZm,uZm)*fd;vPos=vec3(aXY,h);vH=h/uZm;vFd=fd;gl_Position=uMVP*vec4(vPos,1.0);}",
+            FP + NZ + SKYF + "varying vec3 vPos;varying float vH,vFd;uniform vec3 uEye,uDeep,uShal;uniform float uFog,uN,uZs;uniform vec4 uSrc[6];uniform vec2 uL;float bed(vec2 p){float a=atan(p.y,p.x+1e-4);float q=length(p/uL)+0.05*sin(a*5.0+1.0)+0.03*sin(a*9.0+2.0);return q<1.0?-2.4*pow(1.0-q,0.6)-0.05:0.0;}void main(){vec2 gr=vec2(0.0);for(int i=0;i<6;i++){if(float(i)>=uN)break;vec2 d=vPos.xy-uSrc[i].xy;float r=max(length(d),0.02);float s=1.0+r/3.0;float A=inversesqrt(s);float th=uSrc[i].z-uSrc[i].w*r;gr+=(-A/(6.0*s)*cos(th)+A*uSrc[i].w*sin(th))*d/r;}gr*=uZs*vFd;vec3 N=normalize(vec3(-gr,1.0));vec3 E=uEye-vPos;float dist=length(E);vec3 V=E/dist;float ci=max(dot(N,V),0.0);float F=0.02+0.98*pow(1.0-ci,5.0);vec3 R=reflect(-V,N);R.z=abs(R.z)+0.01;R=normalize(R);float sr=max(dot(R,uSun),0.0);vec3 col=F*sky(R)+uSunCol*(pow(sr,400.0)*5.0+pow(sr,60.0)*0.3);float dep=max(vPos.z-bed(vPos.xy),0.0);float ba=(0.14+0.2*smoothstep(0.0,2.0,dep))*smoothstep(0.0,0.2,dep);vec3 bc=mix(uDeep,uShal,clamp(0.5+0.6*vH,0.0,1.0))*(0.55+0.75*max(dot(N,uSun),0.0));col+=(1.0-F)*ba*bc;float al=F+(1.0-F)*ba;float fo=smoothstep(0.14,0.0,dep)*(0.35+0.65*vn(vPos.xy*5.0+uT*0.4))*0.5;col=col*(1.0-fo)+vec3(fo);al=al*(1.0-fo)+fo;float f=1.0-exp(-pow(dist/uFog,2.0));gl_FragColor=vec4(mix(col,uHor*al,f),al);}"
           );
+          this.pOv = mk(
+            "attribute vec2 aQ;uniform mat4 uMVP;varying vec2 vP;void main(){vP=aQ*vec2(16.5,13.0);gl_Position=uMVP*vec4(vP,0.0,1.0);}",
+            FP + "varying vec2 vP;uniform vec3 uEye;uniform float uPx,uLam,uHyp,uAnti,uGrid,uSeg,uDs;uniform vec4 uSrc[6];uniform vec2 uL,uM;float ln(float dw,float px,float w){return 1.0-smoothstep(w*0.5,w*0.5+1.0,dw/px);}float sdS(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/max(dot(ba,ba),1e-6),0.0,1.0);return length(pa-ba*h);}void main(){vec3 E=uEye-vec3(vP,0.0);float dist=length(E);float pw=dist*uPx/sqrt(max(E.z/dist,0.06));float fd=1.0-smoothstep(0.84,0.96,length(vP/uL));vec3 col=vec3(0.0);float al=0.0;float o;if(uGrid>0.5){vec2 g=abs(fract(vP+0.5)-0.5);vec2 g5=abs(fract(vP/5.0+0.5)-0.5)*5.0;o=max(ln(min(g.x,g.y),pw,1.0)*0.28*(1.0-smoothstep(0.1,0.22,pw)),ln(min(g5.x,g5.y),pw,1.4)*0.45)*fd;col=col*(1.0-o)+vec3(o);al=al*(1.0-o)+o;}if(uSeg>0.5){float ds=1e3;for(int i=0;i<3;i++){if(float(i)>=uSeg)break;ds=min(ds,sdS(vP,uSrc[i].xy,uM));}o=ln(ds,pw,1.7)*0.9;col=col*(1.0-o)+vec3(o);al=al*(1.0-o)+o;}if(uHyp>0.5){vec2 a=vP-uSrc[0].xy,b=vP-uSrc[1].xy;float d1=max(length(a),1e-3),d2=max(length(b),1e-3);float nn=(d2-d1)/uLam;float gn=max(length(a/d1-b/d2),0.05);float lim=uDs-0.03*uLam;o=ln(abs(fract(nn+0.5*uAnti)-0.5)*uLam/gn,pw,1.6)*0.85*step(fract((d1+d2)/0.7),0.55)*fd*step(abs(floor(nn+0.5*uAnti)+0.5-0.5*uAnti)*uLam,lim);col=col*(1.0-o)+vec3(o);al=al*(1.0-o)+o;o=ln(abs(fract(nn-0.5*uAnti+0.5)-0.5)*uLam/gn,pw,2.4)*0.95*fd*step(abs(floor(nn-0.5*uAnti+0.5)+0.5*uAnti)*uLam,lim);col=col*(1.0-o)+vec3(1.0,0.36,0.28)*o;al=al*(1.0-o)+o;}if(al<0.004)discard;gl_FragColor=vec4(col,al);}"
+          );
+          this.pDep = mk("attribute vec3 aPos;uniform mat4 uMVP;uniform vec3 uOff;void main(){gl_Position=uMVP*vec4(aPos+uOff,1.0);}", "precision mediump float;void main(){gl_FragColor=vec4(0.0);}");
           const buf = (arr, el) => {
             const b = gl.createBuffer(), t = el ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
             gl.bindBuffer(t, b);
@@ -1994,43 +2000,48 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           this.bTc = buf(tcol);
           this.bTi = buf(grid(N, N), 1);
           this.nTi = N * N * 6;
-          const T = [];
-          let sd = 11;
-          const rnd = () => (sd = sd * 16807 % 2147483647) / 2147483647;
-          const face = (a, b, c, col, ct) => {
-            const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
-            let n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
-            const g2 = [(a[0] + b[0] + c[0]) / 3 - ct[0], (a[1] + b[1] + c[1]) / 3 - ct[1], (a[2] + b[2] + c[2]) / 3 - ct[2]];
-            if (n[0] * g2[0] + n[1] * g2[1] + n[2] * g2[2] < 0) n = n.map((q) => -q);
+          const face = (T2, a, b, c, col, ct, nf3) => {
+            let n;
+            if (nf3) n = nf3;
+            else {
+              const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+              n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
+              const g2 = [(a[0] + b[0] + c[0]) / 3 - ct[0], (a[1] + b[1] + c[1]) / 3 - ct[1], (a[2] + b[2] + c[2]) / 3 - ct[2]];
+              if (n[0] * g2[0] + n[1] * g2[1] + n[2] * g2[2] < 0) n = n.map((q) => -q);
+            }
             const l = Math.hypot(n[0], n[1], n[2]) || 1;
-            for (const p of [a, b, c]) T.push(p[0], p[1], p[2], n[0] / l, n[1] / l, n[2] / l, col[0], col[1], col[2]);
+            for (const p of [a, b, c]) T2.push(p[0], p[1], p[2], n[0] / l, n[1] / l, n[2] / l, col[0], col[1], col[2]);
           };
-          const cone = (x, y, z0, r, h, col, sg = 8) => {
+          const cone = (T2, x, y, z0, r, h, col, sg = 8) => {
             const ap = [x, y, z0 + h], ct = [x, y, z0 + h * 0.35];
             for (let k = 0; k < sg; k++) {
               const a1 = TAU * k / sg, a2 = TAU * (k + 1) / sg;
-              face([x + r * Math.cos(a1), y + r * Math.sin(a1), z0], [x + r * Math.cos(a2), y + r * Math.sin(a2), z0], ap, col, ct);
+              face(T2, [x + r * Math.cos(a1), y + r * Math.sin(a1), z0], [x + r * Math.cos(a2), y + r * Math.sin(a2), z0], ap, col, ct);
             }
           };
-          const cyl = (x, y, z0, r, h, col, sg = 6) => {
+          const cyl = (T2, x, y, z0, r, h, col, sg = 6, cap) => {
             const ct = [x, y, z0 + h / 2];
             for (let k = 0; k < sg; k++) {
               const a1 = TAU * k / sg, a2 = TAU * (k + 1) / sg, p1 = [x + r * Math.cos(a1), y + r * Math.sin(a1)], p2 = [x + r * Math.cos(a2), y + r * Math.sin(a2)];
-              face([p1[0], p1[1], z0], [p2[0], p2[1], z0], [p2[0], p2[1], z0 + h], col, ct);
-              face([p1[0], p1[1], z0], [p2[0], p2[1], z0 + h], [p1[0], p1[1], z0 + h], col, ct);
+              face(T2, [p1[0], p1[1], z0], [p2[0], p2[1], z0], [p2[0], p2[1], z0 + h], col, ct);
+              face(T2, [p1[0], p1[1], z0], [p2[0], p2[1], z0 + h], [p1[0], p1[1], z0 + h], col, ct);
+              if (cap) face(T2, [p1[0], p1[1], z0 + h], [p2[0], p2[1], z0 + h], [x, y, z0 + h], cap, ct, [0, 0, 1]);
             }
           };
-          const blob = (x, y, z, r, rz, col) => {
-            const la = 4, lo = 7, ct = [x, y, z], P = (i, j) => {
+          const blob = (T2, x, y, z, r, rz, col, la = 4, lo = 7) => {
+            const ct = [x, y, z], P = (i, j) => {
               const t = Math.PI * i / la, f = TAU * j / lo;
               return [x + r * Math.sin(t) * Math.cos(f), y + r * Math.sin(t) * Math.sin(f), z + rz * Math.cos(t)];
             };
             for (let i = 0; i < la; i++) for (let j = 0; j < lo; j++) {
               const a = P(i, j), b = P(i + 1, j), c = P(i + 1, j + 1), d = P(i, j + 1);
-              face(a, b, c, col, ct);
-              face(a, c, d, col, ct);
+              face(T2, a, b, c, col, ct);
+              face(T2, a, c, d, col, ct);
             }
           };
+          const T = [];
+          let sd = 11;
+          const rnd = () => (sd = sd * 16807 % 2147483647) / 2147483647;
           let placed = 0;
           for (let tries = 0; tries < 1500 && placed < 78; tries++) {
             const big = placed < 60, a0 = rnd() * TAU, rr3 = big ? 40 + rnd() * 16 : 0, x = big ? Math.cos(a0) * rr3 : (rnd() * 2 - 1) * 26, y = big ? Math.sin(a0) * rr3 : (rnd() * 2 - 1) * 20, q = this.qn(x, y), z = this.th(x, y);
@@ -2039,20 +2050,54 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
             const s = big ? 0.8 + rnd() * 0.7 : 0.42 + rnd() * 0.22, v = rnd() * 0.08;
             placed++;
             if (rnd() < 0.62) {
-              cyl(x, y, z - 0.2, 0.22 * s, 0.9 * s, [0.42, 0.28, 0.16]);
-              cone(x, y, z + 0.5 * s, 1.5 * s, 2.6 * s, [0.11 + v, 0.36 + v, 0.19 + v]);
-              cone(x, y, z + 1.8 * s, 1.1 * s, 2.3 * s, [0.13 + v, 0.41 + v, 0.21 + v]);
+              cyl(T, x, y, z - 0.2, 0.22 * s, 0.9 * s, [0.42, 0.28, 0.16]);
+              cone(T, x, y, z + 0.5 * s, 1.5 * s, 2.6 * s, [0.1 + v, 0.34 + v, 0.18 + v]);
+              cone(T, x, y, z + 1.8 * s, 1.1 * s, 2.3 * s, [0.13 + v, 0.4 + v, 0.21 + v]);
             } else {
-              cyl(x, y, z - 0.2, 0.26 * s, 1.6 * s, [0.45, 0.3, 0.17]);
-              blob(x, y, z + 2.3 * s, 1.35 * s, 1.2 * s, [0.27 + v, 0.55 + v, 0.2 + v]);
+              cyl(T, x, y, z - 0.2, 0.26 * s, 1.6 * s, [0.45, 0.3, 0.17]);
+              blob(T, x, y, z + 2.3 * s, 1.35 * s, 1.2 * s, [0.27 + v, 0.53 + v, 0.19 + v]);
             }
           }
-          for (let k = 0; k < 9; k++) {
-            const a = rnd() * TAU, q = 1.05 + rnd() * 0.12, x = Math.cos(a) * this.LA * q, y = Math.sin(a) * this.LB * q, z = this.th(x, y);
-            blob(x, y, z + 0.1, 0.5 + rnd() * 0.5, 0.35 + rnd() * 0.25, [0.55, 0.55, 0.58]);
+          for (let k = 0; k < 11; k++) {
+            const a = rnd() * TAU, q = 1.05 + rnd() * 0.12, x = Math.cos(a) * this.LA * q, y = Math.sin(a) * this.LB * q, z = this.th(x, y), g2 = 0.5 + rnd() * 0.1;
+            blob(T, x, y, z + 0.1, 0.5 + rnd() * 0.5, 0.35 + rnd() * 0.25, [g2, g2, g2 + 0.03]);
+          }
+          for (let k = 0, tries = 0; k < 46 && tries < 900; tries++) {
+            const a = rnd() * TAU, q = 1 + rnd() * 0.1, x = Math.cos(a) * this.LA * q, y = Math.sin(a) * this.LB * q, qq = this.qn(x, y), z = this.th(x, y);
+            if (qq < 0.99 || qq > 1.12 || z > 0.6 || z < -0.06) continue;
+            k++;
+            for (let b = 0; b < 8; b++) {
+              const bx = x + (rnd() - 0.5) * 0.5, by = y + (rnd() - 0.5) * 0.5, bz = this.th(bx, by) - 0.05, h = 0.7 + rnd() * 0.9, la = rnd() * TAU, lx = Math.cos(la) * 0.25 * h, ly = Math.sin(la) * 0.25 * h, w = 0.035, v = rnd() * 0.1, ox = -Math.sin(la) * w, oy = Math.cos(la) * w, col = [0.34 + v, 0.52 + v, 0.2];
+              face(T, [bx - ox, by - oy, bz], [bx + ox, by + oy, bz], [bx + lx, by + ly, bz + h], col, null, [Math.cos(la) * 0.25, Math.sin(la) * 0.25, 0.97]);
+              if (rnd() < 0.3) cyl(T, bx + lx * 0.86, by + ly * 0.86, bz + h * 0.8, 0.055, 0.22, [0.4, 0.25, 0.13], 5);
+            }
+          }
+          for (let k = 0, tries = 0; k < 16 && tries < 1500; tries++) {
+            const a = rnd() * TAU, q = 0.965 + rnd() * 0.07, x = Math.cos(a) * this.LA * q, y = Math.sin(a) * this.LB * q;
+            if (this.th(x, y) > -0.06) continue;
+            k++;
+            const r = 0.28 + rnd() * 0.2, n0 = rnd() * TAU, col = [0.2 + rnd() * 0.06, 0.5 + rnd() * 0.08, 0.18];
+            for (let s = 1; s < 11; s++) {
+              const a1 = n0 + TAU * s / 11, a2 = n0 + TAU * (s + 1) / 11;
+              face(T, [x, y, 0.035], [x + r * Math.cos(a1), y + r * Math.sin(a1), 0.035], [x + r * Math.cos(a2), y + r * Math.sin(a2), 0.035], col, null, [0, 0, 1]);
+            }
+            if (rnd() < 0.35) blob(T, x + r * 0.2, y, 0.1, 0.12, 0.08, [0.97, 0.62, 0.78], 3, 6);
           }
           this.bTr = buf(new Float32Array(T));
           this.nTr = T.length / 9;
+          const B = [], Cp = [], Mk = [];
+          cyl(B, 0, 0, -0.14, 0.5, 0.42, [1, 0.5, 0.12], 16, [1, 1, 1]);
+          cyl(B, 0, 0, 0.28, 0.065, 1.92, [0.8, 0.82, 0.88], 8);
+          blob(Cp, 0, 0, 2.3, 0.3, 0.3, [1, 1, 1], 6, 10);
+          blob(Mk, 0, 0, 0, 0.3, 0.2, [1, 0.82, 0.1], 5, 10);
+          cyl(Mk, 0, 0, 0.12, 0.04, 1.3, [0.22, 0.22, 0.26], 6);
+          blob(Mk, 0, 0, 1.48, 0.15, 0.15, [1, 0.82, 0.1], 4, 8);
+          this.bB = buf(new Float32Array(B));
+          this.nB = B.length / 9;
+          this.bC = buf(new Float32Array(Cp));
+          this.nC = Cp.length / 9;
+          this.bM = buf(new Float32Array(Mk));
+          this.nM = Mk.length / 9;
           this.ok = true;
           return true;
         } catch (err) {
@@ -2062,10 +2107,23 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         }
       },
       env(dark) {
-        return dark ? { sun: [0.25, 0.92, 0.3], zen: [0.05, 0.07, 0.2], hor: [0.52, 0.38, 0.44], sc: [1, 0.7, 0.48], amb: 0.3 } : { sun: [0.32, 0.8, 0.5], zen: [0.25, 0.5, 0.86], hor: [0.8, 0.87, 0.94], sc: [1, 0.96, 0.86], amb: 0.45 };
+        return dark ? { sun: [0.25, 0.92, 0.3], zen: [0.04, 0.06, 0.19], hor: [0.56, 0.39, 0.46], sc: [1, 0.7, 0.48], amb: 0.32, deep: [0.03, 0.1, 0.2], shal: [0.3, 0.4, 0.55], night: 1 } : { sun: [0.32, 0.8, 0.5], zen: [0.17, 0.41, 0.82], hor: [0.78, 0.86, 0.95], sc: [1, 0.96, 0.86], amb: 0.45, deep: [0.02, 0.14, 0.26], shal: [0.22, 0.58, 0.7], night: 0 };
       },
       render(S2, W2, H2, cv2, o) {
-        const gl = this.gl, dpr2 = Math.min(2, devicePixelRatio || 1), pw = Math.round(W2 * dpr2), ph = Math.round(H2 * dpr2);
+        const now = performance.now();
+        if (this.lt) {
+          const d = now - this.lt;
+          if (d < 250) {
+            this.ft = this.ft ? this.ft * 0.94 + d * 0.06 : d;
+            if (this.ft > 40 && (this.dq || 2) > 1 && now - (this.ld || 0) > 1500) {
+              this.dq = Math.max(1, (this.dq || 2) - 0.25);
+              this.ld = now;
+              this.ft = 20;
+            }
+          }
+        }
+        this.lt = now;
+        const gl = this.gl, dpr2 = Math.min(this.dq || 2, devicePixelRatio || 1), pw = Math.round(W2 * dpr2), ph = Math.round(H2 * dpr2);
         if (cv2.width !== pw || cv2.height !== ph) {
           cv2.width = pw;
           cv2.height = ph;
@@ -2073,7 +2131,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         cv2.style.width = W2 + "px";
         cv2.style.height = H2 + "px";
         gl.viewport(0, 0, pw, ph);
-        const c = S2.cg, dd = c.dist * Math.max(1, 1.25 * H2 / W2), eye = [dd * Math.cos(c.el) * Math.cos(c.az), dd * Math.cos(c.el) * Math.sin(c.az), dd * Math.sin(c.el)], Pm = M4.persp(0.8, W2 / H2, 0.3, 700), Vm = M4.look(eye, [0, 0, 0], [0, 0, 1]), MVP = M4.mul(Pm, Vm), I = M4.inv(MVP);
+        const c = S2.cg, fov = 0.8, dd = c.dist * Math.max(1, 1.25 * H2 / W2), eye = [dd * Math.cos(c.el) * Math.cos(c.az), dd * Math.cos(c.el) * Math.sin(c.az), dd * Math.sin(c.el)], Pm = M4.persp(fov, W2 / H2, 0.3, 700), Vm = M4.look(eye, [0, 0, (H2 / W2 > 0.85 ? 0.8 : 3.2) * Math.cos(c.el)], [0, 0, 1]), MVP = M4.mul(Pm, Vm), I = M4.inv(MVP);
         const E = this.env(o.dark), sl = Math.hypot(...E.sun), sun = E.sun.map((v) => v / sl);
         const off = () => {
           for (let i = 0; i < 4; i++) gl.disableVertexAttribArray(i);
@@ -2085,57 +2143,135 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           gl.vertexAttribPointer(l, sz, gl.FLOAT, false, st || 0, of || 0);
         };
         const env = (pr) => {
-          gl.uniform3fv(pr.u("uSun"), sun);
-          gl.uniform3fv(pr.u("uHor"), E.hor);
-          gl.uniform3fv(pr.u("uSunCol"), E.sc);
-          gl.uniform3fv(pr.u("uEye"), eye);
-          const z = pr.u("uZen");
-          if (z) gl.uniform3fv(z, E.zen);
+          const u3 = (n, v) => gl.uniform3fv(pr.u(n), v), u1 = (n, v) => gl.uniform1f(pr.u(n), v);
+          u3("uSun", sun);
+          u3("uHor", E.hor);
+          u3("uSunCol", E.sc);
+          u3("uEye", eye);
+          u3("uZen", E.zen);
+          u3("uDeep", E.deep);
+          u3("uShal", E.shal);
+          u1("uT", o.t);
+          u1("uNight", E.night);
+          u1("uFog", 150);
+          gl.uniform4fv(pr.u("uSrc"), o.src);
+          u1("uN", o.n);
+          gl.uniform2f(pr.u("uL"), this.LA, this.LB);
         };
-        gl.disable(gl.DEPTH_TEST);
-        gl.depthMask(false);
-        off();
-        let p = this.pSky;
-        gl.useProgram(p.p);
-        at(p, "aQ", this.bQ, 2);
-        env(p);
-        gl.uniformMatrix4fv(p.u("uInv"), false, I);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        gl.disable(gl.BLEND);
         gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LESS);
         gl.depthMask(true);
         gl.clear(gl.DEPTH_BUFFER_BIT);
         off();
-        p = this.pTer;
+        let p = this.pTer;
         gl.useProgram(p.p);
         env(p);
         gl.uniformMatrix4fv(p.u("uMVP"), false, MVP);
-        gl.uniform1f(p.u("uFog"), 150);
         gl.uniform1f(p.u("uAmb"), E.amb);
+        gl.uniform1f(p.u("uCau"), o.cau);
+        gl.uniform1f(p.u("uKind"), 0);
+        gl.uniform3f(p.u("uOff"), 0, 0, 0);
+        gl.uniform3f(p.u("uTint"), 1, 1, 1);
         at(p, "aPos", this.bTp, 3);
         at(p, "aNor", this.bTn, 3);
         at(p, "aCol", this.bTc, 3);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bTi);
         gl.drawElements(gl.TRIANGLES, this.nTi, gl.UNSIGNED_SHORT, 0);
+        gl.uniform1f(p.u("uKind"), 1);
+        const mesh = (b, n) => {
+          off();
+          at(p, "aPos", b, 3, 36, 0);
+          at(p, "aNor", b, 3, 36, 12);
+          at(p, "aCol", b, 3, 36, 24);
+          gl.drawArrays(gl.TRIANGLES, 0, n);
+        };
+        mesh(this.bTr, this.nTr);
+        for (const q of o.bu) {
+          gl.uniform3f(p.u("uOff"), q.x, q.y, q.z);
+          gl.uniform3f(p.u("uTint"), 1, 1, 1);
+          mesh(this.bB, this.nB);
+          gl.uniform3fv(p.u("uTint"), q.cap);
+          mesh(this.bC, this.nC);
+        }
+        if (o.mk) {
+          gl.uniform3f(p.u("uOff"), o.mk.x, o.mk.y, o.mk.z);
+          gl.uniform3f(p.u("uTint"), 1, 1, 1);
+          mesh(this.bM, this.nM);
+        }
+        gl.depthMask(false);
         off();
-        at(p, "aPos", this.bTr, 3, 36, 0);
-        at(p, "aNor", this.bTr, 3, 36, 12);
-        at(p, "aCol", this.bTr, 3, 36, 24);
-        gl.drawArrays(gl.TRIANGLES, 0, this.nTr);
+        p = this.pSky;
+        gl.useProgram(p.p);
+        at(p, "aQ", this.bQ, 2);
+        env(p);
+        gl.uniformMatrix4fv(p.u("uInv"), false, I);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        gl.depthMask(true);
         off();
         p = this.pWat;
         gl.useProgram(p.p);
         env(p);
         gl.uniformMatrix4fv(p.u("uMVP"), false, MVP);
-        gl.uniform1f(p.u("uFog"), 150);
-        gl.uniform4fv(p.u("uSrc"), o.src);
-        gl.uniform1f(p.u("uN"), o.n);
         gl.uniform1f(p.u("uZs"), o.zs);
         gl.uniform1f(p.u("uZm"), o.zm);
-        gl.uniform2f(p.u("uL"), this.LA, this.LB);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         at(p, "aXY", this.bW, 2);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bWi);
         gl.drawElements(gl.TRIANGLES, this.nWi, gl.UNSIGNED_SHORT, 0);
+        gl.disable(gl.BLEND);
         off();
+        if (o.hyp || o.grid || o.seg) {
+          gl.clear(gl.DEPTH_BUFFER_BIT);
+          gl.colorMask(false, false, false, false);
+          p = this.pDep;
+          gl.useProgram(p.p);
+          gl.uniformMatrix4fv(p.u("uMVP"), false, MVP);
+          gl.uniform3f(p.u("uOff"), 0, 0, 0);
+          at(p, "aPos", this.bTp, 3);
+          gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bTi);
+          gl.drawElements(gl.TRIANGLES, this.nTi, gl.UNSIGNED_SHORT, 0);
+          const dm = (b, n) => {
+            off();
+            at(p, "aPos", b, 3, 36, 0);
+            gl.drawArrays(gl.TRIANGLES, 0, n);
+          };
+          dm(this.bTr, this.nTr);
+          for (const q of o.bu) {
+            gl.uniform3f(p.u("uOff"), q.x, q.y, q.z);
+            dm(this.bB, this.nB);
+            dm(this.bC, this.nC);
+          }
+          if (o.mk) {
+            gl.uniform3f(p.u("uOff"), o.mk.x, o.mk.y, o.mk.z);
+            dm(this.bM, this.nM);
+          }
+          gl.colorMask(true, true, true, true);
+          off();
+          p = this.pOv;
+          gl.useProgram(p.p);
+          gl.uniformMatrix4fv(p.u("uMVP"), false, MVP);
+          gl.uniform3fv(p.u("uEye"), eye);
+          gl.uniform4fv(p.u("uSrc"), o.src);
+          gl.uniform2f(p.u("uL"), this.LA, this.LB);
+          gl.uniform1f(p.u("uPx"), 2 * Math.tan(fov / 2) / ph);
+          gl.uniform1f(p.u("uLam"), o.lam);
+          gl.uniform1f(p.u("uHyp"), o.hyp ? 1 : 0);
+          gl.uniform1f(p.u("uAnti"), o.anti ? 1 : 0);
+          gl.uniform1f(p.u("uGrid"), o.grid ? 1 : 0);
+          gl.uniform1f(p.u("uSeg"), o.seg);
+          gl.uniform2f(p.u("uM"), o.M[0], o.M[1]);
+          gl.uniform1f(p.u("uDs"), o.ds);
+          gl.depthMask(false);
+          gl.enable(gl.BLEND);
+          gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+          at(p, "aQ", this.bQ, 2);
+          gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+          gl.disable(gl.BLEND);
+          gl.depthMask(true);
+          off();
+        }
         return { MVP, I, eye };
       }
     };
@@ -2152,7 +2288,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       rm: 1.25,
       vh: 0.62,
       hd: 760,
-      hint: "2D: chạm mặt nước để đặt điểm M, kéo chấm trắng để dời nguồn. 3D: kéo cột trắng để dời nguồn, kéo chỗ khác để xoay, chụm hai ngón để phóng to. Chuyển động được làm chậm 25 lần.",
+      hint: "2D: chạm mặt nước để đặt điểm M, kéo chấm trắng để dời nguồn. 3D: kéo phao để dời nguồn, kéo chỗ khác để xoay, chụm hai ngón để phóng to. Chuyển động được làm chậm 25 lần.",
       ctl: [
         { t: "s", id: "fm", l: "Tần số các nguồn", o: [["same", "Tất cả cùng một tần số f"], ["each", "Mỗi nguồn một tần số riêng"]], v: "same" },
         { t: "r", id: "f", l: "Tần số f của các nguồn", min: 5, max: 50, st: 1, v: 20, u: "Hz", d: 0, show: (S2) => S2.p.fm !== "each" },
@@ -2163,7 +2299,8 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
         { t: "b", id: "add", l: "+ Thêm nguồn" },
         { t: "b", id: "rem", l: "− Bớt nguồn" },
         { t: "c", id: "hyp", l: "Hiện vân cực đại, cực tiểu (khi có 2 nguồn)", v: true },
-        { t: "c", id: "d3", l: "Xem 3D: hồ nước giữa đồi núi", v: false }
+        { t: "c", id: "d3", l: "Xem 3D: hồ nước giữa đồi núi", v: false },
+        { t: "c", id: "grid", l: "Lưới đo ô 1 cm trên mặt hồ", v: false, show: (S2) => !!S2.p.d3 }
       ],
       init(S2) {
         if (!S2.p.n) S2.p.n = 2;
@@ -2515,7 +2652,11 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       },
       drawGL(g2, W2, H2, S2, C2, glc) {
         glc.style.display = "block";
-        const lam = this.lam(S2), n = S2.src.length, k = TAU / lam, wt = TAU * S2.p.f / 25 * S2.t, zs = 0.2 * lam * (n <= 2 ? 1 : 1.4 / Math.sqrt(n)), zm = 0.6 * lam, nar = W2 < 560;
+        if (!S2.cgA) {
+          S2.cgA = 1;
+          if (H2 / W2 > 0.85 && Math.abs(S2.cg.el - 0.42) < 1e-6) S2.cg.el = 0.6;
+        }
+        const lam = this.lam(S2), n = S2.src.length, zs = 0.2 * lam * (n <= 2 ? 1 : 1.4 / Math.sqrt(n)), zm = 0.6 * lam, nar = W2 < 560, co = this.coh(S2), anti = S2.p.ph === "1";
         for (const q of S2.src) {
           const qq = Math.sqrt((q.x / LAKE.LA) ** 2 + (q.y / LAKE.LB) ** 2);
           if (qq > 0.88) {
@@ -2531,9 +2672,6 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           src[4 * j + 2] = this.pj(S2, j);
           src[4 * j + 3] = this.kj(S2, j);
         });
-        const R = LAKE.render(S2, W2, H2, glc, { src, n, wt, k, zs, zm, dark: C2.dark });
-        S2.gm = R;
-        g2.clearRect(0, 0, W2, H2);
         const hAt = (x, y) => {
           let u = 0;
           for (let j = 0; j < n; j++) {
@@ -2542,56 +2680,116 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
           }
           return cl(u * zs, -zm, zm) * (1 - LAKE.sm(0.82, 0.97, Math.sqrt((x / LAKE.LA) ** 2 + (y / LAKE.LB) ** 2)));
         };
+        const kmax = Math.max(...S2.src.map((_, j) => this.kj(S2, j))), bu = S2.src.map((q, j) => ({ x: q.x, y: q.y, z: hAt(q.x, q.y), cap: this.phs(S2, j) ? [1.7, 0.42, 0.34] : [1.55, 1.55, 1.6] })), M = S2.M, inM = Math.sqrt((M.x / LAKE.LA) ** 2 + (M.y / LAKE.LB) ** 2) < 0.97, mk = inM ? { x: M.x, y: M.y, z: hAt(M.x, M.y) } : null, hyp = n === 2 && S2.p.hyp && co;
+        const R = LAKE.render(S2, W2, H2, glc, { src, n, zs, zm, dark: C2.dark, cau: 1.1 / (kmax * kmax), lam, hyp, anti, grid: !!S2.p.grid, seg: n <= 3 && inM ? n : 0, ds: n > 1 ? Math.hypot(S2.src[1].x - S2.src[0].x, S2.src[1].y - S2.src[0].y) : 0, M: [M.x, M.y], bu, mk, t: S2.t });
+        S2.gm = R;
+        g2.clearRect(0, 0, W2, H2);
         const pr = (x, y, z) => {
           const v = M4.xf(R.MVP, [x, y, z, 1]);
           if (v[3] <= 0.01) return null;
           return [(v[0] / v[3] * 0.5 + 0.5) * W2, (1 - (v[1] / v[3] * 0.5 + 0.5)) * H2];
+        }, halo = "rgba(6,30,60,.8)", ey = R.eye, seen = (x, y, z) => {
+          for (let i = 1; i < 48; i++) {
+            const t = i / 48, qx = ey[0] + (x - ey[0]) * t, qy = ey[1] + (y - ey[1]) * t, qz = ey[2] + (z - ey[2]) * t;
+            if (LAKE.th(qx, qy) > qz + 0.05) return false;
+          }
+          return true;
         };
         S2.picks = [];
-        S2.src.forEach((q, j) => {
-          const z = hAt(q.x, q.y), a = pr(q.x, q.y, z), b = pr(q.x, q.y, z + 2.4);
+        bu.forEach((q, j) => {
+          const a = pr(q.x, q.y, q.z), b = pr(q.x, q.y, q.z + 2.6);
           if (!a || !b) return;
           S2.picks.push({ j, a, b });
-          g2.lineCap = "round";
-          g2.strokeStyle = "rgba(0,0,0,.45)";
-          g2.lineWidth = 5.5;
-          g2.beginPath();
-          g2.moveTo(a[0], a[1]);
-          g2.lineTo(b[0], b[1]);
-          g2.stroke();
-          g2.strokeStyle = "#fff";
-          g2.lineWidth = 2.8;
-          g2.stroke();
-          dot(g2, b[0], b[1], 8, this.phs(S2, j) ? "#ff5c48" : "#ffffff");
-          g2.lineWidth = 2;
-          g2.strokeStyle = "#0b2a52";
-          g2.beginPath();
-          g2.arc(b[0], b[1], 8, 0, TAU);
-          g2.stroke();
-          tx(g2, "S" + SUBN[j], b[0], b[1] - 19, "#fff", { a: "center", w: 800, s: 14, halo: "rgba(6,30,60,.8)" });
+          tx(g2, "S" + SUBN[j], b[0], b[1] - 12, "#fff", { a: "center", w: 800, s: 14, halo });
         });
-        const M = S2.M;
-        if (Math.sqrt((M.x / LAKE.LA) ** 2 + (M.y / LAKE.LB) ** 2) < 0.97) {
-          const z = hAt(M.x, M.y), a = pr(M.x, M.y, z), b = pr(M.x, M.y, z + 1.6);
+        if (mk) {
+          const a = pr(mk.x, mk.y, mk.z), b = pr(mk.x, mk.y, mk.z + 1.6);
           if (a && b) {
             S2.picks.push({ j: "M", a, b });
-            g2.strokeStyle = "#8a6d00";
-            g2.lineWidth = 2.6;
-            g2.beginPath();
-            g2.moveTo(a[0], a[1]);
-            g2.lineTo(b[0], b[1]);
-            g2.stroke();
-            dot(g2, b[0], b[1], 6.5, "#ffd84d");
-            g2.lineWidth = 1.5;
-            g2.strokeStyle = "#5a4700";
-            g2.beginPath();
-            g2.arc(b[0], b[1], 6.5, 0, TAU);
-            g2.stroke();
-            tx(g2, "M", b[0] + 11, b[1] - 6, "#fff", { w: 800, s: 14, halo: "rgba(6,30,60,.8)" });
+            tx(g2, "M", b[0] + 10, b[1] - 6, "#ffe27a", { w: 800, s: 14, halo });
           }
         }
+        if (hyp) {
+          const A0 = S2.src[0], A1 = S2.src[1], L = Math.hypot(A1.x - A0.x, A1.y - A0.y);
+          if (L > 0.2) {
+            const ux = (A1.x - A0.x) / L, uy = (A1.y - A0.y) / L, nx_ = -uy, ny_ = ux, mx = (A0.x + A1.x) / 2, my = (A0.y + A1.y) / 2, c = L / 2, placed = [];
+            for (const k of Array.from({ length: 81 }, (_, i) => i - 40).sort((a, b) => Math.abs(anti ? a + 0.5 : a) - Math.abs(anti ? b + 0.5 : b) || a - b)) {
+              const kk = anti ? k + 0.5 : k, D = kk * lam;
+              if (Math.abs(D) >= L - 1e-6) continue;
+              const a = Math.abs(D) / 2, b = Math.sqrt(Math.max(1e-9, c * c - a * a)), sg = -Math.sign(D), P = (t) => {
+                const Xl = Math.abs(D) < 1e-9 ? 0 : sg * a * Math.sqrt(1 + t * t / (b * b));
+                return [mx + Xl * ux + t * nx_, my + Xl * uy + t * ny_];
+              };
+              let best = null;
+              for (const dir of [1, -1]) {
+                let t = 0, pt2 = P(0);
+                for (let i = 0; i < 400; i++) {
+                  const nt = t + dir * 0.15, np = P(nt);
+                  if (Math.hypot(np[0] / LAKE.LA, np[1] / LAKE.LB) > 0.8) break;
+                  t = nt;
+                  pt2 = np;
+                }
+                const sp = pr(pt2[0], pt2[1], 0);
+                if (sp && seen(pt2[0], pt2[1], 0) && (!best || sp[1] > best[1])) best = sp;
+              }
+              if (best && best[0] > 16 && best[0] < W2 - 16 && best[1] > 10 && best[1] < H2 - 28 && placed.every(([qx, qy]) => Math.abs(qx - best[0]) > (anti ? 52 : 46) || Math.abs(qy - best[1]) > 17)) {
+                placed.push(best);
+                tx(g2, anti ? num(kk, 1) : "k = " + k, best[0], best[1], "#fff", { a: "center", w: 700, halo: "rgba(6,46,92,.85)" });
+              }
+            }
+          }
+        }
+        const leg = [];
+        if (hyp) leg.push(["max", "vân cực đại"], ["min", "vân cực tiểu"]);
+        if (S2.p.grid) leg.push(["grid", "lưới: ô 1 cm"]);
+        if (n <= 3 && inM) leg.push(["seg", "d₁, d₂: từ nguồn tới M"]);
+        if (leg.length) {
+          const w = nar ? 168 : 184, h = 10 + leg.length * 19;
+          g2.fillStyle = "rgba(6,30,60,.62)";
+          rr(g2, 10, 10, w, h, 9);
+          g2.fill();
+          leg.forEach(([k, l], i) => {
+            const y = 10 + 14 + i * 19;
+            g2.lineCap = "butt";
+            if (k === "max") {
+              g2.strokeStyle = "rgba(255,92,72,.95)";
+              g2.lineWidth = 2.4;
+              g2.beginPath();
+              g2.moveTo(20, y);
+              g2.lineTo(42, y);
+              g2.stroke();
+            } else if (k === "min") {
+              g2.setLineDash([5, 4]);
+              g2.strokeStyle = "#fff";
+              g2.lineWidth = 1.6;
+              g2.beginPath();
+              g2.moveTo(20, y);
+              g2.lineTo(42, y);
+              g2.stroke();
+              g2.setLineDash([]);
+            } else if (k === "seg") {
+              g2.strokeStyle = "#fff";
+              g2.lineWidth = 1.6;
+              g2.beginPath();
+              g2.moveTo(20, y);
+              g2.lineTo(42, y);
+              g2.stroke();
+            } else {
+              g2.strokeStyle = "rgba(255,255,255,.75)";
+              g2.lineWidth = 1;
+              g2.strokeRect(24.5, y - 6.5, 13, 13);
+              g2.beginPath();
+              g2.moveTo(31, y - 6.5);
+              g2.lineTo(31, y + 6.5);
+              g2.moveTo(24.5, y);
+              g2.lineTo(37.5, y);
+              g2.stroke();
+            }
+            tx(g2, l, 50, y, "#fff", { halo: false, s: nar ? 12 : 13 });
+          });
+        }
         badge(g2, this.bl(S2), W2 - 10, 10, "right");
-        tx(g2, nar ? "Kéo cột trắng: dời nguồn. Kéo nền: xoay." : "Kéo cột trắng để dời nguồn, kéo nền để xoay, chụm hai ngón hoặc lăn chuột để phóng to", 12, H2 - 14, "#fff", { w: 600, halo: "rgba(0,0,0,.5)" });
+        tx(g2, nar ? "Kéo phao: dời nguồn. Kéo nền: xoay." : "Kéo phao để dời nguồn, kéo nền để xoay, chụm hai ngón hoặc lăn chuột để phóng to", 12, H2 - 14, "#fff", { w: 600, halo: "rgba(0,0,0,.5)" });
       },
       draw3(g2, W2, H2, S2, C2) {
         g2.fillStyle = C2.bg;
@@ -2649,7 +2847,7 @@ window.addEventListener('error',function(e){show((e.message||'')+(e.lineno?' (d�
       info: {
         what: ["Hai (hoặc nhiều) nguồn kết hợp, tức là cùng tần số và có hiệu số pha không đổi, tạo trên mặt nước các hệ sóng tròn. Tại mỗi điểm các sóng chồng lên nhau: chỗ chúng luôn cùng pha thì tăng cường nhau (cực đại), chỗ luôn ngược pha thì triệt tiêu nhau (cực tiểu, nước gần như đứng yên).", "Với hai nguồn, các điểm cực đại và cực tiểu nằm trên những đường hypebol xen kẽ, nhận S₁, S₂ làm tiêu điểm. Khi thêm nhiều nguồn cùng pha xếp thẳng hàng, các hướng sóng tăng cường trở nên hẹp và rõ hơn, giữa chúng mặt nước khá yên.", "Tần số f do nguồn quyết định; tốc độ v do môi trường quyết định. Đổi f thì bước sóng λ = v/f đổi theo, nên hình giao thoa sít lại hoặc thưa ra. Bật Xem 3D để thấy mặt hồ nhấp nhô mạnh trên vân cực đại và gần như phẳng trên vân cực tiểu; có thể kéo cột trắng để dời nguồn ngay trong 3D. Đồi núi, bờ hồ chỉ để trang trí: mô phỏng bỏ qua sóng phản xạ ở bờ."],
         f: [["λ = v/f = v·T", "Bước sóng tính từ tần số và tốc độ truyền sóng"], ["Nguồn kết hợp: cùng f, hiệu số pha không đổi", "Điều kiện để có hình giao thoa ổn định"], ["Cực đại: d₂ − d₁ = kλ", "Hai nguồn cùng pha; k = 0, ±1, ±2…"], ["Cực tiểu: d₂ − d₁ = (k + ½)λ", "Hai nguồn ngược pha thì hai điều kiện đổi chỗ cho nhau"], ["Hai cực đại liền kề trên S₁S₂ cách nhau λ/2", "Cực đại và cực tiểu liền kề cách nhau λ/4"]],
-        q: [['Chọn "Mỗi nguồn một tần số riêng", đặt f₁ = 20 Hz, f₂ = 22 Hz. Hình giao thoa thay đổi thế nào?', "Các vân không còn đứng yên mà trôi liên tục, biên độ tại M lúc lớn lúc nhỏ. Hai nguồn khác tần số không phải nguồn kết hợp nên không tạo được hình giao thoa ổn định."], ["Giữ v = 30 cm/s, tăng f từ 20 Hz lên 40 Hz. Bước sóng và số vân cực đại trên S₁S₂ thay đổi thế nào?", "λ giảm từ 1,5 cm còn 0,75 cm nên vân sít lại; số cực đại trên S₁S₂ (là số giá trị nguyên k thỏa −S₁S₂/λ < k < S₁S₂/λ) tăng gần gấp đôi."], ["Điểm M nằm trên đường trung trực của S₁S₂ là cực đại hay cực tiểu?", "Cực đại (k = 0) khi hai nguồn cùng pha, vì d₁ = d₂. Kéo M lên đường trung trực để kiểm tra."], ["Bật Xem 3D. Trên vân cực tiểu, mặt nước trông như thế nào?", "Gần như phẳng và đứng yên, vì hai sóng tới luôn ngược pha nên triệt tiêu nhau. Trên vân cực đại mặt nước nhấp nhô mạnh nhất."], ["Thêm nguồn thứ ba thẳng hàng, cùng pha. Hình giao thoa thay đổi ra sao?", "Các dải cực đại chính hẹp lại và rõ hơn, xen giữa là những vùng gần như yên. Với rất nhiều nguồn, ta có hình ảnh giống cách tử."]]
+        q: [['Chọn "Mỗi nguồn một tần số riêng", đặt f₁ = 20 Hz, f₂ = 22 Hz. Hình giao thoa thay đổi thế nào?', "Các vân không còn đứng yên mà trôi liên tục, biên độ tại M lúc lớn lúc nhỏ. Hai nguồn khác tần số không phải nguồn kết hợp nên không tạo được hình giao thoa ổn định."], ["Giữ v = 30 cm/s, tăng f từ 20 Hz lên 40 Hz. Bước sóng và số vân cực đại trên S₁S₂ thay đổi thế nào?", "λ giảm từ 1,5 cm còn 0,75 cm nên vân sít lại; số cực đại trên S₁S₂ (là số giá trị nguyên k thỏa −S₁S₂/λ < k < S₁S₂/λ) tăng gần gấp đôi."], ["Điểm M nằm trên đường trung trực của S₁S₂ là cực đại hay cực tiểu?", "Cực đại (k = 0) khi hai nguồn cùng pha, vì d₁ = d₂. Kéo M lên đường trung trực để kiểm tra."], ["Bật Xem 3D. Trên vân cực tiểu, mặt nước trông như thế nào?", "Gần như phẳng và đứng yên, vì hai sóng tới luôn ngược pha nên triệt tiêu nhau. Trên vân cực đại mặt nước nhấp nhô mạnh nhất."], ["Thêm nguồn thứ ba thẳng hàng, cùng pha. Hình giao thoa thay đổi ra sao?", "Các dải cực đại chính hẹp lại và rõ hơn, xen giữa là những vùng gần như yên. Với rất nhiều nguồn, ta có hình ảnh giống cách tử."], ["(Mở rộng) Ở chế độ 3D, vì sao đáy hồ có những vệt sáng tối chạy dọc theo vân cực đại, còn dọc vân cực tiểu đáy sáng đều?", "Mặt nước gợn sóng làm khúc xạ ánh sáng Mặt Trời như những thấu kính nhỏ: chỗ mặt nước lồi hội tụ ánh sáng thành vệt sáng, chỗ lõm làm ánh sáng tỏa ra thành vệt tối. Trên vân cực tiểu nước gần như đứng yên, mặt phẳng nên đáy được chiếu đều. Khay giao thoa sóng nước trong phòng thí nghiệm dùng đúng hiệu ứng này: chiếu đèn qua khay để thấy vân trên tấm giấy bên dưới."]]
       }
     });
     def({
